@@ -1,0 +1,28 @@
+{
+  "name": "seerbitopenapi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/seerbit/openapi.git"
+  },
+  "keywords": [
+    "openapi",
+    "seerbit",
+    "seerbitaopenapi"
+  ],
+  "author": "seerbit",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/seerbit/openapi/issues"
+  },
+  "homepage": "https://github.com/seerbit/openapi#readme",
+  "dependencies": {
+    "redoc": "^2.0.0-rc.40",
+    "redoc-cli": "^0.9.12"
+  }
+}
