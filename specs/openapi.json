@@ -1,0 +1,1602 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0",
+      "title": "Seerbit External Api",
+      "contact": {}
+    },
+    "host": "seerbitapi.com",
+    "basePath": "/api/v2",
+    "securityDefinitions": {},
+    "schemes": [
+      "https"
+    ],
+    "consumes": [
+      "application/json"
+    ],
+    "produces": [
+      "application/json"
+    ],
+    "paths": {
+      "/encrypt/keys": {
+        "post": {
+          "summary": "GENERATE ENCRYPTED SEC KEY",
+          "tags": [
+            "HostedPayment"
+          ],
+          "operationId": "GENERATEENCRYPTEDSECKEY",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "Body",
+              "in": "body",
+              "required": true,
+              "description": "",
+              "schema": {
+                "$ref": "#/definitions/GENERATEENCRYPTEDSECKEYREQUEST"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/encrypt/hashs": {
+        "post": {
+          "summary": "TO GENERATE HASH",
+          "tags": [
+            "HostedPayment"
+          ],
+          "operationId": "TOGENERATEHASH",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "Body",
+              "in": "body",
+              "required": true,
+              "description": "",
+              "schema": {
+                "$ref": "#/definitions/TOGENERATEHASHREQUEST"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/payments": {
+        "post": {
+          "summary": "Payment link from Checkout Single request",
+          "tags": [
+            "HostedPayment"
+          ],
+          "operationId": "PaymentlinkfromCheckoutSinglerequest",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "Body",
+              "in": "body",
+              "required": true,
+              "description": "",
+              "schema": {
+                "$ref": "#/definitions/PaymentlinkfromCheckoutSinglerequestRequest"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/payments/order": {
+        "post": {
+          "summary": "ORDER",
+          "tags": [
+            "HostedPayment"
+          ],
+          "operationId": "ORDER",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "Body",
+              "in": "body",
+              "required": true,
+              "description": "",
+              "schema": {
+                "$ref": "#/definitions/ORDERREQUEST"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/payments/query/5PPTG108Q13432E29P23R5L6W9329": {
+        "get": {
+          "summary": "Check Status Copy",
+          "tags": [
+            "HostedPayment"
+          ],
+          "operationId": "CheckStatusCopy",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/payments/initiates": {
+        "post": {
+          "summary": "Initiate Card Transactions",
+          "tags": [
+            "HostedPayment"
+          ],
+          "operationId": "InitiateCardTransactions",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "Body",
+              "in": "body",
+              "required": true,
+              "description": "",
+              "schema": {
+                "$ref": "#/definitions/InitiateCardTransactionsRequest"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/payments/update": {
+        "get": {
+          "summary": "Update Payment",
+          "tags": [
+            "HostedPayment"
+          ],
+          "operationId": "UpdatePayment",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "linkingreference",
+              "in": "query",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "code",
+              "in": "query",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            },
+            {
+              "name": "reference",
+              "in": "query",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "message",
+              "in": "query",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/payments/validate": {
+        "post": {
+          "summary": "validate transaction",
+          "tags": [
+            "HostedPayment"
+          ],
+          "operationId": "validatetransaction",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "Body",
+              "in": "body",
+              "required": true,
+              "description": "",
+              "schema": {
+                "$ref": "#/definitions/validatetransactionrequest"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/payments/link/middlewares": {
+        "post": {
+          "summary": "Payment Link From Middleware",
+          "tags": [
+            "HostedPayment"
+          ],
+          "operationId": "PaymentLinkFromMiddleware",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "Body",
+              "in": "body",
+              "required": true,
+              "description": "",
+              "schema": {
+                "$ref": "#/definitions/PaymentLinkFromMiddlewareRequest"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/payments/monifywebhook/status": {
+        "post": {
+          "summary": "Monify Response to Seerbit",
+          "tags": [
+            "HostedPayment"
+          ],
+          "operationId": "MonifyResponsetoSeerbit",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "Body",
+              "in": "body",
+              "required": true,
+              "description": "",
+              "schema": {
+                "$ref": "#/definitions/MonifyResponsetoSeerbitRequest"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/payments/abandon/pub/SBTESTPUBK_p8GqvFSFNCBahSJinczKd9aIPoRUZfda/VERS2FURTHERTESTAc722456784": {
+        "get": {
+          "summary": "Mark Transaction as Abandoned",
+          "tags": [
+            "HostedPayment"
+          ],
+          "operationId": "MarkTransactionasAbandoned",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/recurring/subscribes": {
+        "post": {
+          "summary": "New Recurring Request For Subscription",
+          "tags": [
+            "Recurrent"
+          ],
+          "operationId": "NewRecurringRequestForSubscription",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "Body",
+              "in": "body",
+              "required": true,
+              "description": "",
+              "schema": {
+                "$ref": "#/definitions/NewRecurringRequestForSubscriptionRequest"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/recurring/billingId/VERS2FURTHERTESTAc928456704": {
+        "get": {
+          "summary": "GET A SUBSCRIPTION",
+          "tags": [
+            "Recurrent"
+          ],
+          "operationId": "GETASUBSCRIPTION",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/recurring/updates": {
+        "put": {
+          "summary": "UPDATE SUBSCRIPTION",
+          "tags": [
+            "Recurrent"
+          ],
+          "operationId": "UPDATESUBSCRIPTION",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "Body",
+              "in": "body",
+              "required": true,
+              "description": "",
+              "schema": {
+                "$ref": "#/definitions/UPDATESUBSCRIPTIONREQUEST"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/recurring/SBTESTPUBK_PjQ5dFOi522L383MlsQYUMAe6cZYviTF/customerId/SBT76bfbee44e3dd4620232": {
+        "get": {
+          "summary": "GET CUSTOMER SUBSCRIPTIONS",
+          "tags": [
+            "Recurrent"
+          ],
+          "operationId": "GETCUSTOMERSUBSCRIPTIONS",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/recurring/linkingref/F304636451599236766487": {
+        "get": {
+          "summary": "Fetch Transaction Status From Core",
+          "tags": [
+            "Recurrent"
+          ],
+          "operationId": "FetchTransactionStatusFromCore",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "required": false,
+              "default": "Bearer {token}",
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "GENERATEENCRYPTEDSECKEYREQUEST": {
+        "title": "GENERATEENCRYPTEDSECKEYREQUEST",
+        "example": {
+          "key": "SBTESTSECK_kFgKytQK1KSvbR616rUMqNYOUedK3Btm5igZgxaZ.SBTESTPUBK_p8GqvFSFNCBahSJinczKd9aIPoRUZfda"
+        },
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key"
+        ]
+      },
+      "TOGENERATEHASHREQUEST": {
+        "title": "TOGENERATEHASHREQUEST",
+        "example": {
+          "publicKey": "SBTESTPUBK_p8GqvFSFNCBahSJinczKd9aIPoRUZfda",
+          "amount": "100.00",
+          "currency": "NGN",
+          "country": "NG",
+          "paymentReference": "3791021233047WZ73QN",
+          "email": "mamadou.diouf@intouchgroup.net",
+          "productId": "15013",
+          "productDescription": "touch badge",
+          "callbackUrl": "https://gutouch.com",
+          "paymentType": "card"
+        },
+        "type": "object",
+        "properties": {
+          "publicKey": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "paymentReference": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "productDescription": {
+            "type": "string"
+          },
+          "callbackUrl": {
+            "type": "string"
+          },
+          "paymentType": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "publicKey",
+          "amount",
+          "currency",
+          "country",
+          "paymentReference",
+          "email",
+          "productId",
+          "productDescription",
+          "callbackUrl",
+          "paymentType"
+        ]
+      },
+      "PaymentlinkfromCheckoutSinglerequestRequest": {
+        "title": "PaymentlinkfromCheckoutSinglerequestRequest",
+        "example": {
+          "publicKey": "SBTESTPUBK_p8GqvFSFNCBahSJinczKd9aIPoRUZfda",
+          "amount": "100.00",
+          "currency": "NGN",
+          "country": "NG",
+          "paymentReference": "3791021233047WZ73QN",
+          "email": "mamadou.diouf@intouchgroup.net",
+          "productId": "15013",
+          "productDescription": "touch badge",
+          "callbackUrl": "https://gutouch.com",
+          "hash": "cb4c4ab9638bfcef73f15088b186514431f14d73ec0e0764741ca69c3836403a",
+          "hashType": "sha256"
+        },
+        "type": "object",
+        "properties": {
+          "publicKey": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "paymentReference": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "productDescription": {
+            "type": "string"
+          },
+          "callbackUrl": {
+            "type": "string"
+          },
+          "hash": {
+            "type": "string"
+          },
+          "hashType": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "publicKey",
+          "amount",
+          "currency",
+          "country",
+          "paymentReference",
+          "email",
+          "productId",
+          "productDescription",
+          "callbackUrl",
+          "hash",
+          "hashType"
+        ]
+      },
+      "ORDERREQUEST": {
+        "title": "ORDERREQUEST",
+        "example": {
+          "email": "test@mvaa.com",
+          "publicKey": "SBTESTPUBK_p8GqvFSFNCBahSJinczKd9aIPoRUZfda",
+          "paymentReference": "5PPTG108Q13432E29P23R5L6W9329",
+          "fullName": "",
+          "orderType": "BULK_BULK",
+          "mobileNumber": "",
+          "callbackUrl": "http://mvaa.ebs-rcm.com/payment",
+          "country": "NG",
+          "currency": "NGN",
+          "amount": "250.00",
+          "orders": [
+            {
+              "orderId": "1232567-113227878-64332q",
+              "currency": "NGN",
+              "amount": "125.00",
+              "productId": "0008162",
+              "productDescription": "FRSC PLATE NUMBER"
+            },
+            {
+              "orderId": "3211567-2230578-754332",
+              "currency": "NGN",
+              "amount": "125.00",
+              "productId": "4030018",
+              "productDescription": "WEIGHING AND ADMIN CHARGES"
+            }
+          ]
+        },
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string"
+          },
+          "paymentReference": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "orderType": {
+            "type": "string"
+          },
+          "mobileNumber": {
+            "type": "string"
+          },
+          "callbackUrl": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Order"
+            }
+          }
+        },
+        "required": [
+          "email",
+          "publicKey",
+          "paymentReference",
+          "fullName",
+          "orderType",
+          "mobileNumber",
+          "callbackUrl",
+          "country",
+          "currency",
+          "amount",
+          "orders"
+        ]
+      },
+      "Order": {
+        "title": "Order",
+        "example": {
+          "orderId": "1232567-113227878-64332q",
+          "currency": "NGN",
+          "amount": "125.00",
+          "productId": "0008162",
+          "productDescription": "FRSC PLATE NUMBER"
+        },
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "productDescription": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "orderId",
+          "currency",
+          "amount",
+          "productId",
+          "productDescription"
+        ]
+      },
+      "InitiateCardTransactionsRequest": {
+        "title": "InitiateCardTransactionsRequest",
+        "example": {
+          "publicKey": "SBTESTPUBK_p8GqvFSFNCBahSJinczKd9aIPoRUZfda",
+          "amount": "100.00",
+          "fee": "10",
+          "fullName": "Kola Victor",
+          "mobileNumber": "08028089445",
+          "currency": "NGN",
+          "country": "NG",
+          "paymentReference": "STG11347E242261R569A22tAQM75EQW3",
+          "email": "kolawole@gmail.com",
+          "productId": "Foods",
+          "productDescription": "RASPBERRY",
+          "clientAppCode": "kpp64",
+          "redirectUrl": "http://checkout-seerbit.surge.sh",
+          "paymentType": "CARD",
+          "scheduleId": "",
+          "channelType": "Mastercard",
+          "deviceType": "Apple Laptop",
+          "sourceIP": "127.0.0.1:3456",
+          "cardNumber": "5123450000000008",
+          "cvv": "100",
+          "expiryMonth": "05",
+          "expiryYear": "21",
+          "pin": "####",
+          "type": "3DSECURE",
+          "source": "",
+          "retry": "false",
+          "invoiceNumber": "10000123abc123",
+          "isCvv": "true"
+        },
+        "type": "object",
+        "properties": {
+          "publicKey": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "fee": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "mobileNumber": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "paymentReference": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "productDescription": {
+            "type": "string"
+          },
+          "clientAppCode": {
+            "type": "string"
+          },
+          "redirectUrl": {
+            "type": "string"
+          },
+          "paymentType": {
+            "type": "string"
+          },
+          "scheduleId": {
+            "type": "string"
+          },
+          "channelType": {
+            "type": "string"
+          },
+          "deviceType": {
+            "type": "string"
+          },
+          "sourceIP": {
+            "type": "string"
+          },
+          "cardNumber": {
+            "type": "string"
+          },
+          "cvv": {
+            "type": "string"
+          },
+          "expiryMonth": {
+            "type": "string"
+          },
+          "expiryYear": {
+            "type": "string"
+          },
+          "pin": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "retry": {
+            "type": "string"
+          },
+          "invoiceNumber": {
+            "type": "string"
+          },
+          "isCvv": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "publicKey",
+          "amount",
+          "fee",
+          "fullName",
+          "mobileNumber",
+          "currency",
+          "country",
+          "paymentReference",
+          "email",
+          "productId",
+          "productDescription",
+          "clientAppCode",
+          "redirectUrl",
+          "paymentType",
+          "scheduleId",
+          "channelType",
+          "deviceType",
+          "sourceIP",
+          "cardNumber",
+          "cvv",
+          "expiryMonth",
+          "expiryYear",
+          "pin",
+          "type",
+          "source",
+          "retry",
+          "invoiceNumber",
+          "isCvv"
+        ]
+      },
+      "InitiateAccountPaymentRequest": {
+        "title": "InitiateAccountPaymentRequest",
+        "example": {
+          "publicKey": "SBTESTPUBK_p8GqvFSFNCBahSJinczKd9aIPoRUZfda",
+          "amount": "2000.00",
+          "fee": "10",
+          "fullName": "Samuel Tosin",
+          "mobileNumber": "08028089445",
+          "currency": "NGN",
+          "country": "NG",
+          "paymentReference": "VERS2FURTHERTESTAc722456784",
+          "email": "kolawole@gmail.com",
+          "productId": "Foods",
+          "productDescription": "Uba Account Transaction ",
+          "clientAppCode": "kpp64",
+          "channelType": "BANK_ACCOUNT",
+          "redirectUrl": "https://checkout.seerbit.com",
+          "callbackUrl": "https://checkout.seerbit.com",
+          "paymentType": "ACCOUNT",
+          "deviceType": "Apple Laptop",
+          "sourceIP": "127.0.0.1:3456",
+          "accountName": "kolawole Alagbon",
+          "accountNumber": "1234567890",
+          "bankCode": "033",
+          "bvn": "12345678901",
+          "dateOfBirth": "04011984",
+          "source": "",
+          "retry": "false",
+          "invoiceNumber": "1234567891abc123ac"
+        },
+        "type": "object",
+        "properties": {
+          "publicKey": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "fee": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "mobileNumber": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "paymentReference": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "productDescription": {
+            "type": "string"
+          },
+          "clientAppCode": {
+            "type": "string"
+          },
+          "channelType": {
+            "type": "string"
+          },
+          "redirectUrl": {
+            "type": "string"
+          },
+          "callbackUrl": {
+            "type": "string"
+          },
+          "paymentType": {
+            "type": "string"
+          },
+          "deviceType": {
+            "type": "string"
+          },
+          "sourceIP": {
+            "type": "string"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "accountNumber": {
+            "type": "string"
+          },
+          "bankCode": {
+            "type": "string"
+          },
+          "bvn": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "retry": {
+            "type": "string"
+          },
+          "invoiceNumber": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "publicKey",
+          "amount",
+          "fee",
+          "fullName",
+          "mobileNumber",
+          "currency",
+          "country",
+          "paymentReference",
+          "email",
+          "productId",
+          "productDescription",
+          "clientAppCode",
+          "channelType",
+          "redirectUrl",
+          "callbackUrl",
+          "paymentType",
+          "deviceType",
+          "sourceIP",
+          "accountName",
+          "accountNumber",
+          "bankCode",
+          "bvn",
+          "dateOfBirth",
+          "source",
+          "retry",
+          "invoiceNumber"
+        ]
+      },
+      "validatetransactionrequest": {
+        "title": "validatetransactionrequest",
+        "example": {
+          "linkingReference": "F756498971599231711016",
+          "otp": "123456"
+        },
+        "type": "object",
+        "properties": {
+          "linkingReference": {
+            "type": "string"
+          },
+          "otp": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "linkingReference",
+          "otp"
+        ]
+      },
+      "PaymentLinkFromMiddlewareRequest": {
+        "title": "PaymentLinkFromMiddlewareRequest",
+        "example": {
+          "key": "SBT00000013RUVF",
+          "phoneNumber": "08142379998",
+          "bankCode": "",
+          "amount": "100",
+          "billId": "938972",
+          "locationReference": "AFXUE",
+          "invoiceNumber": "123853455AFXUE",
+          "publicKey": "SBTESTPUBK_p8GqvFSFNCBahSJinczKd9aIPoRUZfda",
+          "paymentReference": "I9625QW67859S2QQWAQ32211213Q9",
+          "businessName": "Eat N Go Ltd",
+          "email": "benedictakintoye@gmail.com",
+          "environment": "LIVE"
+        },
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "bankCode": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "billId": {
+            "type": "string"
+          },
+          "locationReference": {
+            "type": "string"
+          },
+          "invoiceNumber": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string"
+          },
+          "paymentReference": {
+            "type": "string"
+          },
+          "businessName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "environment": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "phoneNumber",
+          "bankCode",
+          "amount",
+          "billId",
+          "locationReference",
+          "invoiceNumber",
+          "publicKey",
+          "paymentReference",
+          "businessName",
+          "email",
+          "environment"
+        ]
+      },
+      "MonifyResponsetoSeerbitRequest": {
+        "title": "MonifyResponsetoSeerbitRequest",
+        "example": {
+          "originatorAccountnumber": "1234567890",
+          "originatorName": "Samuel Tosin",
+          "responseMessage": "ransaction Aborted",
+          "responseCode": "SM_A",
+          "gatewayref": "F756498971599231711016",
+          "bankName": "UBA",
+          "transferedAmount": "2000",
+          "reason": "Supply the OTP from your secure pass or hard token to complete your payment",
+          "paymentReference": "VERS2FURTHERTESTAc722456784"
+        },
+        "type": "object",
+        "properties": {
+          "originatorAccountnumber": {
+            "type": "string"
+          },
+          "originatorName": {
+            "type": "string"
+          },
+          "responseMessage": {
+            "type": "string"
+          },
+          "responseCode": {
+            "type": "string"
+          },
+          "gatewayref": {
+            "type": "string"
+          },
+          "bankName": {
+            "type": "string"
+          },
+          "transferedAmount": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "paymentReference": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "originatorAccountnumber",
+          "originatorName",
+          "responseMessage",
+          "responseCode",
+          "gatewayref",
+          "bankName",
+          "transferedAmount",
+          "reason",
+          "paymentReference"
+        ]
+      },
+      "NewRecurringRequestForSubscriptionRequest": {
+        "title": "NewRecurringRequestForSubscriptionRequest",
+        "example": {
+          "publicKey": "SBTESTPUBK_p8GqvFSFNCBahSJinczKd9aIPoRUZfda",
+          "paymentReference": "VERS2FURTHERTESTAc922456784",
+          "planId": "",
+          "cardNumber": "5123450000000008",
+          "expiryMonth": "01",
+          "callbackUrl": "https://www.google.com",
+          "expiryYear": "23",
+          "cvv": "280",
+          "amount": "10",
+          "currency": "NGN",
+          "productDescription": "Pilot Test Subscription",
+          "productId": "Terrain",
+          "country": "NG",
+          "startDate": "2020-02-25",
+          "cardName": "Kolade Samuel",
+          "billingCycle": "WEEKLY",
+          "email": "akannimuyiwa@gmail.com",
+          "mobileNumber": "08028089445",
+          "customerId": "12345678901234",
+          "pin": "0999",
+          "type": "3DSECURE",
+          "billingPeriod": "1",
+          "subscriptionAmount": true
+        },
+        "type": "object",
+        "properties": {
+          "publicKey": {
+            "type": "string"
+          },
+          "paymentReference": {
+            "type": "string"
+          },
+          "planId": {
+            "type": "string"
+          },
+          "cardNumber": {
+            "type": "string"
+          },
+          "expiryMonth": {
+            "type": "string"
+          },
+          "callbackUrl": {
+            "type": "string"
+          },
+          "expiryYear": {
+            "type": "string"
+          },
+          "cvv": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "productDescription": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "cardName": {
+            "type": "string"
+          },
+          "billingCycle": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "mobileNumber": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "pin": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "billingPeriod": {
+            "type": "string"
+          },
+          "subscriptionAmount": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "publicKey",
+          "paymentReference",
+          "planId",
+          "cardNumber",
+          "expiryMonth",
+          "callbackUrl",
+          "expiryYear",
+          "cvv",
+          "amount",
+          "currency",
+          "productDescription",
+          "productId",
+          "country",
+          "startDate",
+          "cardName",
+          "billingCycle",
+          "email",
+          "mobileNumber",
+          "customerId",
+          "pin",
+          "type",
+          "billingPeriod",
+          "subscriptionAmount"
+        ]
+      },
+      "UPDATESUBSCRIPTIONREQUEST": {
+        "title": "UPDATESUBSCRIPTIONREQUEST",
+        "example": {
+          "amount": "20000",
+          "currency": "NGN",
+          "country": "NG",
+          "mobileNumber": "08028089445",
+          "billingId": "TESTPRODR2992PP187v55523P1U1435WO",
+          "publicKey": "SBTESTPUBK_PjQ5dFOi522L383MlsQYUMAe6cZYviTF",
+          "status": "INACTIVE"
+        },
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "mobileNumber": {
+            "type": "string"
+          },
+          "billingId": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount",
+          "currency",
+          "country",
+          "mobileNumber",
+          "billingId",
+          "publicKey",
+          "status"
+        ]
+      }
+    },
+    "tags": [
+      {
+        "name": "HostedPayment"
+      },
+      {
+        "name": "Recurrent"
+      }
+    ]
+  }

@@ -1,3 +1,5 @@
 #!/bin/bash
-node index.js bundle json/seerbitapi.json -t template.hbs
-mv redoc-static.html  docs/index.html
+mkdir -p docs/specs
+node index.js bundle specs/openapi.json -t assets/style/template.hbs
+cp -r specs docs/
+mv redoc-static.html docs/index.html
