@@ -29,8 +29,8 @@ nav a {
   font-family: Roboto, sans-serif;
 }
 
-nav img{
-  padding-left:15px
+nav img {
+  padding-left: 15px;
 }
 
 nav a:hover {
@@ -48,6 +48,6 @@ nav li {
   font-size: 1.5em;
   float: left;
 }
-.scrollbar-container div a{
-  display:none
+.scrollbar-container div a {
+  display: none;
 }
