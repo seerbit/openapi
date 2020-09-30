@@ -16,12 +16,12 @@ jobs:
     - name: Build Documentation
       run: npm run build
 
-    # - name: Deploy to Github Pages
-    #   uses: crazy-max/ghaction-github-pages@v2.1.2
-    #   with:
-    #     target_branch: gh-pages
-    #     keep_history: true
-    #     build_dir: docs
-    #   env:
-    #     GH_PAT: ${{ secrets.DOCBOT_GH_PAT }}
+    - name: Deploy to Github Pages
+      uses: crazy-max/ghaction-github-pages@v2.1.2
+      with:
+        target_branch: gh-pages
+        keep_history: true
+        build_dir: docs
+      env:
+        GH_PAT: ${{ secrets.DOCBOT_GH_PAT }}
     
