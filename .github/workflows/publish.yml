@@ -7,21 +7,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v1
+      - name: Checkout
+        uses: actions/checkout@v1
 
-    - name: Setup
-      run: npm install
+      - name: Get Branch Name
+        shell: bash
+        run: echo "::set-output name=name::$(bash scripts/branchname.sh)"
+        id: branch
 
-    - name: Build Documentation
-      run: npm run build
+      - name: Setup
+        run: npm install
 
-    # - name: Deploy to Github Pages
-    #   uses: crazy-max/ghaction-github-pages@v2.1.2
-    #   with:
-    #     target_branch: gh-pages
-    #     keep_history: true
-    #     build_dir: docs
-    #   env:
-    #     GH_PAT: ${{ secrets.DOCBOT_GH_PAT }}
-    
+      - name: Build Documentation
+        run: npm run build
+
+      - name: Deploy to Github Pages
+        if: steps.branch.outputs.name == 'master'
+        uses: crazy-max/ghaction-github-pages@v2.1.2
+        with:
+          target_branch: gh-pages
+          keep_history: true
+          build_dir: docs
+        env:
+          GH_PAT: ${{ secrets.DOCBOT_GH_PAT }}
