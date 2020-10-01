@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "bash scripts/build.sh"
+    "build": "bash scripts/build.sh",
+    "info_slack": "bash scripts/notify_slack.sh"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
   },
   "homepage": "https://github.com/seerbit/openapi#readme",
   "dependencies": {
+    "node-fetch": "^2.6.1",
     "redoc": "^2.0.0-rc.40",
     "redoc-cli": "^0.9.12"
   }

@@ -30,3 +30,12 @@ jobs:
           build_dir: docs
         env:
           GH_PAT: ${{ secrets.DOCBOT_GH_PAT }}
+    
+    notify:
+      needs: build
+        - name: Send notification to Slack
+        if: ${{ success() }}
+        run: npm run info_slack 
+        env:
+          SLNL: ${{ secrets.SLNL }}  
+    
