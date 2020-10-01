@@ -1,14 +1,29 @@
 #!/bin/bash
 
-echo -e 'Sending Notification to Slack...\n'
-STATUS=$(node scripts/send_slack_notification.js) 
+ACTION_STATUS="none"
 
-echo $STATUS
+while getopts "s:" arg; do
+echo -e ${arg}
+  case "${arg}" 
+  in
+    s) ACTION_STATUS=${OPTARG};;
+    :)
+    echo "Error: -${OPTARG} requires an argument." 1>&2
+    exit 1
+    ;;
+  esac
+done
 
-if [[ $STATUS = "SUCCESS" ]] 
-then
-    echo -e "Notification Sent:$STATUS\n"
-else
-    echo -e "Failed to send Notification: $STATUS\n"
+if [[ $ACTION_STATUS != "none" ]]
+    then
+    echo -e 'Sending Notification to Slack...\n'
+    SENT_STATUS=$(node scripts/send_slack_notification.js $ACTION_STATUS) 
+    if [[ $SENT_STATUS == "SUCCESS" ]]
+    then
+        echo -e "${ACTION_STATUS} Notification Sent\n"
+    else
+        echo -e "Failed to send ${ACTION_STATUS} Notification\n"
+    fi
+else 
+    echo "Failed to send Notification: Status argument missing"
 fi
-exit 0

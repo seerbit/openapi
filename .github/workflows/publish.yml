@@ -22,6 +22,7 @@ jobs:
         run: npm run build
 
       - name: Deploy to Github Pages
+        id: deploy_step
         if: steps.branch.outputs.name == 'master'
         uses: crazy-max/ghaction-github-pages@v2.1.2
         with:
@@ -31,8 +32,14 @@ jobs:
         env:
           GH_PAT: ${{ secrets.DOCBOT_GH_PAT }}
 
-      - name: Send notification to Slack
-        if: success()
-        run: npm run info_slack 
+      - name: Send Failure notification to Slack
+        if: always() && steps.deploy_step.outcome == 'failure'
+        run: npm run info_slack_failure 
+        env:
+            SLNL: ${{ secrets.SLNL }}  
+
+      - name: Send Success notification to Slack
+        if: always() && steps.deploy_step.outcome == 'success'
+        run: npm run info_slack_success 
         env:
             SLNL: ${{ secrets.SLNL }}  

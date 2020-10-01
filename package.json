@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "bash scripts/build.sh",
-    "info_slack": "bash scripts/notify_slack.sh"
+    "info_slack_success": "bash scripts/notify_slack.sh -s success",
+    "info_slack_failure": "bash scripts/notify_slack.sh -s failure"
   },
   "repository": {
     "type": "git",
@@ -27,5 +28,6 @@
     "node-fetch": "^2.6.1",
     "redoc": "^2.0.0-rc.40",
     "redoc-cli": "^0.9.12"
-  }
+  },
+  "devDependencies": {}
 }
