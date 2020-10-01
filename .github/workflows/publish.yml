@@ -33,10 +33,11 @@ jobs:
     
     notify:
       needs: build
+
       steps:
         - name: Send notification to Slack
-        if: success()
-        run: npm run info_slack 
-        env:
-          SLNL: ${{ secrets.SLNL }}  
+          if: success()
+          run: npm run info_slack 
+          env:
+            SLNL: ${{ secrets.SLNL }}  
     
