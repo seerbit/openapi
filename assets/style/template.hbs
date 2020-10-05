@@ -6,7 +6,61 @@
   <title>{{title}}</title>
   <!-- needed for adaptive design -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="assets/style/stylesheet.css">
+  <style>
+    body {
+  margin: 0;
+  padding: 0;
+}
+
+redoc {
+  display: block;
+}
+
+/* Header and navigation */
+header {
+  height: 54px;
+}
+
+nav {
+  top: 0;
+  /* position: fixed; */
+  width: 100%;
+  background-color: #77bffc;
+  z-index: 10;
+}
+
+nav a {
+  display: block;
+  padding: 35px;
+  text-decoration: none;
+  color: #fff;
+  font-weight: bold;
+  font-family: Roboto, sans-serif;
+}
+
+nav img {
+  padding-left: 15px;
+}
+
+nav a:hover {
+  color: #ccc;
+}
+
+nav > ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+nav li {
+  font-size: 1.5em;
+  float: left;
+}
+.scrollbar-container > div a {
+  display: none !important;
+}
+  </style>
   {{{redocHead}}}
   {{#unless disableGoogleFont}}
   <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">
@@ -21,6 +75,7 @@
     </nav>
   </header>
   {{{redocHTML}}}
+
 </body>
 
 </html>

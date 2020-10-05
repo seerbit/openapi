@@ -48,6 +48,6 @@ nav li {
   font-size: 1.5em;
   float: left;
 }
-.scrollbar-container div a {
-  display: none;
+div.scrollbar-container {
+  display: none !important;
 }
