@@ -1,5 +1,6 @@
 #!/bin/bash
-mkdir -p docs/specs
+set -e
+mkdir -p docs/specs docs/style
 echo -n "Building Documentation... "
 node index.js bundle specs/openapi.json -t assets/style/template.hbs &> /dev/null
 RESULT=$?
@@ -8,6 +9,7 @@ if [[ ${RESULT} != 0 ]]; then
   exit 1
 fi
 cp -r specs docs/
+cp assets/style/stylesheet.css docs/style/
 mv redoc-static.html docs/index.html
 echo -e "\e[32mSUCCESS"
 exit 0
