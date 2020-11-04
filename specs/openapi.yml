@@ -1,0 +1,547 @@
+openapi: 3.0.1
+info:
+  title: 'Product Catelouge '
+  contact: {}
+  version: "1.0"
+servers:
+- url: https://stg-backend.seerbitapi.com/merchants/api/v1/productcatalogue
+tags:
+- name: PRODUCT CATELOUGE
+  description: ""
+paths:
+  /categories/SBTESTPUBK_PjQ5dFOi522L383MlsQYUMAe6cZYviTF:
+    get:
+      tags:
+      - PRODUCT CATELOUGE
+      summary: Load product categories (business)
+      operationId: Loadproductcategories(business)
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                LoadProductCategoriesResponse:
+                  $ref: '#/components/examples/LoadProductCategoriesResponse'
+        400:
+          description: Method Not Allowed
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                400Response:
+                  $ref: '#/components/examples/400Response'
+                400Response1:
+                  $ref: '#/components/examples/400Response1'
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                400Response:
+                  $ref: '#/components/examples/404Response1'          
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                500Response:
+                    $ref: '#/components/examples/500Response' 
+      deprecated: false
+      security:
+      - token: []
+    post:
+      tags:
+      - PRODUCT CATELOUGE
+      summary: Create custom product categories
+      operationId: Createcustomproductcategories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatecustomproductcategoriesRequest'
+        required: true
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                200Response:
+                  $ref: '#/components/examples/200Response'
+                200Response1:
+                  $ref: '#/components/examples/200Response1'
+        400:
+          description: Method Not Allowed
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                400Response2:
+                  $ref: '#/components/examples/400Response2'
+                400Response1:
+                  $ref: '#/components/examples/400Response1'
+        412:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                412Response:
+                  $ref: '#/components/examples/412Response'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                500Response:
+                    $ref: '#/components/examples/500Response'           
+      deprecated: false
+      security:
+      - token: []
+      x-codegen-request-body-name: Body
+  /categories/business/SBTESTPUBK_PjQ5dFOi522L383MlsQYUMAe6cZYviTF/cat/20:
+    put:
+      tags:
+      - PRODUCT CATELOUGE
+      summary: Update product category (By business)
+      operationId: Updateproductcategory(Bybusiness)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateproductcategoryBybusinessRequest'
+        required: true
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                200Response:
+                  $ref: '#/components/examples/200Response'
+        400:
+          description: Method Not Allowed
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                400Response2:
+                  $ref: '#/components/examples/400Response2'
+                400Response1:
+                  $ref: '#/components/examples/400Response1'
+                400Response3:
+                  $ref: '#/components/examples/400Response3'  
+        412:
+          description: Precondition Failed
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                412Response:
+                  $ref: '#/components/examples/412Response'          
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                500Response:
+                    $ref: '#/components/examples/500Response'          
+      deprecated: false
+      security:
+      - token: []
+      x-codegen-request-body-name: Body
+    delete:
+      tags:
+      - PRODUCT CATELOUGE
+      summary: Delete product category (by business)
+      operationId: Deleteproductcategory(bybusiness)
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                # 200Response3:
+                #   $ref: '#/components/examples/200Response3'
+                200Response4:
+                  $ref: '#/components/examples/200Response4'  
+        400:
+          description: Method Not Allowed
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                400Response4:
+                  $ref: '#/components/examples/400Response4'
+                400Response1:
+                  $ref: '#/components/examples/400Response1'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                500Response:
+                    $ref: '#/components/examples/500Response'   
+      deprecated: false
+  /SBTESTPUBK_PjQ5dFOi522L383MlsQYUMAe6cZYviTF:
+    get:
+      tags:
+      - PRODUCT CATELOUGE
+      summary: Load all business products
+      operationId: Loadallbusinessproducts
+      parameters:
+      - name: page
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: type
+        in: query
+        required: true
+        schema:
+          type: boolean
+      - name: AuthHeader
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                200Response6:
+                  $ref: '#/components/examples/200Response6'
+                200Response5:
+                  $ref: '#/components/examples/200Response5'
+        400:
+          description: Method Not Allowed
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                400Response:
+                  $ref: '#/components/examples/400Response'
+                400Response1:
+                  $ref: '#/components/examples/400Response1'  
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                500Response:
+                    $ref: '#/components/examples/500Response'     
+      deprecated: false
+      security:
+      - token: []
+components:
+  schemas:
+    CreatecustomproductcategoriesRequest:
+      title: CreatecustomproductcategoriesRequest
+      required:
+      - description
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      example:
+        name: Consumables
+        description: Food items
+    UpdateproductcategoryBybusinessRequest:
+      title: Updateproductcategory(Bybusiness)Request
+      required:
+      - description
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      example:
+        name: Fast Food
+        description: Food items
+  securitySchemes:
+    token:
+      type: apiKey
+      name: authHeader
+      in: header
+  examples: 
+    LoadProductCategoriesResponse:
+      summary: Load Product Categories Response
+      value:
+        payload:
+         - id: 1
+           name: Clothings
+           nameCode: CLOTHINGS
+           description: Update cloth
+           type: SYSTEM_CATEGORY
+           categoryRef: ''
+           isCustom: false
+         - id: 2
+           name: Fashion
+           nameCode: FASHION
+           description: null
+           type: SYSTEM_CATEGORY
+           categoryRef: ''
+           isCustom: false
+         - id: 3
+           name: Merchanic Parts
+           nameCode: MERCHANIC_PARTS
+           description: null
+           type: SYSTEM_CATEGORY
+           categoryRef: ''
+           isCustom: false
+         - id: 23
+           name: Accessories
+           nameCode: ACCESSORIES
+           description: Food items
+           type: BUSINESS_CATEGORY
+           categoryRef: 'TEjgwtNyukxhsGITpNuh'
+           isCustom: true 
+         - id: 11
+           name: Cat 3
+           nameCode: CAT_3
+           description: Still testing
+           type: BUSINESS_CATEGORY
+           categoryRef: 'ykSv0CIgtSY6agwoO4kA'
+           isCustom: true
+         - id: 12
+           name: Cat 4
+           nameCode: CAT_4
+           description: Still testing
+           type: BUSINESS_CATEGORY
+           categoryRef: '3NNFmtQCZ7BjLmU5gB0X'
+           isCustom: true
+        message: Product categories loaded successfully
+        status: success
+        responseCode: '00'
+    200Response:
+      summary: An example of a 200 response payload
+      value:
+        payload: 
+          id: 28
+          name: Computers
+          nameCode: COMPUTERS
+          description: computer accessories
+          type: BUSINESS_CATEGORY
+          categoryRef: JzNTgSqnWkcf0cNTPFXs
+          isCustom: true
+        message: Product categories added successfully
+        status: success
+        responseCode: '00'
+    200Response1:
+      summary: An example of a 200 response payload
+      value:
+        message: RESTEASY003065 = Cannot consume content type identifier. 
+        responseMessage: RESTEASY003065 = Cannot consume content type 
+        status: failure
+        timestamp: '2020-10-30T08:31:11.056'
+        responseCode: '-00'
+    200Response2:
+      summary: An example of a 200 response payload
+      value:
+        message: RESTEASY003065 = Cannot consume content type identifier. 
+        responseMessage: RESTEASY003065 = Cannot consume content type 
+        status: failure
+        timestamp: '2020-10-30T08:31:11.056'
+        responseCode: '-00'
+    # 200Response3:
+    #   summary: An example of a 07 response paylaod
+    #   value:
+    #     message: RESTEASY003210: Could not find resource for full path: http://stg-backend.seerbitapi.com/merchants/api/v1/productcatalogue/categories/business/SBTESTPUBK_PjQ5dFOi522L383MlsQYUMAe6cZYviTF/cat/ 
+    #     responseMessage: RESTEASY003210: Could not find resource for full path: http://stg-backend.seerbitapi.com/merchants/api/v1/productcatalogue/categories/business/SBTESTPUBK_PjQ5dFOi522L383MlsQYUMAe6cZYviTF/cat/ 
+    #     status: failure
+    #     timestamp: '2020-11-02T07:22:11.316'
+    #     responseCode: '-00'
+    200Response4:
+      summary: An example of a 200 response payload
+      value:
+        message: Product categories deleted successfully 
+        status: success
+        responseCode: '-00'
+    200Response5:
+      summary: An example of a 200 response payload
+      value:
+        message: No Product found 
+        status: failed
+        responseCode: '07'
+    200Response6:
+      summary: An example of a 200 response payload
+      value:
+        payload:
+         - id: 1
+           productName : Fashion
+           productDescription: Fashion Item
+           productCode: My personal product code
+           productRef: NCU5xyAv16GTHO
+           businessProductRef: sb00000013NCU5xyAv16GTHO
+           amount: 2000
+           quantity: 5
+           productLink: 'https://dashboard-seerbit.surge.sh/#/?bp=Bah0MUnc&p=NCU5xyAv16GTHO'
+           productCheckoutLink: 'https://pay.seerbit.com/?bp=6R4OykaU&p=NCU5xyAv16GTHO'
+           status: true
+           requireValidation: true
+           validationUrl: 'http://stg-backend.seerbitapi.com/merchants/api/v1/validateproduct'
+           validationResponseCodeVariable: responseCode
+           validationSuccessResponseCodeValue: 00
+           validationType: GET
+           amountUpdateableByValidation: true
+           productFields:
+            - id: 7
+              fieldId: 00000007
+              fieldName: Smart Card No
+              fieldNameLabel: Smart_Card_No
+              fieldDescription: Smart card No of the customer
+              requestFieldName: smartCardNumber
+              required: true
+              requiredForValidation: true
+              canBeUpdateByValidation: false
+              validationUpdateField: ''
+              type: TEXT
+            - id: 8
+              fieldId: 00000008
+              fieldName: Customer Detail
+              fieldNameLabel: Customer_Detail
+              fieldDescription: Smart card customer details entry after validation.
+              requestFieldName: customerName
+              required: true
+              requiredForValidation: false
+              canBeUpdateByValidation: true
+              validationUpdateField: customerDetail
+              type: TEXT  
+            - id: 9
+              fieldId: 00000009
+              fieldName: No of Subscription
+              fieldNameLabel: No_of_Subscription
+              fieldDescription: No of month subscription
+              requestFieldName: quantity
+              required: true
+              requiredForValidation: true
+              canBeUpdateByValidation: false
+              validationUpdateField: ''
+              type: NUMBER
+           category:
+            id: 5
+            name: Software development
+            nameCode: SOFTWARE_DEVELOPMENT
+            description: null
+            type: BUSINESS_CATEGORY
+            categoryRef: ''
+            isCustom: true
+           enableStock: true
+           isDepletable: true
+           stockType: STOCK
+        rowCount: 1   
+        message: Product loaded successfully
+        currentPage: 0
+        status: success
+        responseCode: '00'
+           
+            
+          
+    400Response:
+      summary: An example of a 400 response payload
+      value:
+        message: No business found with the supplied business profile identifier. 
+        responseMessage: No business found with the supplied business profile identifier. 
+        responseCode: '07'
+        status: failure
+        timestamp: '2020-10-30T08:31:11.056'
+    400Response1:
+      summary: An example of a 400 response payload
+      value:
+        message: Forbidden Access Denied!! 
+        responseMessage: Forbidden Access Denied!! 
+        responseCode: '07'
+        status: failure
+        timestamp: '2020-10-30T08:43:30.817'
+    400Response2:
+      summary: An example of a 400 response payload
+      value:
+        message: Forbidden Access Denied!! 
+        responseMessage: Forbidden Access Denied!! 
+        responseCode: '07'
+        status: failure
+        timestamp: '2020-10-30T08:43:30.817'    
+    400Response3:
+      summary: An example of a 400 response payload
+      value:
+        message: Sorry cannot perform that action now. Please try again  
+        responseMessage: Sorry cannot perform that action now. Please try again  
+        responseCode: '07'
+        status: failure
+        timestamp: '2020-11-02T07:28:29.482'
+    400Response4:
+      summary: An example of a 400 code response payload
+      value:
+        message: No business found with the provided business number  
+        responseMessage: No business found with the provided business number  
+        responseCode: '07'
+        status: failure
+        timestamp: '2020-11-02T07:40:22.157'    
+    404Response1:
+      summary: An example of 404 code response payload
+      value:
+        message: Not Found
+        error: The server can not find the requested resource    
+    412Response:
+      summary: An example of a 412 response payload
+      value:
+        reasons:
+          name: Product category name must be supplied!!
+        message: Invalid request body  
+        responseCode: '92'
+        status: failure
+        timestamp: '2020-10-30T10:29:55.704'
+    500Response:
+      summary: An example of 500 response payload
+      value:
+        message: Internal Server Error
+        error: PROCESSING      
