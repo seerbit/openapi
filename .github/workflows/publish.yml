@@ -30,7 +30,7 @@ jobs:
           keep_history: true
           build_dir: docs
         env:
-          GITHUB_TOKEN: ${{ secrets.DOCBOT_GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Send Failure notification to Slack
         if: always() && steps.deploy_step.outcome == 'failure'
