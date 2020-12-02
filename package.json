@@ -6,11 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "bash scripts/build.sh",
-    "redoc": "node index.js bundle docs/specs/external-api.yml -t assets/style/template.hbs &> /dev/null",
+    "redoc": "node index.js bundle specs/external-api.yml -t assets/style/template.hbs &> /dev/null",
     "info_slack_success": "bash scripts/notify_slack.sh -s success",
     "info_slack_failure": "bash scripts/notify_slack.sh -s failure",
-    "convert:external:api": "openapi2postmanv2 -s docs/specs/external-api.yml -o pm-collection-converted.json -p -O requestParametersResolution=Example",
-    "modify:external:api": "node scripts/modify-pm-collection.js -i pm-collection-converted.json -a docs/specs/external-api.yml -o docs/specs/postman-collection.json"
+    "convert:external:api": "openapi2postmanv2 -s specs/external-api.yml -o pm-collection-converted.json -p -O requestParametersResolution=Example",
+    "modify:external:api": "node scripts/modify-pm-collection.js -i pm-collection-converted.json -a specs/external-api.yml -o docs/specs/postman-collection.json"
   },
   "repository": {
     "type": "git",
