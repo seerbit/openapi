@@ -2,7 +2,9 @@
 set -e
 mkdir -p docs/specs docs/style
 echo -n "Building Documentation... "
-node index.js bundle specs/openapiv17.yml -t assets/style/template.hbs &> /dev/null
+npm run redoc
+npm run convert:external:api
+npm run modify:external:api
 RESULT=$?
 if [[ ${RESULT} != 0 ]]; then
   echo -e "\e[91mFAILED"

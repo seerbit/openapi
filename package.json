@@ -6,8 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "bash scripts/build.sh",
+    "redoc": "node index.js bundle specs/external-api.yml -t assets/style/template.hbs &> /dev/null",
     "info_slack_success": "bash scripts/notify_slack.sh -s success",
-    "info_slack_failure": "bash scripts/notify_slack.sh -s failure"
+    "info_slack_failure": "bash scripts/notify_slack.sh -s failure",
+    "convert:external:api": "openapi2postmanv2 -s specs/external-api.yml -o pm-collection-converted.json -p -O requestParametersResolution=Example",
+    "modify:external:api": "node scripts/modify-pm-collection.js -i pm-collection-converted.json -a specs/external-api.yml -o docs/specs/postman-collection.json"
   },
   "repository": {
     "type": "git",
@@ -25,9 +28,12 @@
   },
   "homepage": "https://github.com/seerbit/openapi#readme",
   "dependencies": {
+    "minimist": "^1.2.5",
     "node-fetch": "^2.6.1",
+    "openapi-to-postmanv2": "^2.0.0",
     "redoc": "^2.0.0-rc.40",
-    "redoc-cli": "^0.9.12"
+    "redoc-cli": "^0.9.12",
+    "yaml": "^1.10.0"
   },
   "devDependencies": {}
 }
