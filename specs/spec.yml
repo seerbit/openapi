@@ -24,7 +24,13 @@ paths:
       tags:
       - AUTHENTICATION
       summary: Generate Encrypted Secret Key
-      description: 'To make API calls on SeerBit, you will be required to pass a bearer token. To generate a token simply pass your pubic and secret key to rceive a token to process further API calls.'
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: GenerateEncryptedSecretKey
       requestBody:
         content:
@@ -73,7 +79,13 @@ paths:
       tags:
       - STANDARD CHECKOUT
       summary: Generate Hash
-      description: 'This is used to ensure the request payload has not been altered'
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: GenerateHash
       requestBody:
         content:
@@ -122,7 +134,13 @@ paths:
       tags:
       - STANDARD CHECKOUT
       summary: Payment Link From Checkout
-      description: 'SeerBit Checkout Standard Initialises a transaction from merchants server to generate a payment link which redirects your customers to a page to make payment and after payment has been made the customer is redirected back to the merchants website.'
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: PaymentLinkFromCheckout
       requestBody:
         content:
@@ -201,7 +219,13 @@ paths:
       tags:
       - ORDER CHECKOUT
       summary: Create Order Before Payment
-      description: 'Create an order before payment'
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: CreateOrderBeforePayment
       requestBody:
         content:
@@ -286,7 +310,13 @@ paths:
       tags:
       - ORDER CHECKOUT
       summary: Create Order After Payment
-      description: 'Create an order after payment'
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: CreateOrder
       requestBody:
         content:
@@ -365,7 +395,13 @@ paths:
       tags:
       - ORDER CHECKOUT
       summary: Update Order
-      description: 'Update an order'
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: UpdateOrder
       requestBody:
         content:
@@ -440,8 +476,14 @@ paths:
     get:
       tags:
       - ORDER CHECKOUT
-      summary: Get Orders
-      description: 'Get a list of orders'
+      summary: Get Order By Public Key
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: GetOrderByPublicKey
       responses:
         201:
@@ -506,8 +548,14 @@ paths:
     get:
       tags:
       - ORDER CHECKOUT
-      summary: Get an Order with Payment Reference
-      description: 'Get order details with payment reference'
+      summary: Get Order By Public Key And Payment Reference
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: GetOrderByPublicKeyAndPaymentReference
       responses:
         201:
@@ -572,8 +620,14 @@ paths:
     get:
       tags:
       - ORDER CHECKOUT
-      summary: Get Order with Order Id
-      description: 'Get order details with OrderId'
+      summary: Get Order By Public Key and Order Id
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: GetOrderByPublicKeyandOrderId
       responses:
         # 200:
@@ -646,7 +700,13 @@ paths:
       tags:
       - PAYMENT METHOD
       summary: Initiate Payment
-      description: 'Accept more payments with our unified payments API. Accept payments from all major cards and the most popular local and alternative payment methods all in a single integration.'
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: InitiatePayment
       requestBody:
         content:
@@ -753,7 +813,13 @@ paths:
       tags:
       - PAYMENT METHOD
       summary: Get Banks
-      description: 'Get list of banks'
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: GetBanks
       responses:
         201:
@@ -801,7 +867,13 @@ paths:
       tags:
       - MOMO
       summary: OTP Momo
-      description: 'When making MOMO transfers, and OTP is required to complete the payment'
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: OTPMomo
       requestBody:
         content:
@@ -854,7 +926,13 @@ paths:
       tags:
       - NON 3DS PAYMENT
       summary: Charge Card
-      description: 'This payment option is used to charge non 3d transactions'
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: ChargeCard
       requestBody:
         content:
@@ -946,7 +1024,13 @@ paths:
       tags:
       - CARD
       summary: Check Status
-      description: 'This Operation allows you to check the status of a transaction via the status check api. This is done by making a Get request to the endpoint below with your payment reference.'
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: CheckStatus
       responses:
         200:
@@ -995,7 +1079,13 @@ paths:
       tags:
       - ACCOUNT
       summary: Validate Transaction
-      description: 'This option is used to complete an account transaction, when OTP is required'
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: ValidateTransaction
       requestBody:
         content:
@@ -1235,7 +1325,13 @@ paths:
       tags:
       - AUTHORISE
       summary: 3DS Authorise
-      description: ''
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: 3DSAuthorise
       requestBody:
         content:
@@ -1320,7 +1416,13 @@ paths:
       tags:
       - PREAUTHORIZATION
       summary: Capture
-      description: ''
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: Capture
       requestBody:
         content:
@@ -1404,7 +1506,13 @@ paths:
       tags:
       - PREAUTHORIZATION
       summary: Refund
-      description: ''
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: Refund
       requestBody:
         content:
@@ -1482,7 +1590,13 @@ paths:
       tags:
       - PREAUTHORIZATION
       summary: Cancel
-      description: ''
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: Cancel
       requestBody:
         content:
@@ -1556,7 +1670,13 @@ paths:
       tags:
       - RECURRENT
       summary: Initiate Subscription
-      description: ''
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: InitiateSubscription
       requestBody:
         content:
@@ -1649,7 +1769,13 @@ paths:
       tags:
       - RECURRENT
       summary: Get a Subscription
-      description: ''
+      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+        est laborum."'
       operationId: GetaSubscription
       responses:
         200:
