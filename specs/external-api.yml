@@ -1046,13 +1046,7 @@ paths:
       tags:
       - TOKENIZE
       summary: Tokenize a Card
-      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-        est laborum."'
+      description: 'In order to store your customers payment details, you need to pass some additional parameter when making the first payment request using the payments/tokenize endpoint, the Cvv field and pin are optional(this could be null). After the first  payment is made, the payment details is collected and a token is generated for it which is then stored for future use.'
       operationId: TokenizeaCard
       requestBody:
         content:
@@ -1125,13 +1119,7 @@ paths:
       tags:
       - AUTHORISE
       summary: Authorise
-      description: '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-        est laborum."'
+      description: 'In SeerBit API, the term “authorisation” indicates, that payment is authorised but not captured. This allows a merchant to cancel transaction at their discretion, typically based but not limited to fraud-related activities. This authorisation state is valid for a limited period of time, which provides a window to cancel the transaction.'
       operationId: Authorise
       requestBody:
         content:
@@ -1235,7 +1223,7 @@ paths:
       tags:
       - AUTHORISE
       summary: 3DS Authorise
-      description: ''
+      description: 'PIN and CVV are not Required to complete Transaction. Authorization is completed on 3DS.'
       operationId: 3DSAuthorise
       requestBody:
         content:
@@ -1320,7 +1308,7 @@ paths:
       tags:
       - PREAUTHORIZATION
       summary: Capture
-      description: ''
+      description: 'Captures a payment if supported by the payment method.'
       operationId: Capture
       requestBody:
         content:
@@ -1404,7 +1392,7 @@ paths:
       tags:
       - PREAUTHORIZATION
       summary: Refund
-      description: ''
+      description: 'Refunds a payment if supported by the payment method.'
       operationId: Refund
       requestBody:
         content:
@@ -1482,7 +1470,7 @@ paths:
       tags:
       - PREAUTHORIZATION
       summary: Cancel
-      description: ''
+      description: 'Cancel a payment if supported by the payment method.'
       operationId: Cancel
       requestBody:
         content:
@@ -1556,7 +1544,7 @@ paths:
       tags:
       - RECURRENT
       summary: Initiate Subscription
-      description: ''
+      description: 'To complete this transaction, merchant is expected to redirect to the 3DSecure site via the redirect URL provided with the response below. However if the redirect url is not returned and the code is S20 and the message is transaction is pending, the Validate OTP endpoint should be called as the customer would have received a token either by email or sms on the customers phone. To get the subscription created or the status of a subscription for the customer, the GET Subscription endpoint is called by passing the paymentReference as billingId.'
       operationId: InitiateSubscription
       requestBody:
         content:
@@ -1649,7 +1637,7 @@ paths:
       tags:
       - RECURRENT
       summary: Get a Subscription
-      description: ''
+      description: 'Get customer subscription'
       operationId: GetaSubscription
       responses:
         200:
