@@ -1,11 +1,11 @@
 {
   "item": [
     {
-      "id": "8b351494-18cb-414c-a0cc-db5201c88760",
+      "id": "7212e267-c687-4fd0-964e-0641bd582bd3",
       "name": "encrypt",
       "item": [
         {
-          "id": "6d61b562-fa88-44ea-bc3f-40a80a92af12",
+          "id": "650d63a9-11f9-466e-8662-048e7fb50170",
           "name": "Generate Encrypted Secret Key",
           "request": {
             "name": "Generate Encrypted Secret Key",
@@ -39,7 +39,7 @@
           },
           "response": [
             {
-              "id": "42e9146a-c203-41aa-9b34-4dd0974e2a50",
+              "id": "75fbdecd-2e31-4f2a-ae3f-8258cbb95357",
               "name": "SUCCESS",
               "originalRequest": {
                 "url": {
@@ -72,7 +72,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "be2ae28b-e083-4537-9f13-10ddc8e720a1",
+              "id": "91449690-cf7c-492a-aad3-ccf3d0581844",
               "name": "Bad Request",
               "originalRequest": {
                 "url": {
@@ -105,7 +105,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "f17cfa43-0c02-4bc6-9988-edfae7879043",
+              "id": "c8433809-2d38-4f1d-91fc-fb429c1d67d0",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -138,7 +138,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "1f2f75c2-a9e3-428c-8e39-129ff730a08f",
+              "id": "30bc3080-9455-43dd-a231-91d280fb8a2f",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -174,7 +174,7 @@
           "event": []
         },
         {
-          "id": "abb063bf-af90-4b7c-9a3d-688eada39734",
+          "id": "fe8051c8-4b96-48cc-aba3-5900a2b70b1f",
           "name": "Generate Hash",
           "request": {
             "name": "Generate Hash",
@@ -208,7 +208,7 @@
           },
           "response": [
             {
-              "id": "82fe5929-9fd0-4675-93bd-362a0c3f9564",
+              "id": "d9090ea0-ed62-4edb-94f7-192cf2b12729",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -240,7 +240,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "401775b0-5a7d-408f-ae32-84fe8c3483a2",
+              "id": "ac2324a1-b3ce-4b61-a489-7a856480da94",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -273,7 +273,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "c424d256-2f4a-4af8-9a0e-429414bf1f9b",
+              "id": "a04eaf85-1a83-487e-a597-4cbdf3e35270",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -306,7 +306,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "28bc1672-d2ea-4c8c-ab50-2a3d26a6eebd",
+              "id": "211e2706-71f0-47f7-b10d-2ac1ff87b457",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -345,11 +345,11 @@
       "event": []
     },
     {
-      "id": "54cfa934-0351-43cb-b455-0aad8989a126",
+      "id": "a8f04bee-78e7-4bc9-9d94-5fd01a732d9b",
       "name": "payments",
       "item": [
         {
-          "id": "d12e839d-d2f7-4371-bb65-d7964ed09299",
+          "id": "cdd4285d-69cd-4ab4-967d-d9387b45cb36",
           "name": "Payment Link From Checkout",
           "request": {
             "name": "Payment Link From Checkout",
@@ -398,7 +398,7 @@
           },
           "response": [
             {
-              "id": "9061e544-54ad-4638-b8c9-31c889b7a6af",
+              "id": "1e0bc2de-44e8-4789-8b0c-9d2d2159cfe4",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -439,7 +439,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "de6e82c4-48eb-4775-a2d9-c514cb95a027",
+              "id": "9a29f46c-9c15-4ed3-95a8-3060d919c8e0",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -481,7 +481,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "6295c0de-e89e-4c3f-9973-71ca3ccd1180",
+              "id": "8ba42031-bac6-4bae-97bd-0c5bd23a4066",
               "name": "Unauthorized",
               "originalRequest": {
                 "url": {
@@ -523,7 +523,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "312940bc-9248-4a4e-ad43-d36db670e39e",
+              "id": "b8204ac6-1b91-428f-9a33-830d5c8f6d53",
               "name": "Header Token Missing",
               "originalRequest": {
                 "url": {
@@ -565,7 +565,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "8e824dd6-44d1-4a9e-9171-17fc502a4da3",
+              "id": "b71a5588-c41d-48c4-9b16-194954342496",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -607,7 +607,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "f833530d-d821-4225-9a39-f8952ae44540",
+              "id": "e0754d84-3f06-4469-8f6b-de0c259f6007",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -652,7 +652,7 @@
           "event": []
         },
         {
-          "id": "8bd21422-d4d3-4165-b879-8be00a4125b8",
+          "id": "af1a3992-bbdc-47f3-aff3-7e2de6999748",
           "name": "Create Order Before Payment",
           "request": {
             "name": "Create Order Before Payment",
@@ -702,7 +702,7 @@
           },
           "response": [
             {
-              "id": "6b664b3a-e75b-4da5-b1ee-a50b42b1a23b",
+              "id": "681f24f5-0efe-4b74-9722-dc1d11709e74",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -744,7 +744,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "e7129f55-440d-48bc-9702-3cc602e97194",
+              "id": "7a5a1bbc-fdfc-41d9-8dde-b2a54cd25ea6",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -787,7 +787,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "0965c21a-a309-435e-9b32-d293c98299e0",
+              "id": "9d91e298-c794-4600-9c13-305b57b0d6ea",
               "name": "Unauthorized",
               "originalRequest": {
                 "url": {
@@ -830,7 +830,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "06049446-3fb6-446b-8609-62a960f818a0",
+              "id": "6474fcf5-7aa1-4ea5-9843-5e12c0708f65",
               "name": "Missing Header Token",
               "originalRequest": {
                 "url": {
@@ -873,7 +873,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "fb2fd6f7-9ef2-45d6-91fa-d35976aaa694",
+              "id": "9e7bff83-d402-4842-a938-5425448f8d07",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -916,7 +916,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "7ac2d5c5-0a15-4d1e-9cb9-8c26ae6c8581",
+              "id": "a0600622-4eee-49db-b221-f9bcef76bf0f",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -962,7 +962,7 @@
           "event": []
         },
         {
-          "id": "c59a0df4-ce93-48d1-bd40-c0c0486e9d84",
+          "id": "51f66973-e037-46ac-8779-9da03a81cfe2",
           "name": "Initiate Payment",
           "request": {
             "name": "Initiate Payment",
@@ -1012,7 +1012,7 @@
           },
           "response": [
             {
-              "id": "c7a9ef79-a12a-4049-a08b-698dabc62f5b",
+              "id": "ad523275-977e-433e-b1fc-449f440401cc",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -1054,7 +1054,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "f69051e1-fe18-4492-85d1-5ccc42085438",
+              "id": "827fc11c-c9a6-41de-95a3-8e5aaddd8edd",
               "name": "Bad Request",
               "originalRequest": {
                 "url": {
@@ -1097,7 +1097,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "73e9febf-ada2-4050-8edb-5d585f4d5ac5",
+              "id": "9056dbf4-bd53-4e4c-afe1-921fb28712b3",
               "name": "Unauthorized",
               "originalRequest": {
                 "url": {
@@ -1140,7 +1140,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "9b92bf71-40e5-4630-b912-0501eb812b01",
+              "id": "708adb20-1dd0-43b9-9597-d8e8e0876850",
               "name": "Missing Header Token",
               "originalRequest": {
                 "url": {
@@ -1183,7 +1183,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "8890558c-caff-4fb8-931f-9b67b8ad5fd0",
+              "id": "fdf1dd96-9a49-4c56-b294-bfcf2c2cd3b8",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -1226,7 +1226,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "5c091897-5cd0-4c49-bcad-f2b4e038eeae",
+              "id": "a3630d8a-9853-4526-8d62-cd66891901a0",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -1272,7 +1272,7 @@
           "event": []
         },
         {
-          "id": "8495bc72-c551-4d5b-8685-1ee13ba736f5",
+          "id": "88791509-a81d-4b03-942d-5d0777c6765f",
           "name": "OTP Momo",
           "request": {
             "name": "OTP Momo",
@@ -1323,7 +1323,7 @@
           },
           "response": [
             {
-              "id": "7d867ed0-58cb-41b2-ba41-4df540984c51",
+              "id": "14bd2f8b-514e-4e5a-9252-3da31eaf3e19",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -1366,7 +1366,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "11c77894-730c-4098-96fd-07e62ab89396",
+              "id": "2f04d399-5b8e-428a-9920-329021aa0a6e",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -1410,7 +1410,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "29455e7c-a65f-43aa-8146-04507fb35395",
+              "id": "cf0304f8-8a68-4c1f-806b-410a80490e48",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -1454,7 +1454,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "4ace5e5f-99e1-4541-beb8-8104ebd2b909",
+              "id": "a25dfefd-c534-4083-81c4-d5f336b22ea4",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -1501,7 +1501,7 @@
           "event": []
         },
         {
-          "id": "df6c47d6-c1a3-4c33-82e4-5614ff299dc8",
+          "id": "af78ff4a-7493-4ef2-a27d-df835e5503dd",
           "name": "Charge Card",
           "request": {
             "name": "Charge Card",
@@ -1547,7 +1547,7 @@
           },
           "response": [
             {
-              "id": "da1c5b62-df02-4d1f-b708-fe76b20edf54",
+              "id": "aa468aa6-4490-4363-bcd3-5337fd940af7",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -1589,7 +1589,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "571533a0-5517-49ff-8ca7-2f340b1b6794",
+              "id": "b928b337-e29b-4b11-bfc8-b420854ee9ed",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -1632,7 +1632,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "80779cfb-6421-482f-8c74-001256606716",
+              "id": "fd8304d9-6ae8-4de2-a752-113e17d88c1c",
               "name": "Missing Header Token",
               "originalRequest": {
                 "url": {
@@ -1675,7 +1675,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "8eb23dfa-b5a4-44f8-b945-8748c06c14fc",
+              "id": "2ce2207c-3245-4479-a2af-04f7b9b85f92",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -1718,7 +1718,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "f7c42b85-19c2-4e20-acff-06654b0c44a1",
+              "id": "5d93a4b5-8b15-4bd3-9bce-4e69d0acb47f",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -1764,7 +1764,7 @@
           "event": []
         },
         {
-          "id": "261bd798-4629-4a66-87b5-360f6639ede0",
+          "id": "f77aeebd-e20b-4b64-8df4-8b5d7b69eede",
           "name": "Check Status",
           "request": {
             "name": "Check Status",
@@ -1805,7 +1805,7 @@
           },
           "response": [
             {
-              "id": "e081335d-eadf-403e-8653-78f4cbe97479",
+              "id": "e753c2a5-7f79-4f54-887f-c4b34f10f341",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -1845,7 +1845,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "524711c1-b7f4-41a5-9236-27b876b490f9",
+              "id": "6c8c8755-3f55-4f38-81e6-9fb54539f12f",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -1886,7 +1886,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "d831950e-b71b-4387-9555-f7f6d6eeb84e",
+              "id": "779c847e-006b-4418-8d48-442cb891736e",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -1927,7 +1927,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "99e5d3f6-564a-48ab-bffc-dd648034a9a2",
+              "id": "2746bd8f-84d2-4134-8cde-de1d5925ccf8",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -1971,7 +1971,7 @@
           "event": []
         },
         {
-          "id": "68613244-6104-4cf9-9cd1-d4c9a630eb70",
+          "id": "3b6f1b14-d476-4a29-9f73-a7706ea275ad",
           "name": "Validate Transaction",
           "request": {
             "name": "Validate Transaction",
@@ -2021,7 +2021,7 @@
           },
           "response": [
             {
-              "id": "a4f75ad6-82e2-428d-b4f1-d4ad229157be",
+              "id": "e2d1f95c-5edd-4efa-bc78-be7b13049004",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -2063,7 +2063,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "29ce2976-d1e7-44c7-bb50-6e8c8326ef55",
+              "id": "8f7e5ed6-b8f0-43f5-b3ea-b2252fca77ef",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -2106,7 +2106,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "619e60d5-64a2-4399-aca4-7245f18e5d1e",
+              "id": "70f810d2-06f3-44ec-950f-7a5b40694dc1",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -2152,12 +2152,12 @@
           "event": []
         },
         {
-          "id": "cd9e511a-4df9-4121-875a-1f75e936dbf0",
+          "id": "fa4eccb5-10df-4492-88d7-ca0df3f51e56",
           "name": "Tokenize a Card",
           "request": {
             "name": "Tokenize a Card",
             "description": {
-              "content": "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\"",
+              "content": "In order to store your customers payment details, you need to pass some additional parameter when making the first payment request using the payments/tokenize endpoint, the Cvv field and pin are optional(this could be null). After the first  payment is made, the payment details is collected and a token is generated for it which is then stored for future use.",
               "type": "text/plain"
             },
             "url": {
@@ -2198,7 +2198,7 @@
           },
           "response": [
             {
-              "id": "78e0a522-7ebf-44cb-81c9-1e915dff380b",
+              "id": "2d6616b2-a835-4fc3-8f23-c0f7e9ebcb79",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -2240,7 +2240,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "204749d0-3951-40af-a049-d3ecc00bab17",
+              "id": "3a3e1272-ad80-481c-b996-4340d79e4de3",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -2283,7 +2283,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "3490ecbc-a252-416e-87d4-b58ede7cee33",
+              "id": "789c38b7-fb62-4c05-b0b2-32348e3b5799",
               "name": "Unauthorized",
               "originalRequest": {
                 "url": {
@@ -2326,7 +2326,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "eb6444c0-f3ff-4578-aa10-61de6951db0d",
+              "id": "ffbe3618-aa2f-4212-a1fd-921b287c3a38",
               "name": "Missing Header Token",
               "originalRequest": {
                 "url": {
@@ -2369,7 +2369,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "0893b23f-5911-4673-b8ca-f34ee65c4d14",
+              "id": "889dc2a7-4d73-4e0b-b71e-4ab3a8cb0012",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -2412,7 +2412,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "f5b00475-2049-4728-8d3c-083513a3331d",
+              "id": "877e296d-1666-4e3c-a94e-ebca206bbed9",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -2458,12 +2458,12 @@
           "event": []
         },
         {
-          "id": "05be9fdf-4784-424d-8493-496766dcd367",
+          "id": "73410a01-1dab-4ddd-b732-fb38564a3561",
           "name": "Authorise",
           "request": {
             "name": "Authorise",
             "description": {
-              "content": "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\"",
+              "content": "In SeerBit API, the term “authorisation” indicates, that payment is authorised but not captured. This allows a merchant to cancel transaction at their discretion, typically based but not limited to fraud-related activities. This authorisation state is valid for a limited period of time, which provides a window to cancel the transaction.",
               "type": "text/plain"
             },
             "url": {
@@ -2504,7 +2504,7 @@
           },
           "response": [
             {
-              "id": "768361c0-3390-4a11-bb62-4e1bea00f306",
+              "id": "3c22d0e1-5e8c-42b7-b517-aa1ed2f64b04",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -2546,7 +2546,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "1bda3b45-9ff8-41fa-a738-d1c2c63e1665",
+              "id": "94bfd380-8de6-4fb6-aee2-4a29342bd4f6",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -2589,7 +2589,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "d9b3f06b-2ea8-4f2c-9b12-1fb71271e339",
+              "id": "8507414a-0c33-4a89-b544-863ed351629a",
               "name": "Unauthorized",
               "originalRequest": {
                 "url": {
@@ -2632,7 +2632,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "1e82c76d-8a15-4905-a69d-f3bf9638de9a",
+              "id": "0dbf13dd-049a-4b3f-bdbf-6fa48c85a518",
               "name": "Missing Header Token",
               "originalRequest": {
                 "url": {
@@ -2675,7 +2675,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "1cf4dade-860d-4154-9584-9a9b18b28abb",
+              "id": "cedcfe70-9e32-4286-b434-006425662345",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -2718,7 +2718,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "eaaa2246-579d-41e7-9008-1107b803e9c3",
+              "id": "5b1f0f18-21c2-4a46-bc4a-89d9fd259267",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -2764,12 +2764,12 @@
           "event": []
         },
         {
-          "id": "f79d5b17-1fa9-44ce-a70f-c50c01628a88",
+          "id": "b94458bf-7cd8-4c48-9a0c-e1c670768a18",
           "name": "3DS Authorise",
           "request": {
             "name": "3DS Authorise",
             "description": {
-              "content": "",
+              "content": "PIN and CVV are not Required to complete Transaction. Authorization is completed on 3DS.",
               "type": "text/plain"
             },
             "url": {
@@ -2814,7 +2814,7 @@
           },
           "response": [
             {
-              "id": "f2a13811-99f1-4e2e-be05-30c65ff74f44",
+              "id": "f44be732-182b-48f9-a2ea-e34bb68bc891",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -2856,7 +2856,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "39b0045a-d42a-455d-835f-9a384f69b060",
+              "id": "2c199a0b-43c9-4aaf-823d-fb254f5fb46c",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -2899,7 +2899,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "84968267-ba1d-407c-9ebd-c739eec2fc20",
+              "id": "30c9cd3c-b83f-4c66-9b55-2f473254c249",
               "name": "Unauthorized",
               "originalRequest": {
                 "url": {
@@ -2942,7 +2942,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "8e781ed4-9916-4ad7-a5e6-7dbfe591da98",
+              "id": "017f323c-45c2-4c3c-a56c-aaf1d2f9cfaf",
               "name": "Missing Header Token",
               "originalRequest": {
                 "url": {
@@ -2985,7 +2985,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "083fb0bb-c12d-4a51-a1bc-df7c9b98479a",
+              "id": "911fdf13-9046-41c5-baf1-49eb29a9f456",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -3028,7 +3028,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "5b7e9ba3-011d-4cdd-b29c-4408bd4059ab",
+              "id": "2ec0b2cc-478a-41d5-86b8-d9307ebaeec5",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -3074,12 +3074,12 @@
           "event": []
         },
         {
-          "id": "326147a1-3724-4398-b2a0-ae10c370b406",
+          "id": "dd9d0674-1ace-4c9d-8fce-39aff33d67cd",
           "name": "Capture",
           "request": {
             "name": "Capture",
             "description": {
-              "content": "",
+              "content": "Captures a payment if supported by the payment method.",
               "type": "text/plain"
             },
             "url": {
@@ -3120,7 +3120,7 @@
           },
           "response": [
             {
-              "id": "5506190e-9488-4eb5-aff6-f1827f1c2d3c",
+              "id": "20c47f1c-def1-4839-9be0-0339cec37ebf",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -3162,7 +3162,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "5d2bc8ac-0531-42df-b1f2-a6478ee994d8",
+              "id": "b5e5e811-265e-4d31-bf4b-dc9f9b03955a",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -3205,7 +3205,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "e246fb87-00e9-4698-a3fa-468f40458558",
+              "id": "142db2f7-338e-49f6-ab13-90af1557f9e4",
               "name": "Missing Header Token",
               "originalRequest": {
                 "url": {
@@ -3248,7 +3248,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "54458556-3521-4374-8a40-7ad515009d52",
+              "id": "28a92e22-7348-4a7e-a5a6-38297737da3f",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -3291,7 +3291,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "a2db40a7-f4fd-4658-870f-454d0781c06e",
+              "id": "fc8b9e5b-189b-4cf0-8e1d-b4ed7e38f849",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -3337,12 +3337,12 @@
           "event": []
         },
         {
-          "id": "831d64e7-2ea8-4bd0-9a1e-7067b4ed9f7f",
+          "id": "6be596b3-7391-45c5-9847-d29a95b6a66b",
           "name": "Refund",
           "request": {
             "name": "Refund",
             "description": {
-              "content": "",
+              "content": "Refunds a payment if supported by the payment method.",
               "type": "text/plain"
             },
             "url": {
@@ -3383,7 +3383,7 @@
           },
           "response": [
             {
-              "id": "ccdbcd34-4428-4f77-a1e7-787668bd67ef",
+              "id": "41f1cd20-5b49-44c2-9a5a-f82f6f8ceb94",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -3425,7 +3425,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "ffafd18a-77a7-4ab1-990d-756352560d22",
+              "id": "9c4b2c4b-e209-4d0f-acb6-c6d22b318207",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -3468,7 +3468,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "09dd982d-2cb9-4d32-93c7-549f212aaea6",
+              "id": "a9062378-7225-4c0a-9e26-5b17a16ae9b1",
               "name": "Missing Header Token",
               "originalRequest": {
                 "url": {
@@ -3511,7 +3511,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "f53ea19a-d636-4b75-a9ca-fa84cef33998",
+              "id": "cc31c910-8a09-4c09-a384-9e4f34deda52",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -3554,7 +3554,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "c5cd4441-ee9e-4662-9a54-4cda475622ff",
+              "id": "97cc3fbb-e04d-4421-9c39-43542c4df8aa",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -3600,12 +3600,12 @@
           "event": []
         },
         {
-          "id": "0f73c354-4f7b-41d6-87be-30f7adf6105e",
+          "id": "07c9c10a-3188-4a6c-9111-b83255f54ad7",
           "name": "Cancel",
           "request": {
             "name": "Cancel",
             "description": {
-              "content": "",
+              "content": "Cancel a payment if supported by the payment method.",
               "type": "text/plain"
             },
             "url": {
@@ -3646,7 +3646,7 @@
           },
           "response": [
             {
-              "id": "f82afda1-c6b8-4ade-bb90-e32abc51e0ba",
+              "id": "bc6ffc90-a976-4954-bf38-399cd39b3bcf",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -3688,7 +3688,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "414489ba-fb2e-49f1-9269-e9a4522f1b8a",
+              "id": "6e3530bc-8db2-4ba2-99af-b4534ce13793",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -3731,7 +3731,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "17200280-fe27-4a15-8e90-7fe3e2260dcc",
+              "id": "c84c8078-9391-4dad-8b72-dfbe4021ad89",
               "name": "Missing Header Token",
               "originalRequest": {
                 "url": {
@@ -3774,7 +3774,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "bbd32777-aa2a-44d7-b609-92aee07ab7a5",
+              "id": "8abd91ae-e3d9-4815-85dd-f08f03fbbd16",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -3817,7 +3817,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "12e2f7fe-36c1-4122-8931-f2e4a1b9138d",
+              "id": "bfce9650-5008-4173-93f2-50b3641dab48",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -3866,11 +3866,11 @@
       "event": []
     },
     {
-      "id": "6befd997-f023-4d72-8183-92d001eb45fe",
+      "id": "62a32e32-77fe-438c-856d-2b6dee66a666",
       "name": "products/orders",
       "item": [
         {
-          "id": "af695baf-5d3c-4096-ae15-dcb6c18a8bbc",
+          "id": "64a77b61-94be-48f8-b67d-0ded5600d297",
           "name": "Create Order After Payment",
           "request": {
             "name": "Create Order After Payment",
@@ -3920,7 +3920,7 @@
           },
           "response": [
             {
-              "id": "226da0e8-747b-4c01-b008-b3e232949159",
+              "id": "46c4378c-adfe-4d0f-a55e-ca9db6463a4e",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -3962,7 +3962,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "3e5da423-f138-4516-a3eb-937053a9c0a1",
+              "id": "7591bd9e-6156-4912-9f58-639037985344",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -4005,7 +4005,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "a29b5319-6c5c-4a38-b418-a671dc6647ea",
+              "id": "4e368769-bda5-4d25-87f7-2660a50a867c",
               "name": "Unauthorized",
               "originalRequest": {
                 "url": {
@@ -4048,7 +4048,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "ec99c9b2-8aff-442e-a3b9-fbbc9ef6b8a5",
+              "id": "3adaab13-5c5e-4315-8168-ef43e8b54c04",
               "name": "Missing Header Token",
               "originalRequest": {
                 "url": {
@@ -4091,7 +4091,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "6da4d994-f2ac-41e3-b2b8-9ce0384eff4a",
+              "id": "a4faec8c-9388-4634-901d-daa362c5eaa5",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -4134,7 +4134,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "8f774826-b228-4ea6-8586-a964be8c2ded",
+              "id": "d8cececd-b66b-4153-9bd2-59de68bca7fa",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -4180,7 +4180,7 @@
           "event": []
         },
         {
-          "id": "20b81696-c213-4249-bf2d-5a03108c54fa",
+          "id": "3a8aa60d-b1e5-42a1-ab74-26818db0ef07",
           "name": "Update Order",
           "request": {
             "name": "Update Order",
@@ -4230,7 +4230,7 @@
           },
           "response": [
             {
-              "id": "79f773f8-d054-4c2b-8f71-70f6cd9d39db",
+              "id": "4ddf9f5e-23a2-440f-ae0a-980802a864a8",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -4272,7 +4272,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "ad466784-144f-47bf-88b3-ec56a66ea8f7",
+              "id": "08a09f07-0d35-4087-9286-0493bde85cc7",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -4315,7 +4315,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "a2ba8bb0-5783-45a9-a587-23f7e9014ec3",
+              "id": "b0585450-b8a5-4339-a2f1-b20eb0749837",
               "name": "Unauthorized",
               "originalRequest": {
                 "url": {
@@ -4358,7 +4358,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "7a77af27-b3ae-46ad-92b4-001cf03ba868",
+              "id": "7397f08d-9075-42a2-a6bb-5fd720e49f60",
               "name": "Missing Header Token",
               "originalRequest": {
                 "url": {
@@ -4401,7 +4401,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "21678f69-0f4a-4809-940a-6810278667d9",
+              "id": "c737fe7a-8b76-4b2f-826a-f7c412d16602",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -4444,7 +4444,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "0f52afcf-d941-41df-9b4c-d28833427763",
+              "id": "e43780e6-9fdf-4ced-b2e1-2e9f65ca0a1d",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -4490,11 +4490,11 @@
           "event": []
         },
         {
-          "id": "7692eaee-ad08-49a5-b9b7-0fe873e52823",
+          "id": "2b3aaac5-c21c-4214-89d3-912a85232fe8",
           "name": "public Key/SBTESTPUBK 9s N3Tu Lg W6a9red Ef Y48c K Kk Ua09Pz2u",
           "item": [
             {
-              "id": "32c6d4ae-e8b5-4b88-8514-ea738fc6ee7b",
+              "id": "7f3085b0-27e2-48a9-b4e9-0e43cc2c793a",
               "name": "Get Orders",
               "request": {
                 "name": "Get Orders",
@@ -4536,7 +4536,7 @@
               },
               "response": [
                 {
-                  "id": "679c010d-8b03-4004-8f12-87150642bb69",
+                  "id": "52dc5263-2af7-48a6-a161-60ac6d1bda07",
                   "originalRequest": {
                     "url": {
                       "path": [
@@ -4577,7 +4577,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "0411d33d-5c59-44fa-aa8a-321ef4c34784",
+                  "id": "cfa6c411-353d-45c7-bc68-12a76da621d9",
                   "name": "Method Not Allowed",
                   "originalRequest": {
                     "url": {
@@ -4619,7 +4619,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "57753bc1-7315-4bff-b2e0-77284e6affc9",
+                  "id": "fd9315cc-f2f9-40da-8b8b-098c9841749c",
                   "name": "Unauthorized",
                   "originalRequest": {
                     "url": {
@@ -4661,7 +4661,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "62be314b-dfd8-48c1-99ca-46a5cbe41813",
+                  "id": "9465d16e-97af-4b0f-8f10-432fa2997796",
                   "name": "Missing Header Token",
                   "originalRequest": {
                     "url": {
@@ -4703,7 +4703,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "d300db70-5623-4179-9976-17d074d7bbf1",
+                  "id": "a283ce9d-f36e-4bc7-b24c-b4010b7f2447",
                   "name": "Not Found",
                   "originalRequest": {
                     "url": {
@@ -4745,7 +4745,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "4cae2ca8-8743-4750-bd7b-6504229a5940",
+                  "id": "09bf12ef-3f3f-4f11-9c34-c81a267f5492",
                   "name": "Internal Server Error",
                   "originalRequest": {
                     "url": {
@@ -4790,7 +4790,7 @@
               "event": []
             },
             {
-              "id": "123db1aa-b7b6-4113-9102-abacd8ccaad8",
+              "id": "0a02e6ec-f7f4-4511-849a-5ff54ca4512b",
               "name": "Get an Order with Payment Reference",
               "request": {
                 "name": "Get an Order with Payment Reference",
@@ -4834,7 +4834,7 @@
               },
               "response": [
                 {
-                  "id": "c3bae692-d660-4d82-bf9a-787b903c26ac",
+                  "id": "c346e7de-9851-4dee-996d-8eeb741a9d91",
                   "originalRequest": {
                     "url": {
                       "path": [
@@ -4877,7 +4877,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "93a09562-42f2-4049-bd44-48d4d05292a0",
+                  "id": "63e483b5-be25-43d8-b49f-36b5d7f14a73",
                   "name": "Method Not Allowed",
                   "originalRequest": {
                     "url": {
@@ -4921,7 +4921,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "e82d2803-4aa8-4243-9374-75ff2c92f4eb",
+                  "id": "4bd5404b-c70b-4531-b3f7-789a6227f538",
                   "name": "Unauthorized",
                   "originalRequest": {
                     "url": {
@@ -4965,7 +4965,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "9cffcc30-aa9c-4f23-9594-c6b8bc3c1f14",
+                  "id": "9fbe906c-c2b4-424d-8a00-390bbcb59e0d",
                   "name": "Missing Header Token",
                   "originalRequest": {
                     "url": {
@@ -5009,7 +5009,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "b92043d5-1641-4b9b-907d-f41fb2ed5481",
+                  "id": "e98cfeeb-1606-4587-bc03-018bb8e9f25d",
                   "name": "Not Found",
                   "originalRequest": {
                     "url": {
@@ -5053,7 +5053,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "4e4aaf38-0d13-4606-bd3b-a18d0cc39895",
+                  "id": "470184c2-4516-40c3-a584-c9210f8bf0ef",
                   "name": "Internal Server Error",
                   "originalRequest": {
                     "url": {
@@ -5100,7 +5100,7 @@
               "event": []
             },
             {
-              "id": "fd147380-cb9c-4a4c-b1cb-9b846ce83342",
+              "id": "fca22335-a2de-4aa5-a707-cb3d3eedba2f",
               "name": "Get Order with Order Id",
               "request": {
                 "name": "Get Order with Order Id",
@@ -5144,7 +5144,7 @@
               },
               "response": [
                 {
-                  "id": "abd3b2a5-4d32-47f8-af1a-f49fcf07c980",
+                  "id": "15654bd6-e992-4180-83db-34b6085935af",
                   "originalRequest": {
                     "url": {
                       "path": [
@@ -5187,7 +5187,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "38fc3c0d-8347-467c-aaa0-c0d5646decf7",
+                  "id": "c9d8a5fe-5e2f-4d3a-8312-1c2bc0b8231d",
                   "name": "Method Not Allowed",
                   "originalRequest": {
                     "url": {
@@ -5231,7 +5231,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "8c92db50-a905-45e8-b084-d89ce397203e",
+                  "id": "05f63f3a-4c99-4658-af20-a456cb034584",
                   "name": "Unauthorized",
                   "originalRequest": {
                     "url": {
@@ -5275,7 +5275,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "1c347d76-d0a7-4a11-a3c2-0c16af94808c",
+                  "id": "eae5d528-cd25-4318-be85-72e853b4f017",
                   "name": "Missing Header Token",
                   "originalRequest": {
                     "url": {
@@ -5319,7 +5319,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "d5ed1316-8f28-4ff1-ab6f-c5a46b68d504",
+                  "id": "9dd5ea5f-ae96-48e6-b458-bc5f602bf6b5",
                   "name": "Not Found",
                   "originalRequest": {
                     "url": {
@@ -5363,7 +5363,7 @@
                   "_postman_previewlanguage": "json"
                 },
                 {
-                  "id": "90a8935c-37fc-4a4c-b528-f8ec05954bd5",
+                  "id": "b8169516-034c-4e31-8d29-054e4dfc9450",
                   "name": "Internal Server Error",
                   "originalRequest": {
                     "url": {
@@ -5416,7 +5416,7 @@
       "event": []
     },
     {
-      "id": "01389aa7-3af2-4785-9262-fe7a4bab8634",
+      "id": "4cfca471-257f-4b98-b9a1-a78ff9e2b809",
       "name": "Get Banks",
       "request": {
         "name": "Get Banks",
@@ -5441,7 +5441,7 @@
       },
       "response": [
         {
-          "id": "377623a3-61cb-4b53-a53c-7895e447b788",
+          "id": "881e6689-1fb6-4029-b2a4-8f54a0fd0cf2",
           "originalRequest": {
             "url": {
               "path": [
@@ -5471,7 +5471,7 @@
           "_postman_previewlanguage": "json"
         },
         {
-          "id": "4b0d2a13-54d6-4e23-9cdc-31b4c1fe1039",
+          "id": "ffc4c8b5-6fdf-4baf-836a-a97570f8a1d8",
           "name": "Method Not Allowed",
           "originalRequest": {
             "url": {
@@ -5502,7 +5502,7 @@
           "_postman_previewlanguage": "json"
         },
         {
-          "id": "a3960f70-e532-4dc4-9d83-410ac41dde6f",
+          "id": "851e304c-144a-4d9f-8201-9eccd83fc6ac",
           "name": "Not Found",
           "originalRequest": {
             "url": {
@@ -5533,7 +5533,7 @@
           "_postman_previewlanguage": "json"
         },
         {
-          "id": "ce8da718-09e1-4b3e-bc44-90f7ee171639",
+          "id": "3900f9d6-5a61-4dc2-8a37-511bbb906e64",
           "name": "Internal Server Error",
           "originalRequest": {
             "url": {
@@ -5567,16 +5567,16 @@
       "event": []
     },
     {
-      "id": "f246f2fb-d779-4c0a-ae44-4ac86b310388",
+      "id": "c5a2971b-22a5-4df0-8fab-d4621159b724",
       "name": "recurring",
       "item": [
         {
-          "id": "c08997c6-318a-4281-b120-57f2996afdf3",
+          "id": "ff300f53-d3b8-4da1-9930-7a431450de85",
           "name": "Initiate Subscription",
           "request": {
             "name": "Initiate Subscription",
             "description": {
-              "content": "",
+              "content": "To complete this transaction, merchant is expected to redirect to the 3DSecure site via the redirect URL provided with the response below. However if the redirect url is not returned and the code is S20 and the message is transaction is pending, the Validate OTP endpoint should be called as the customer would have received a token either by email or sms on the customers phone. To get the subscription created or the status of a subscription for the customer, the GET Subscription endpoint is called by passing the paymentReference as billingId.",
               "type": "text/plain"
             },
             "url": {
@@ -5621,7 +5621,7 @@
           },
           "response": [
             {
-              "id": "6e986a95-1e0c-4842-983f-ba8cad956f54",
+              "id": "f13e1bee-dcda-4b60-9335-74a13c0707d4",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -5663,7 +5663,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "8a93dc1c-1763-4870-b369-497454d0eada",
+              "id": "ee6e9adb-9b46-4d4f-8486-508fc4e8febf",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -5706,7 +5706,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "b348a56c-d3b9-4bc1-b83e-3dfbdaee8cb4",
+              "id": "32c1b8e6-f394-4e71-a378-78a5ba4bd816",
               "name": "Unauthorized",
               "originalRequest": {
                 "url": {
@@ -5749,7 +5749,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "2ad446d1-eaba-4bbe-9e1a-9654e9ed92e1",
+              "id": "8c28a541-1919-4811-b5b4-fb3d827fdc8f",
               "name": "Missing Header Token",
               "originalRequest": {
                 "url": {
@@ -5792,7 +5792,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "371f94c7-820d-47cb-aa61-9ccbcc1c67d4",
+              "id": "d09a421e-fed2-4d82-b3ff-05f45178e9ad",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -5835,7 +5835,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "7582ab01-4353-4336-ab91-3b264eae4e2b",
+              "id": "2c6dfcd9-05f6-4a53-9334-7a8e09bb1ee3",
               "name": "Conflict",
               "originalRequest": {
                 "url": {
@@ -5878,7 +5878,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "5679bc9a-2fa8-4e6e-8e05-de0d941565d1",
+              "id": "4b3519c5-c091-43ef-8218-675067b97b70",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -5924,12 +5924,12 @@
           "event": []
         },
         {
-          "id": "f74b37b2-0d53-4f06-91ac-06e0458c919a",
+          "id": "6c386e43-8e0e-4408-b7b9-8682c1e5a66c",
           "name": "Get a Subscription",
           "request": {
             "name": "Get a Subscription",
             "description": {
-              "content": "",
+              "content": "Get customer subscription",
               "type": "text/plain"
             },
             "url": {
@@ -5965,7 +5965,7 @@
           },
           "response": [
             {
-              "id": "4548f7b5-43b0-46d3-8ed8-2292042e0a17",
+              "id": "088a06ef-079c-4cc8-93d7-5fb7fac2087f",
               "originalRequest": {
                 "url": {
                   "path": [
@@ -6005,7 +6005,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "551edd75-79c9-42ab-814b-19a0d3887f63",
+              "id": "659982fa-2b4e-4e5c-98b3-fb75451f7bea",
               "name": "Method Not Allowed",
               "originalRequest": {
                 "url": {
@@ -6046,7 +6046,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "b107a858-40f0-499f-bd52-a2fd5e7a8749",
+              "id": "e530c4ad-27b1-4ebe-ab1f-cfad19d21b70",
               "name": "Not Found",
               "originalRequest": {
                 "url": {
@@ -6087,7 +6087,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "574b7ea4-ca75-4168-9b04-84fb969344b5",
+              "id": "6584f0c5-a25f-40b9-9abe-087bdaf320cf",
               "name": "Internal Server Error",
               "originalRequest": {
                 "url": {
@@ -6158,7 +6158,7 @@
     }
   ],
   "info": {
-    "_postman_id": "362cd8cf-85e1-4ce6-948b-2f129ff73afe",
+    "_postman_id": "6abb251b-6664-4978-8efe-bc84ec2640df",
     "name": "SeerBit API Reference",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": {
