@@ -1,3 +1,7 @@
+<div align="center">
+ <img width="400" valign="top" src="https://assets.seerbitapi.com/images/seerbit_logo_type.png">
+</div>
+
 # SeerBit OpenAPI Spec & Documentation
 
 Main Documentation: https://doc.seerbit.com/
