@@ -2,7 +2,7 @@
  * Modify PM Collection
  * + adds variables
  * + variables' values read from openAPI spec yaml file
- * 
+ *
  * Specify optionally:
  *   -i PM Collection to be modified
  *   -a openAPI spec yaml file
@@ -23,7 +23,7 @@ console.log("Reading auths from examples in " + apiSpecFile);
 
 var specToken, specPK;
 try {
-  specPK = apiSpec.components.schemas.CaptureRequest.example.publicKey;
+  specPK = apiSpec.components.schemas.GenerateHashRequest.example.publicKey;
   specToken =
     apiSpec.components.schemas.GenerateEncryptedSecretKeyResponse.example.data
       .EncrytedSecKey.encryptedKey;
@@ -34,7 +34,7 @@ try {
 console.log("Token: " + specToken);
 console.log("Username (Public Key): " + specPK);
 
-console.log("Reading converted PM Collection " + pmInputFile)
+console.log("Reading converted PM Collection " + pmInputFile);
 var convertedPMC = JSON.parse(fs.readFileSync(pmInputFile).toString());
 
 convertedPMC.variable = [
