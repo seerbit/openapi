@@ -1,0 +1,2863 @@
+{
+  "info": {
+    "_postman_id": "a79d34ce-b3cd-4be3-97de-021f995c5a63",
+    "name": "docs collection",
+    "description": "SeerBit payment API collection, rebuilt to match doc.seerbit.com only (checked 2026-08-25) per an explicit instruction that doc.seerbit.com is the single source of truth. A prior pass had pulled in several endpoints from https://seerbit.github.io/openapi/ (Order Checkout, Authorization/Pre-Authorization, Initiate Payment/MOMO/non-3DS charge/Validate, Tokenize a Card, Initiate Subscription, Get a Subscription by billingId) that could not be located anywhere on doc.seerbit.com itself — those have been removed. Two new sections doc.seerbit.com does document but the original collection never covered — Payout and Partners API — have been added.\n\n### Getting started\n1. **Get your keys.** From your SeerBit dashboard, grab your `SECRET_KEY` and `publicKey`.\n2. **Mint a Bearer token.** Run *Authentication → Generate Encrypted Key* once. It returns an `EncryptedSecKey` — paste that into the `BearerToken` collection variable. Every other request in this collection inherits Bearer auth from the collection root, so you only set this in one place.\n3. **Set your variables.** At minimum fill in `publicKey` and `BearerToken` under this collection's Variables tab (or in an environment). Individual folders need extra variables of their own (e.g. `pocketID` and `passKey` for Payout) — each request's description lists what it needs.\n4. **A few endpoints break the pattern:**\n   - *Generate Encrypted Key* and the Partners API auth endpoints (*Partner Login*, *Request Password Reset*, *Reset Password*) are set to **No Auth** — you don't have a token yet when you call them.\n   - Several Payout and Partners endpoints need Bearer auth **plus** a `Public-Key` header. That's called out per request below.\n\n### Variable Reference\nPostman's collection-level Variables tab (where you set `publicKey`, `BearerToken`, etc.) doesn't support per-variable descriptions — this table is the substitute, kept here so it's visible without opening each request.\n\n| Variable | Description |\n|---|---|\n| `publicKey` | Your merchant public key from the SeerBit dashboard. Sent in the body of most payment-initiation requests (never as a header) to identify which merchant account a transaction belongs to. |\n| `BearerToken` | OAuth access token returned by Get Access Token (Authentication folder). Sent as `Authorization: Bearer {{BearerToken}}` on requests that require an authenticated merchant session. |\n| `SECRET_KEY` | Your merchant secret key from the SeerBit dashboard. Used together with your public key to generate the encrypted key for Get Access Token — never send this in a request body or expose it client-side. |\n| `paymentReference` | A unique reference you generate per transaction attempt (not returned by SeerBit). Used to initiate a payment and to look it up afterwards via Check Payment Status. |\n| `customerId` | SeerBit's identifier for a customer, typically returned after tokenizing a card or creating a customer-linked resource such as a subscription plan. |\n| `billingId` | Identifier for a specific billing/recurring-charge record under a subscription plan. |\n| `batchId` | Identifier for a batch operation, e.g. a bulk invoice or bulk payout batch, used to check the status of the whole batch. |\n| `accountNumber` | A bank account number — either a virtual account SeerBit provisioned for a customer, or (for Payout/Bank Account Payment) the destination/source account to move funds to or from. |\n| `reference` | A generic transaction or operation reference used to look up a specific record where no more specific reference variable applies. |\n| `paymentLinkId` | Identifier for a payment link created via the Payment Links folder, used to fetch, update, or delete that link. |\n| `authorizationCode` | Card authorization code returned after a successful tokenized charge, used to charge the same card again without re-entering card details. |\n| `planId` | Identifier for a recurring/subscription plan created via the Recurring & Subscriptions folder. |\n| `pocketID` | Identifier for a SeerBit Pocket (an internal sub-wallet under your merchant account), used to fund, debit, or transfer between pockets. |\n| `passKey` | A pocket-specific security key required to authorize certain Pocket operations, separate from your account-level public/secret keys. |\n| `payoutSignature` | HMAC signature you generate to authenticate a Payout request, proving it was signed with your secret key rather than tampered with in transit. |\n| `partnerId` | Identifier for a partner/sub-merchant account under the Partners API, used to manage that partner's businesses and settings. |\n| `businessId` | Identifier for a specific business/sub-account created under a partner via the Partners API. |\n| `partnerPassword` | Password used to authenticate as a partner when calling Partners API endpoints. |\n| `newPartnerPassword` | New password value when calling a Partners API endpoint that changes a partner's password. |\n| `destinationPocketID` | The receiving Pocket's identifier in a Pocket-to-Pocket transfer, as distinct from the source `pocketID`. |\n| `pocketEmail` | Email address associated with a Pocket, used for Pocket creation or lookup. |\n| `pocketPassword` | Password for a Pocket account, required to authorize sensitive Pocket operations. |\n| `newPocketPassword` | New password value when calling the Pocket password-change endpoint. |\n| `yourWebhookUrl` | Placeholder for the callback URL you register with SeerBit to receive inbound webhook events (see the Webhooks (reference) folder) — not an endpoint you call, just documents what SeerBit will POST to. |\n| `customerEmail` | Customer email address used to look up invoices via Get Invoice by Customer Email. |\n| `InvoiceNo` | An invoice's number (e.g. SBT-INV-000054), used to fetch, resend, or reference a specific invoice. |\n| `orderNo` | The order number you supplied when creating an invoice, used to look that invoice up again. |\n\n### Response shape\nMost successful responses follow `{ \"status\": \"SUCCESS\", \"data\": { \"code\": \"00\", ... }, \"message\": \"Successful\" }`. A non-\"00\" `code` inside a 200 response usually still means something went wrong downstream (e.g. with the processor) — check `code` and `message`, not just the HTTP status.\n\n### Known inconsistencies (kept, not silently fixed)\n- Invoicing uses `merchant.seerbitapi.com` (singular) while Subscriptions/Plans use `merchants.seerbitapi.com` (plural). Both are correct as documented — easy to mistype.\n- The Payout doc page's own worked examples for *Generate OTP* / *Generate Signature* show `\"actionItem\"`/`\"actionType\": \"APPROVE_DISBURSEMENT\"`, while this collection's saved bodies use `\"PAYOUT\"`. Flagged in both requests — confirm which your sandbox actually accepts before relying on it.\n\nAuth is centralised at the collection level (Bearer, using `BearerToken`); a few payout/partner endpoints additionally need a `Public-Key` header (added per-request).\n\n### 2026-09-02 update\n- Added the **Pocket** folder (9 endpoints) — fully documented on doc.seerbit.com but missing from the original collection. Separate from Payout: Pocket-to-Pocket transfers stay internal; Payout sends money to an external bank.\n- Added a **Webhooks (reference)** folder — not callable requests, but the 6 inbound event payloads SeerBit POSTs to your callback URL, plus the V1/V2 acknowledgment protocol.\n- Fixed *Check Payment Status* to `/api/v3/...` (was v2) and *Standard Checkout*'s split-payment field from a flat `splitCode` to the documented `splits` object — both corrected against doc.seerbit.com.\n- Refund and Disputes & Chargebacks (After Payment nav items) intentionally left out of this pass.\n\n### 2026-09-02 update (2)\n- Added the **Payment Methods** folder (5 endpoints: Card, Bank Account, Transfer, USSD, Mobile Money Payment) — the doc site's \"PAYMENT METHODS\" nav section, entirely missing from the collection before this pass. All POST to `/api/v2/payments/initiates` with a `paymentType` discriminator; this is a direct/inline (PCI-scoped) alternative to the hosted-redirect **Standard Checkout** flow.\n- **Bank Account Payment** has two details flagged as unconfirmed in its own request description (the `paymentType` value, and a possible separate `/payments/validate` endpoint for OTP) rather than guessed — verify with SeerBit before using it.\n- Checked `doc.seerbit.com/libraries-plugins/integrations`: it documents Firebase-based ISV/POS reconciliation integrations (Odoo, Sage, Salesforce, Microsoft Business Central), not distinct API endpoints — nothing to add to this collection from that page.\n\n### 2026-09-03 update\n- Attempted to add descriptions to every collection variable, but Postman's collection-level **Variables** tab has no Description column and the API rejects a `description` field on collection variables entirely — that's a Postman product limitation, not something fixable from here. Corrected below: added a **Variable Reference** table to this Overview page instead, which is the one place in Postman collection-level variable descriptions can actually render.\n- Split **Standard Checkout** into three requests in the same folder: **Normal Payment (No Split)** (the original request, split fields removed), **Easy Split (Split Code)** (references a pre-configured split rule via `splitCode`), and **Full Dynamic Split** (recipients/shares specified inline via a `splits` object). Previously these were conflated into one request.\n- Added 4 requests to **Invoicing**: **Re-send an Invoice**, **Get Invoice by Customer Email**, **Get Invoice by Invoice Number**, **Get Invoice by Order Number** — confirmed against SeerBit's API reference (apis.seerbit.com). Flagged a host discrepancy: these use `seerbitapi.com/invoice/...` (matching the existing Create Invoice request) while doc.seerbit.com's Invoicing page shows `merchant.seerbitapi.com` instead — not resolved, both are documented, verify which one is live for your account.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "createdAt": "2026-09-02T17:09:40.000Z",
+    "updatedAt": "2026-09-03T16:27:59.000Z",
+    "lastUpdatedBy": "37518756",
+    "uid": "37518756-a79d34ce-b3cd-4be3-97de-021f995c5a63"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Generate Encrypted Key",
+          "id": "dd7e8a41-8305-431c-a0eb-b642b2da9dcb",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"key\": \"{{SECRET_KEY}}.{{publicKey}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/encrypt/keys",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "encrypt",
+                "keys"
+              ]
+            },
+            "description": "Exchanges your `SECRET_KEY` and `publicKey` for an `EncryptedSecKey`. Use that value as the `BearerToken` collection variable — it's the Bearer token for every other authenticated request here. Call this once per session, or whenever your key changes; it does not expire on a fixed schedule but should be re-generated if a request starts failing auth.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `key` | string | Yes | Your `SECRET_KEY` and `publicKey` joined with a period: `SECRET_KEY.publicKey` |\n\nThis endpoint is intentionally **No Auth** — you don't have a token yet when you call it."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:55:09.000Z",
+          "uid": "37518756-dd7e8a41-8305-431c-a0eb-b642b2da9dcb"
+        },
+        {
+          "name": "Generate Hash",
+          "id": "83409f5c-b1f1-4c94-af9e-e0d0b94b615d",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"paymentReference\": \"sub_ref_001\",\n    \"planId\": \"{{planId}}\",\n    \"cardNumber\": \"5123450000000008\",\n    \"expiryMonth\": \"01\",\n    \"callbackUrl\": \"https://example.com/callback\",\n    \"expiryYear\": \"28\",\n    \"cvv\": \"000\",\n    \"amount\": \"100\",\n    \"currency\": \"NGN\",\n    \"productDescription\": \"Subscription\",\n    \"productId\": \"product222\",\n    \"country\": \"NG\",\n    \"startDate\": \"2026-09-01\",\n    \"cardName\": \"Jane Doe\",\n    \"billingCycle\": \"MONTHLY\",\n    \"email\": \"customer@example.com\",\n    \"mobileNumber\": \"08012345678\",\n    \"billingPeriod\": \"1\",\n    \"subscriptionAmount\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/encrypt/hashs",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "encrypt",
+                "hashs"
+              ]
+            },
+            "description": "Generic hash-generation endpoint — you pass the exact same body as the request you want a hash for, and SeerBit returns a hash you attach to that other call. The doc page's own worked example happens to use a subscription-creation payload (shown in this request's saved body); swap the body for whatever request you're actually hashing, keeping the same field names and types that request expects.\n\n**Not independently re-confirmed in this pass:** the doc page's response example describes the _downstream_ payment response (redirectUrl, paymentReference) rather than what this endpoint itself returns — no saved example response here; verify against a live sandbox call before relying on the shape."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T10:00:34.000Z",
+          "uid": "37518756-83409f5c-b1f1-4c94-af9e-e0d0b94b615d"
+        }
+      ],
+      "id": "43063e0b-aad4-4d8a-8b64-9bd9dd5b5e36",
+      "description": "Turns your dashboard `SECRET_KEY` and `publicKey` into the Bearer token every other request in this collection uses, and generates signed hashes for the handful of endpoints that require one. Always start here.\n\n### Variables used in this folder\n\n| Variable | Description |\n|---|---|\n| `publicKey` | Your merchant public key from the SeerBit dashboard. Sent in the body of most payment-initiation requests (never as a header) to identify which merchant account a transaction belongs to. |\n| `SECRET_KEY` | Your merchant secret key from the SeerBit dashboard. Used together with your public key to generate the encrypted key for Get Access Token — never send this in a request body or expose it client-side. |\n| `planId` | Identifier for a recurring/subscription plan created via the Recurring & Subscriptions folder. |",
+      "createdAt": "2026-09-02T17:09:41.000Z",
+      "updatedAt": "2026-09-02T17:09:41.000Z",
+      "uid": "37518756-43063e0b-aad4-4d8a-8b64-9bd9dd5b5e36"
+    },
+    {
+      "name": "Standard Checkout",
+      "item": [
+        {
+          "name": "Normal Payment (No Split)",
+          "id": "088dca44-bfcc-40bd-b689-4a7ab5421647",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"amount\": \"5000.00\",\n    \"currency\": \"NGN\",\n    \"country\": \"NG\",\n    \"paymentReference\": \"payment_reference8\",\n    \"email\": \"customer@example.com\",\n    \"fullName\": \"Jane Doe\",\n    \"tokenize\": false,\n    \"callbackUrl\": \"https://example.com/callback\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/payments",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "payments"
+              ]
+            },
+            "description": "Creates a transaction and returns a `redirectLink` to SeerBit's hosted checkout page — send the customer there to enter payment details and complete the charge. No card data touches your server with this flow, and the full amount settles to your main merchant account with no split.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `publicKey` | string | Yes | Merchant public key from the dashboard |\n| `amount` | string | Yes | Amount to charge |\n| `currency` | string | Yes | Transaction currency, e.g. `NGN`, `USD` |\n| `country` | string | Yes | Country the transaction originates from |\n| `paymentReference` | string | Yes | Unique reference you generate per transaction |\n| `email` | string | Yes | Customer email address |\n| `fullName` | string | Yes | Customer full name |\n| `callbackUrl` | string | Yes | Where SeerBit redirects the customer after payment |\n| `tokenize` | boolean | No | **Confirmed by SeerBit.** If `true`: (1) the checkout page on `redirectLink` only offers **Card** as a payment method — no bank transfer, USSD, or other channels; (2) SeerBit tokenizes the card, and the resulting `authorizationCode` is not in this endpoint's own response — it's returned when you call **Check Payment Status** afterward with the `paymentReference`. Use that `authorizationCode` with *Charge Authorization Token* / *Bulk Charge Token* to charge the same card again. Defaults to `false` if omitted. |\n\nThis is the baseline request with no split fields — see the sibling requests in this folder **Standard Checkout — Easy Split (Split Code)** and **Standard Checkout — Full Dynamic Split** for the two ways to divide a payment across sub-accounts.\n\nA `409` means `paymentReference` has already been used — generate a new one per attempt, don't retry with the same value."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T10:15:35.000Z",
+          "uid": "37518756-088dca44-bfcc-40bd-b689-4a7ab5421647"
+        },
+        {
+          "name": "Standard Checkout — Easy Split (Split Code)",
+          "id": "79a129fe-920d-4668-b816-f6f1e70b92a2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"amount\": \"5000.00\",\n    \"currency\": \"NGN\",\n    \"country\": \"NG\",\n    \"paymentReference\": \"payment_reference_split_code1\",\n    \"email\": \"customer@example.com\",\n    \"fullName\": \"Jane Doe\",\n    \"tokenize\": false,\n    \"callbackUrl\": \"https://example.com/callback\",\n    \"splitCode\": \"SPLIT_RULE_CODE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/payments",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "payments"
+              ]
+            },
+            "description": "Same Standard Checkout flow as **Normal Payment (No Split)**, plus a single `splitCode` field: the code of a split rule you pre-configure once (recipients, percentages/amounts, fee bearer) on the SeerBit dashboard, then reference by code at payment time. This is the \"easy\" option — you don't specify recipients or amounts inline; the rule already defines them.\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `splitCode` | string | Yes (for this variant) | Reference to a split rule created in advance on the SeerBit dashboard. |\n| `tokenize` | boolean | No | **Confirmed by SeerBit.** If `true`, the checkout page restricts payment to **Card only**, and the `authorizationCode` for the tokenized card comes back from **Check Payment Status**, not this endpoint's own response. Defaults to `false`. |\n| *(all other fields)* | | Yes | Same as **Normal Payment (No Split)** |\n\nUse this when your split recipients and their shares are fixed and known ahead of time. If you need to set the split's recipients or shares dynamically per transaction, use **Standard Checkout — Full Dynamic Split** instead.\n\n**Not fully confirmed**: doc.seerbit.com documents `splitCode` only as `\"Split rule Code\"` in an example body, without a dedicated page describing how split rules are created on the dashboard or the exact code format — check your dashboard's split-rule setup screen for the value to use here."
+          },
+          "response": [],
+          "createdAt": "2026-09-03T08:03:22.000Z",
+          "updatedAt": "2026-09-03T10:15:40.000Z",
+          "uid": "37518756-79a129fe-920d-4668-b816-f6f1e70b92a2"
+        },
+        {
+          "name": "Standard Checkout — Full Dynamic Split",
+          "id": "295a63a4-2816-4cbc-bb3f-5db7615e0371",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"amount\": \"5000.00\",\n    \"currency\": \"NGN\",\n    \"country\": \"NG\",\n    \"paymentReference\": \"payment_reference_dynamic1\",\n    \"email\": \"customer@example.com\",\n    \"fullName\": \"Jane Doe\",\n    \"tokenize\": false,\n    \"callbackUrl\": \"https://example.com/callback\",\n    \"splits\": {\n        \"type\": \"PERCENTAGE\",\n        \"transactionFee\": \"PARENT_ACCOUNT\",\n        \"items\": [\n            {\n                \"subAccountCode\": \"SUB_ACC_001\",\n                \"value\": \"30\"\n            }\n        ]\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/payments",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "payments"
+              ]
+            },
+            "description": "Same Standard Checkout flow as **Normal Payment (No Split)**, plus a `splits` object defining recipients and shares inline, at payment time — no pre-configured split rule needed. Use this when split details aren't known in advance (e.g. a marketplace computing a different vendor split per order).\n\n**`splits` object fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `type` | string | Yes | `FLAT` (fixed amount per recipient) or `PERCENTAGE` |\n| `transactionFee` | string | Yes | Who bears the transaction fee — `ALL_ACCOUNTS`, `PROPORTIONATE`, `SUB_ACCOUNT`, or `PARENT_ACCOUNT` |\n| `bearerSubAccountCode` | string | Only if `transactionFee` is `SUB_ACCOUNT` | Which sub-account bears the fee |\n| `items` | array | Yes | Each entry: `subAccountCode` and its `value` (amount or percentage, matching `type`) |\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `tokenize` | boolean | No | **Confirmed by SeerBit.** If `true`, the checkout page restricts payment to **Card only**, and the `authorizationCode` for the tokenized card comes back from **Check Payment Status**, not this endpoint's own response. Defaults to `false`. |\n| *(all other core fields)* | | Yes | Same as **Normal Payment (No Split)** |\n\nCompare **Standard Checkout — Easy Split (Split Code)**, which references a split rule you configured ahead of time instead of specifying recipients inline."
+          },
+          "response": [],
+          "createdAt": "2026-09-03T08:03:22.000Z",
+          "updatedAt": "2026-09-03T10:15:46.000Z",
+          "uid": "37518756-295a63a4-2816-4cbc-bb3f-5db7615e0371"
+        }
+      ],
+      "id": "d911fd7b-b822-4f22-99a3-6382bdd8beef",
+      "description": "The simplest way to collect a payment: create a transaction and redirect the customer to SeerBit's hosted checkout page to complete it. No card data ever touches your servers.\n\nThree ways to use Standard Checkout, in this folder: **Normal Payment (No Split)** (full amount to your main account), **Easy Split (Split Code)** (pre-configured split rule referenced by code), and **Full Dynamic Split** (split recipients/shares specified inline per transaction).\n\n### Variables used in this folder\n\n| Variable | Description |\n|---|---|\n| `publicKey` | Your merchant public key from the SeerBit dashboard. Sent in the body of most payment-initiation requests (never as a header) to identify which merchant account a transaction belongs to. |",
+      "createdAt": "2026-09-02T17:09:41.000Z",
+      "updatedAt": "2026-09-02T17:09:41.000Z",
+      "uid": "37518756-d911fd7b-b822-4f22-99a3-6382bdd8beef"
+    },
+    {
+      "name": "Virtual Accounts",
+      "item": [
+        {
+          "name": "Create Virtual Account",
+          "id": "97ebdc2e-4890-4e75-8c56-58680727556f",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"fullName\": \"Jane Smith\",\n    \"bankVerificationNumber\": \"\",\n    \"currency\": \"NGN\",\n    \"country\": \"NG\",\n    \"reference\": \"FIRST_VIRTUAL_17\",\n    \"email\": \"js@emaildomain.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/virtual-accounts",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "virtual-accounts"
+              ]
+            },
+            "description": "Issues a dedicated bank account number for one customer. Transfers into that account are reconciled back to the customer automatically — use *Get Payments* to see what's landed on it.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `publicKey` | string | Yes | Merchant public key |\n| `fullName` | string | Yes | Customer's full name, used as the account name |\n| `email` | string | Yes | Customer email |\n| `currency` | string | Yes | Currency code, e.g. `NGN` |\n| `country` | string | Yes | Country code, e.g. `NG` |\n| `reference` | string | Yes | Your unique reference for this virtual account — also used to fetch/delete it later |\n| `bankVerificationNumber` | string | No | Customer's BVN, for verification |\n\nResponse returns `walletName`, `bankName`, and `accountNumber` for the customer to pay into."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:56:25.000Z",
+          "uid": "37518756-97ebdc2e-4890-4e75-8c56-58680727556f"
+        },
+        {
+          "name": "Get Virtual Account",
+          "id": "72654374-7cf1-4233-8e7a-732506cf534c",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/virtual-accounts/{{paymentReference}}",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "virtual-accounts",
+                "{{paymentReference}}"
+              ]
+            },
+            "description": "Fetches details for one virtual account by the `reference` used to create it (passed here as `paymentReference`). Response includes `linkingReference`, `wallet`, `bankName`, and `accountNumber`."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:56:27.000Z",
+          "uid": "37518756-72654374-7cf1-4233-8e7a-732506cf534c"
+        },
+        {
+          "name": "Delete Virtual Account",
+          "id": "09ca122f-156f-4795-96c3-29fb94160249",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/virtual-accounts/{{reference}}",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "virtual-accounts",
+                "{{reference}}"
+              ]
+            },
+            "description": "Deactivates a virtual account by its `reference`. On success, returns a confirmation message — \"Virtual account has been deleted\"."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:56:28.000Z",
+          "uid": "37518756-09ca122f-156f-4795-96c3-29fb94160249"
+        },
+        {
+          "name": "Get Payments",
+          "id": "12883b22-7e30-4179-92b1-5b2d76b5a5eb",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/virtual-accounts/{{publicKey}}/{{accountNumber}}",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "virtual-accounts",
+                "{{publicKey}}",
+                "{{accountNumber}}"
+              ]
+            },
+            "description": "Lists transactions that have landed on one virtual account, identified by `publicKey` and `accountNumber` in the path. Each entry includes `amount`, customer name, `paymentType`, `status`, settlement info, and `transferType: RESERVE_ACCOUNT`."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:56:30.000Z",
+          "uid": "37518756-12883b22-7e30-4179-92b1-5b2d76b5a5eb"
+        }
+      ],
+      "id": "cf48c66c-d748-4ede-bc29-fc0a78110526",
+      "description": "Issue a dedicated bank account number per customer so they can pay by direct bank transfer; funds landing on that account are reconciled back to the customer automatically.\n\n### Variables used in this folder\n\n| Variable | Description |\n|---|---|\n| `publicKey` | Your merchant public key from the SeerBit dashboard. Sent in the body of most payment-initiation requests (never as a header) to identify which merchant account a transaction belongs to. |\n| `paymentReference` | A unique reference you generate per transaction attempt (not returned by SeerBit). Used to initiate a payment and to look it up afterwards via Check Payment Status. |\n| `accountNumber` | A bank account number — either a virtual account SeerBit provisioned for a customer, or (for Payout/Bank Account Payment) the destination/source account to move funds to or from. |\n| `reference` | A generic transaction or operation reference used to look up a specific record where no more specific reference variable applies. |",
+      "createdAt": "2026-09-02T17:09:41.000Z",
+      "updatedAt": "2026-09-03T16:27:10.000Z",
+      "uid": "37518756-cf48c66c-d748-4ede-bc29-fc0a78110526"
+    },
+    {
+      "name": "Payment Methods",
+      "item": [
+        {
+          "name": "Card Payment",
+          "id": "9c621b9d-0182-4930-b5c7-7cdba14dca30",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"amount\": \"5000.00\",\n    \"currency\": \"NGN\",\n    \"country\": \"NG\",\n    \"paymentReference\": \"payment_reference_card1\",\n    \"email\": \"customer@example.com\",\n    \"fullName\": \"Jane Doe\",\n    \"paymentType\": \"CARD\",\n    \"cardDetails\": {\n        \"pan\": \"5060990580000217499\",\n        \"expiryMonth\": \"03\",\n        \"expiryYear\": \"2027\",\n        \"cvv\": \"111\"\n    },\n    \"callbackUrl\": \"https://example.com/callback\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/payments/initiates",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "payments",
+                "initiates"
+              ]
+            },
+            "description": "Direct/inline card charge — you collect the card's PAN, expiry and CVV on your own form and POST them here, instead of redirecting the customer to SeerBit's hosted page (compare **Standard Checkout**, which never touches raw card data on your server). Because this endpoint receives raw card details, your integration is in PCI-DSS scope — SeerBit's hosted **Standard Checkout** flow is the lower-compliance-burden alternative most integrators should default to.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `publicKey` | string | Yes | Merchant public key |\n| `amount` | string | Yes | Amount to charge |\n| `currency` | string | Yes | e.g. `NGN` |\n| `country` | string | Yes | Country code |\n| `paymentReference` | string | Yes | Unique reference you generate |\n| `email` | string | Yes | Customer email |\n| `fullName` | string | Yes | Customer full name |\n| `paymentType` | string | Yes | `CARD` for this flow |\n| `cardDetails.pan` | string | Yes | Card number |\n| `cardDetails.expiryMonth` / `expiryYear` | string | Yes | Card expiry |\n| `cardDetails.cvv` | string | Yes | Card CVV |\n| `callbackUrl` | string | Yes | Where SeerBit sends the final result |\n\n**OTP step**: many card transactions come back requiring 3DS/OTP authentication. Per the Card Payment doc page, you complete this by POSTing again to this **same** `/api/v2/payments/initiates` URL with a body shaped like:\n```json\n{\n  \"transaction\": {\n    \"linkingreference\": \"<from initial response>\",\n    \"otp\": \"<code entered by customer>\"\n  }\n}\n```\nThen poll **Check Payment Status** (Payment Query folder) with `paymentReference` to confirm the final state."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:57:10.000Z",
+          "updatedAt": "2026-09-03T09:58:10.000Z",
+          "uid": "37518756-9c621b9d-0182-4930-b5c7-7cdba14dca30"
+        },
+        {
+          "name": "Bank Account Payment",
+          "id": "5bee5f40-63be-4a9f-9702-83153ea4f5aa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"amount\": \"5000.00\",\n    \"currency\": \"NGN\",\n    \"country\": \"NG\",\n    \"paymentReference\": \"payment_reference_bank1\",\n    \"email\": \"customer@example.com\",\n    \"fullName\": \"Jane Doe\",\n    \"paymentType\": \"**Not confirmed** — see description\",\n    \"accountNumber\": \"0000000000\",\n    \"bankCode\": \"058\",\n    \"callbackUrl\": \"https://example.com/callback\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/payments/initiates",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "payments",
+                "initiates"
+              ]
+            },
+            "description": "Initiates a direct bank-account debit: the customer authorizes a charge straight from their bank account (via account number + bank code) rather than a card, USSD code, or transfer-in.\n\n**Not confirmed against doc.seerbit.com** — two details on the Bank Account Payment doc page could not be pinned down and are flagged rather than guessed:\n1. The exact `paymentType` value for this flow (unlike `CARD`/`USSD`/`TRANSFER`/`MOMO`, the doc page doesn't spell this one out explicitly) — placeholder left in the sample body above; check the dashboard/API response or contact SeerBit support to confirm before using this request.\n2. The doc page references a separate **`/payments/validate`** endpoint for the OTP/authorization step, but doesn't give its full URL, method, or body — this conflicts with the Card Payment page, which documents OTP validation as a second POST to this *same* `/api/v2/payments/initiates` URL with a `{\"transaction\": {\"linkingreference\":..., \"otp\":...}}` body. It's unclear whether Bank Account Payment genuinely uses a different endpoint or the doc page is just describing the same flow loosely.\n\n**Body fields** (`accountNumber` + `bankCode` identify the account to debit; other fields match Card Payment). Verify the `paymentType` value and validation step directly with SeerBit before relying on this request."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:57:10.000Z",
+          "updatedAt": "2026-09-03T09:58:15.000Z",
+          "uid": "37518756-5bee5f40-63be-4a9f-9702-83153ea4f5aa"
+        },
+        {
+          "name": "Transfer",
+          "id": "92ed341c-428b-4c91-96bf-d3c2015dc32d",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"amount\": \"5000.00\",\n    \"currency\": \"NGN\",\n    \"country\": \"NG\",\n    \"paymentReference\": \"payment_reference_transfer1\",\n    \"email\": \"customer@example.com\",\n    \"fullName\": \"Jane Doe\",\n    \"paymentType\": \"TRANSFER\",\n    \"callbackUrl\": \"https://example.com/callback\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/payments/initiates",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "payments",
+                "initiates"
+              ]
+            },
+            "description": "Initiates a bank-transfer payment: SeerBit returns a dynamic virtual account number for this transaction that the customer transfers the exact amount into from their own banking app; SeerBit matches the credit and confirms the transaction. This is distinct from the **Virtual Accounts** folder, which provisions a *persistent* account number for a customer across many transactions — this is a one-off, per-transaction account.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `paymentType` | string | Yes | `TRANSFER` |\n| (other fields) | | Yes | Same core fields as Card Payment |\n\nPoll **Check Payment Status** (Payment Query folder) with `paymentReference`, or listen for the `transaction` webhook, to detect when the transfer lands."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:57:10.000Z",
+          "updatedAt": "2026-09-03T09:58:19.000Z",
+          "uid": "37518756-92ed341c-428b-4c91-96bf-d3c2015dc32d"
+        },
+        {
+          "name": "USSD Payment",
+          "id": "e4eb272e-ae33-485a-ac9d-b0e8e813b4d0",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"amount\": \"5000.00\",\n    \"currency\": \"NGN\",\n    \"country\": \"NG\",\n    \"paymentReference\": \"payment_reference_ussd1\",\n    \"email\": \"customer@example.com\",\n    \"fullName\": \"Jane Doe\",\n    \"paymentType\": \"USSD\",\n    \"bankCode\": \"058\",\n    \"callbackUrl\": \"https://example.com/callback\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/payments/initiates",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "payments",
+                "initiates"
+              ]
+            },
+            "description": "Initiates a USSD payment: SeerBit returns a USSD string (e.g. `*723*...#`) the customer dials on their phone from the bank account linked to `bankCode` to authorize the debit — no card or app needed.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `paymentType` | string | Yes | `USSD` |\n| `bankCode` | string | Yes | Bank's USSD routing code, e.g. `058` for GTBank |\n| (other fields) | | Yes | Same `publicKey`/`amount`/`currency`/`country`/`paymentReference`/`email`/`fullName`/`callbackUrl` as Card Payment |\n\nThe initial response includes the USSD code to display to the customer. Poll **Check Payment Status** (Payment Query folder) with `paymentReference` — there's no separate OTP step; authorization happens on the phone via the USSD session itself."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:57:10.000Z",
+          "updatedAt": "2026-09-03T09:58:20.000Z",
+          "uid": "37518756-e4eb272e-ae33-485a-ac9d-b0e8e813b4d0"
+        },
+        {
+          "name": "Mobile Money Payment",
+          "id": "4c87fa9b-986d-4966-9575-d64487a91de3",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"amount\": \"5000.00\",\n    \"currency\": \"GHS\",\n    \"country\": \"GH\",\n    \"paymentReference\": \"payment_reference_momo1\",\n    \"email\": \"customer@example.com\",\n    \"fullName\": \"Jane Doe\",\n    \"paymentType\": \"MOMO\",\n    \"mobileNumber\": \"233241234567\",\n    \"network\": \"MTN\",\n    \"callbackUrl\": \"https://example.com/callback\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/payments/initiates",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "payments",
+                "initiates"
+              ]
+            },
+            "description": "Initiates a mobile-money payment (e.g. MTN MoMo, AirtelTigo) — SeerBit sends a prompt to the customer's phone on the given `mobileNumber`/`network`, and the customer approves the debit directly on their handset. Used primarily for Ghana (`GHS`) and other African mobile-money markets.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `paymentType` | string | Yes | `MOMO` |\n| `mobileNumber` | string | Yes | Customer's mobile-money-linked phone number |\n| `network` | string | Yes | Mobile network operator, e.g. `MTN`, `AIRTELTIGO`, `VODAFONE` |\n| (other fields) | | Yes | Same core fields as Card Payment |\n\nPoll **Check Payment Status** (Payment Query folder) with `paymentReference` after the customer approves the prompt on their phone."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:57:10.000Z",
+          "updatedAt": "2026-09-03T09:58:28.000Z",
+          "uid": "37518756-4c87fa9b-986d-4966-9575-d64487a91de3"
+        }
+      ],
+      "id": "6f1a2b3c-4d5e-4f60-8a1b-2c3d4e5f6071",
+      "description": "Direct/inline payment flows via `POST /api/v2/payments/initiates` — you collect payment details on your own form/app and submit them here, differentiated by the `paymentType` field. This is a different integration model from **Standard Checkout** (`/api/v2/payments`), which redirects the customer to a SeerBit-hosted page and never exposes raw payment details to your server.\n\nDocumented on doc.seerbit.com's **PAYMENT METHODS** nav section, previously missing from this collection entirely. Card, USSD, Transfer and Mobile Money are grounded directly in their doc pages; **Bank Account Payment** has two unconfirmed details flagged in its own description — don't treat its sample body as final without checking with SeerBit first.\n\nAll five requests share the same PCI/compliance consideration as Card Payment: because you're handling raw payment credentials, prefer Standard Checkout unless you specifically need an inline experience.\n\n### Variables used in this folder\n\n| Variable | Description |\n|---|---|\n| `publicKey` | Your merchant public key from the SeerBit dashboard. Sent in the body of most payment-initiation requests (never as a header) to identify which merchant account a transaction belongs to. |",
+      "createdAt": "2026-09-02T17:57:10.000Z",
+      "updatedAt": "2026-09-03T16:27:21.000Z",
+      "uid": "37518756-6f1a2b3c-4d5e-4f60-8a1b-2c3d4e5f6071"
+    },
+    {
+      "name": "Payment Query",
+      "item": [
+        {
+          "name": "Check Payment Status",
+          "id": "aa1ffea7-ff3f-477d-8ba4-c9a011de7151",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://seerbitapi.com/api/v3/payments/query/{{paymentReference}}",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v3",
+                "payments",
+                "query",
+                "{{paymentReference}}"
+              ]
+            },
+            "description": "Looks up the current status of a transaction by its `paymentReference`. **Corrected to v3** — the doc.seerbit.com page for this actually documents `/api/v3/payments/query/{paymentReference}` (matching what *Get Card Authorization Code* already used), not v2 as this request previously had it. The v3 response includes fuller detail: status, amount, gateway message, masked card details, and customer info.\n\nUse this after Standard Checkout, Create Token, or any flow that returns a `paymentReference`, to confirm the final state rather than relying only on the initial response's `code`.\n\n**Tokenized Standard Checkout**: if the original Standard Checkout call had `tokenize: true`, this is where the `authorizationCode` for the saved card actually comes back — it is not in Standard Checkout's own response. Save it from here to use with *Charge Authorization Token* / *Bulk Charge Token*."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T10:15:48.000Z",
+          "uid": "37518756-aa1ffea7-ff3f-477d-8ba4-c9a011de7151"
+        }
+      ],
+      "id": "bc79f7ed-9699-4a7a-8563-6543dfdc038d",
+      "description": "Look up the current status of a transaction by its `paymentReference` after Standard Checkout, Tokenization, or any other flow that produces one.\n\n### Variables used in this folder\n\n| Variable | Description |\n|---|---|\n| `paymentReference` | A unique reference you generate per transaction attempt (not returned by SeerBit). Used to initiate a payment and to look it up afterwards via Check Payment Status. |",
+      "createdAt": "2026-09-02T17:09:41.000Z",
+      "updatedAt": "2026-09-03T16:27:29.000Z",
+      "uid": "37518756-bc79f7ed-9699-4a7a-8563-6543dfdc038d"
+    },
+    {
+      "name": "Invoicing",
+      "item": [
+        {
+          "name": "Create Invoice",
+          "id": "65757022-4bcf-4466-afdb-a718d21d3ca7",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"orderNo\": \"333333221321\",\n    \"dueDate\": \"2026-10-23\",\n    \"currency\": \"NGN\",\n    \"receiversName\": \"Jane Smith\",\n    \"customerEmail\": \"janesmith@emaildomain.com\",\n    \"invoiceItems\": [\n        {\n            \"itemName\": \"Bluetooth Pods\",\n            \"quantity\": 1,\n            \"rate\": 25000,\n            \"tax\": 7.5\n        },\n        {\n            \"itemName\": \"Quest 10\",\n            \"quantity\": 4,\n            \"rate\": 100000,\n            \"tax\": 7.5\n        }\n    ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://merchant.seerbitapi.com/invoice/create",
+              "protocol": "https",
+              "host": [
+                "merchant",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "invoice",
+                "create"
+              ]
+            },
+            "description": "Creates and sends an itemised invoice to a customer by email, without you building a checkout flow. Source: doc.seerbit.com/online-payment/payment-features/invoicing, cross-checked with the original collection (the doc page's own code samples only show empty placeholder URLs, so the exact host/path is carried over from the original working collection, not independently re-confirmed).\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `publicKey` | string | Yes | Merchant public key |\n| `orderNo` | string | Yes | Unique order identifier |\n| `dueDate` | string | Yes | Invoice due date |\n| `currency` | string | Yes | Currency code, e.g. `NGN` |\n| `receiversName` | string | Yes | Customer name shown on the invoice |\n| `customerEmail` | string | Yes | Where the invoice is sent |\n| `invoiceItems` | array | Yes | Line items, each with `itemName`, `quantity`, `rate`, `tax` (tax as a percentage) |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:55:53.000Z",
+          "uid": "37518756-65757022-4bcf-4466-afdb-a718d21d3ca7"
+        },
+        {
+          "name": "Bulk Invoice Requests",
+          "id": "39ab3068-2fab-4787-b257-1ed4dc909020",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n    {\n        \"orderNo\": \"AZPOP12929322\",\n        \"dueDate\": \"2026-03-19\",\n        \"currency\": \"NGN\",\n        \"customerEmail\": \"testtechblazer1@mailinator.com\",\n        \"invoiceItems\": [\n            {\n                \"itemName\": \"Air Pod 2\",\n                \"quantity\": 1,\n                \"rate\": 5,\n                \"tax\": 1.5\n            },\n            {\n                \"itemName\": \"Quest 1\",\n                \"quantity\": 4,\n                \"rate\": 10,\n                \"tax\": 2.5\n            },\n            {\n                \"itemName\": \"Earpod\",\n                \"quantity\": 1,\n                \"rate\": 100,\n                \"tax\": 0.5\n            }\n        ]\n    },\n    {\n        \"orderNo\": \"AZPOP12929323\",\n        \"dueDate\": \"2026-03-28\",\n        \"currency\": \"NGN\",\n        \"receiversName\": \"Frank John\",\n        \"customerEmail\": \"testtechblazer2@mailinator.com\",\n        \"invoiceItems\": [\n            {\n                \"itemName\": \"Power Bulb\",\n                \"quantity\": 10,\n                \"rate\": 5,\n                \"tax\": 0.5\n            }\n        ]\n    }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://merchant.seerbitapi.com/invoice/{{publicKey}}/bulk-requests",
+              "protocol": "https",
+              "host": [
+                "merchant",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "invoice",
+                "{{publicKey}}",
+                "bulk-requests"
+              ]
+            },
+            "description": "Same as *Create Invoice*, but accepts a JSON array to send multiple invoices in one call. Same sourcing caveat as Create Invoice — host/path carried over from the original collection, not independently re-confirmed against a doc.seerbit.com code sample.\n\n**Body:** array of invoice objects, each shaped like *Create Invoice*'s body (`receiversName` is optional per the saved example — the other fields are required)."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:55:58.000Z",
+          "uid": "37518756-39ab3068-2fab-4787-b257-1ed4dc909020"
+        },
+        {
+          "name": "Re-send an Invoice",
+          "id": "eeefb9e6-6cc6-41ed-945e-ef506c8f43e7",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{BearerToken}}",
+                "description": "Bearer token from Get Access Token."
+              }
+            ],
+            "url": {
+              "raw": "https://seerbitapi.com/invoice/{{publicKey}}/send/{{InvoiceNo}}",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "invoice",
+                "{{publicKey}}",
+                "send",
+                "{{InvoiceNo}}"
+              ]
+            },
+            "description": "Re-sends an existing invoice (identified by `InvoiceNo`) to its customer by email — use this when the original invoice email didn't arrive or needs to go out again, rather than creating a duplicate invoice with Create Invoice.\n\n**Path parameters**\n\n| Param | Description |\n|---|---|\n| `publicKey` | Merchant public key |\n| `InvoiceNo` | The invoice's number, e.g. `SBT-INV-000054`, from Create Invoice's response |\n\nReturns a `code`/`payload` confirmation; it doesn't return the invoice body again."
+          },
+          "response": [],
+          "createdAt": "2026-09-03T08:03:22.000Z",
+          "updatedAt": "2026-09-03T09:56:01.000Z",
+          "uid": "37518756-eeefb9e6-6cc6-41ed-945e-ef506c8f43e7"
+        },
+        {
+          "name": "Get Invoice by Customer Email",
+          "id": "339aa7bd-61cf-480e-9f8d-b589dd9d10be",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{BearerToken}}",
+                "description": "Bearer token from Get Access Token."
+              }
+            ],
+            "url": {
+              "raw": "https://seerbitapi.com/invoice/{{publicKey}}/customer/{{customerEmail}}",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "invoice",
+                "{{publicKey}}",
+                "customer",
+                "{{customerEmail}}"
+              ]
+            },
+            "description": "Looks up invoice(s) associated with a given customer email address — useful when you know who the invoice was billed to but not its invoice or order number.\n\n**Path parameters**\n\n| Param | Description |\n|---|---|\n| `publicKey` | Merchant public key |\n| `customerEmail` | The customer's email address the invoice was billed to |\n\nAdd a `customerEmail` collection variable with the address you're looking up, or replace the path segment directly."
+          },
+          "response": [],
+          "createdAt": "2026-09-03T08:03:22.000Z",
+          "updatedAt": "2026-09-03T09:56:03.000Z",
+          "uid": "37518756-339aa7bd-61cf-480e-9f8d-b589dd9d10be"
+        },
+        {
+          "name": "Get Invoice by Invoice Number",
+          "id": "cbd5a247-e9f4-49a4-9e3f-7665d02b5278",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{BearerToken}}",
+                "description": "Bearer token from Get Access Token."
+              }
+            ],
+            "url": {
+              "raw": "https://seerbitapi.com/invoice/{{publicKey}}/{{InvoiceNo}}",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "invoice",
+                "{{publicKey}}",
+                "{{InvoiceNo}}"
+              ]
+            },
+            "description": "Fetches a single invoice's full detail — including its line items (`invoiceItems`) — by `InvoiceNo`.\n\n**Path parameters**\n\n| Param | Description |\n|---|---|\n| `publicKey` | Merchant public key |\n| `InvoiceNo` | The invoice's number, e.g. `SBT-INV-000054` |\n\nResponse includes `status` (e.g. `DRAFT`), `totalAmount`, `dueDate`, `currency`, and the itemized `invoiceItems` array — unlike **Get Invoice by orderNo**, which returns a summary without line items."
+          },
+          "response": [],
+          "createdAt": "2026-09-03T08:03:22.000Z",
+          "updatedAt": "2026-09-03T09:56:06.000Z",
+          "uid": "37518756-cbd5a247-e9f4-49a4-9e3f-7665d02b5278"
+        },
+        {
+          "name": "Get Invoice by Order Number",
+          "id": "d58d8306-c878-406b-849b-4e93329bfd45",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{BearerToken}}",
+                "description": "Bearer token from Get Access Token."
+              }
+            ],
+            "url": {
+              "raw": "https://seerbitapi.com/invoice/{{publicKey}}/order/{{orderNo}}",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "invoice",
+                "{{publicKey}}",
+                "order",
+                "{{orderNo}}"
+              ]
+            },
+            "description": "Looks up an invoice by the `orderNo` you supplied when creating it via Create Invoice — useful when your own system tracks orders and you don't have SeerBit's `InvoiceNo` on hand.\n\n**Path parameters**\n\n| Param | Description |\n|---|---|\n| `publicKey` | Merchant public key |\n| `orderNo` | The order number you passed to Create Invoice |\n\nReturns a summary (no itemized `invoiceItems` array) — use **Get Invoice by Invoice Number** with the `invoiceNo` from this response if you need line-item detail."
+          },
+          "response": [],
+          "createdAt": "2026-09-03T08:03:22.000Z",
+          "updatedAt": "2026-09-03T09:56:08.000Z",
+          "uid": "37518756-d58d8306-c878-406b-849b-4e93329bfd45"
+        }
+      ],
+      "id": "6918908c-5d3a-46c7-b28f-a01dd0b9cdf5",
+      "description": "Generate and send itemised invoices to customers, either one at a time or in bulk, without building a checkout flow yourself.\n\nAdded **Re-send an Invoice**, **Get Invoice by Customer Email**, **Get Invoice by Invoice Number**, and **Get Invoice by Order Number** — all confirmed via SeerBit's API reference (apis.seerbit.com), previously missing from this collection. Note the base host here is `seerbitapi.com/invoice/...`, matching Create Invoice already in this folder; a separate doc.seerbit.com page shows these under `merchant.seerbitapi.com/invoice/...` instead — flagging the discrepancy rather than guessing which is current.\n\n### Variables used in this folder\n\n| Variable | Description |\n|---|---|\n| `publicKey` | Your merchant public key from the SeerBit dashboard. Sent in the body of most payment-initiation requests (never as a header) to identify which merchant account a transaction belongs to. |\n| `BearerToken` | OAuth access token returned by Get Access Token (Authentication folder). Sent as `Authorization: Bearer {{BearerToken}}` on requests that require an authenticated merchant session. |\n| `customerEmail` | Customer email address used to look up invoices via Get Invoice by Customer Email. |\n| `InvoiceNo` | An invoice's number (e.g. SBT-INV-000054), used to fetch, resend, or reference a specific invoice. |\n| `orderNo` | The order number you supplied when creating an invoice, used to look that invoice up again. |",
+      "createdAt": "2026-09-02T17:09:41.000Z",
+      "updatedAt": "2026-09-03T16:27:39.000Z",
+      "uid": "37518756-6918908c-5d3a-46c7-b28f-a01dd0b9cdf5"
+    },
+    {
+      "name": "Tokenization",
+      "item": [
+        {
+          "name": "Create Token",
+          "id": "ddcd0daf-3c26-4360-aa75-189bcce28954",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"amount\": \"50\",\n    \"fullName\": \"Jane Smith\",\n    \"mobileNumber\": \"03447522256\",\n    \"redirectUrl\": \"http://example.com\",\n    \"currency\": \"NGN\",\n    \"country\": \"NG\",\n    \"paymentReference\": \"204g4de74a7ib0j18dg6bi521aiaejf4\",\n    \"email\": \"janesmith@seerbit.com\",\n    \"paymentType\": \"CARD\",\n    \"cardNumber\": \"512348984984988883\",\n    \"expiryMonth\": \"01\",\n    \"expiryYear\": \"25\",\n    \"cvv\": \"000\",\n    \"pin\": \"2222\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/payments/create-token",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "payments",
+                "create-token"
+              ]
+            },
+            "description": "Charges a card for the first time **and** saves it, returning card details you can later exchange for an `authorizationCode` (via *Get Card Authorization Code*) to charge the same card again without re-collecting details. Requires the customer to complete 3DS/OTP authentication on `redirectUrl`.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `publicKey` | string | Yes | Merchant public key |\n| `amount` | string | Yes | Charge amount — minimum is currency-dependent (e.g. NGN 50, GHS 1, KES 1, USD 0.50) |\n| `fullName` | string | Yes | Cardholder's name |\n| `mobileNumber` | string | Yes | Customer phone number |\n| `email` | string | Yes | Customer email |\n| `currency` | string | Yes | Transaction currency |\n| `country` | string | Yes | Country of the transaction |\n| `paymentType` | string | Yes | Must be `\"CARD\"` |\n| `cardNumber` | string | Yes | Full card number |\n| `expiryMonth` | string | Yes | Two-digit expiry month (`01`–`12`) |\n| `expiryYear` | string | Yes | Card expiry year |\n| `cvv` | string | Yes | Card security code |\n| `pin` | string | Yes | Card PIN (required by some card schemes/issuers) |\n| `redirectUrl` | string | Yes | Where the customer lands after completing 3DS/OTP authentication |\n| `paymentReference` | string | Yes | Unique reference you generate per transaction |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:55:34.000Z",
+          "uid": "37518756-ddcd0daf-3c26-4360-aa75-189bcce28954"
+        },
+        {
+          "name": "Get Card Authorization Code",
+          "id": "1c6b441b-adc0-4b01-b109-ad60cf0a6d34",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://seerbitapi.com/api/v3/payments/query/{{paymentReference}}",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v3",
+                "payments",
+                "query",
+                "{{paymentReference}}"
+              ]
+            },
+            "description": "Returns authorizationCode, customerId and maskedPan for a tokenized transaction. Note this is v3, unlike the v2 Payment Query endpoint.\n\n**Response fields to read**\n\n| Field | Description |\n|---|---|\n| `authorizationCode` | Token to pass into *Charge Authorization Token* / *Bulk Charge Token* for future charges |\n| `customerId` | SeerBit's identifier for this customer, reusable across subscriptions |\n| `maskedPan` | Redacted card number for display, e.g. `5123-40xx-xxxx-0008` |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:55:41.000Z",
+          "uid": "37518756-1c6b441b-adc0-4b01-b109-ad60cf0a6d34"
+        },
+        {
+          "name": "Charge Authorization Token",
+          "id": "60c45341-68d5-4be7-be66-dc961cb4bb64",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"amount\": \"5000.00\",\n    \"paymentReference\": \"charge_token_ref_001\",\n    \"authorizationCode\": \"{{authorizationCode}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/payments/charge-token",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "payments",
+                "charge-token"
+              ]
+            },
+            "description": "Charges a previously tokenized card using its `authorizationCode`, without asking the customer for card details again. Use this for one-off repeat charges; for scheduled recurring billing, use *Charge Subscription* instead.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `publicKey` | string | Yes | Merchant public key |\n| `amount` | string | Yes | Amount to charge |\n| `paymentReference` | string | Yes | New, unique reference for this charge |\n| `authorizationCode` | string | Yes | From *Get Card Authorization Code* |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:55:43.000Z",
+          "uid": "37518756-60c45341-68d5-4be7-be66-dc961cb4bb64"
+        },
+        {
+          "name": "Bulk Charge Token",
+          "id": "8e23a2e1-54a2-4b58-8f10-0ec534aef677",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n    {\n        \"publicKey\": \"{{publicKey}}\",\n        \"amount\": \"5000.00\",\n        \"paymentReference\": \"bulk_ref_001\",\n        \"authorizationCode\": \"{{authorizationCode}}\"\n    },\n    {\n        \"publicKey\": \"{{publicKey}}\",\n        \"amount\": \"2500.00\",\n        \"paymentReference\": \"bulk_ref_002\",\n        \"authorizationCode\": \"{{authorizationCode}}\"\n    }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/payments/bulk-tokenize-charge",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "payments",
+                "bulk-tokenize-charge"
+              ]
+            },
+            "description": "Same as *Charge Authorization Token*, but accepts a JSON array so you can charge many tokenized cards in one call. Each array entry needs its own unique `paymentReference`. Returns a `batchId` — poll *Query Bulk Charge* with it to see per-entry results, since a bulk call can partially succeed.\n\n**Body:** array of objects, each with the same fields as *Charge Authorization Token* (`publicKey`, `amount`, `paymentReference`, `authorizationCode`)."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:55:46.000Z",
+          "uid": "37518756-8e23a2e1-54a2-4b58-8f10-0ec534aef677"
+        },
+        {
+          "name": "Query Bulk Charge",
+          "id": "e7550129-1f52-49b7-a5de-9d59f7c21305",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/payments/bulk-tokenize-charge-search?batchId={{batchId}}",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "payments",
+                "bulk-tokenize-charge-search"
+              ],
+              "query": [
+                {
+                  "key": "batchId",
+                  "value": "{{batchId}}"
+                }
+              ]
+            },
+            "description": "Looks up the outcome of a *Bulk Charge Token* batch by `batchId`. Returns paginated per-entry results (authorization codes, status codes, card details, amounts) — check each entry's own status rather than assuming the whole batch succeeded or failed together."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:55:47.000Z",
+          "uid": "37518756-e7550129-1f52-49b7-a5de-9d59f7c21305"
+        }
+      ],
+      "id": "7fc316ef-5221-4fcb-970b-6984f3f49249",
+      "description": "Save a customer's card on first charge (with 3DS/OTP authentication) and reuse the resulting `authorizationCode` to charge them again — singly or in bulk — without asking for card details twice.\n\n### Variables used in this folder\n\n| Variable | Description |\n|---|---|\n| `publicKey` | Your merchant public key from the SeerBit dashboard. Sent in the body of most payment-initiation requests (never as a header) to identify which merchant account a transaction belongs to. |\n| `paymentReference` | A unique reference you generate per transaction attempt (not returned by SeerBit). Used to initiate a payment and to look it up afterwards via Check Payment Status. |\n| `batchId` | Identifier for a batch operation, e.g. a bulk invoice or bulk payout batch, used to check the status of the whole batch. |\n| `authorizationCode` | Card authorization code returned after a successful tokenized charge, used to charge the same card again without re-entering card details. |",
+      "createdAt": "2026-09-02T17:09:41.000Z",
+      "updatedAt": "2026-09-02T17:09:41.000Z",
+      "uid": "37518756-7fc316ef-5221-4fcb-970b-6984f3f49249"
+    },
+    {
+      "name": "Recurring & Subscriptions",
+      "item": [
+        {
+          "name": "Create Plan",
+          "id": "a06a65d2-b9ee-41c6-bc04-ea9eefb50e7e",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"productId\": \"product222\",\n    \"productDescription\": \"<Description of Plan>\",\n    \"amount\": \"100\",\n    \"billingCycle\": \"HOURLY\",\n    \"limit\": 5,\n    \"publicKey\": \"{{publicKey}}\",\n    \"country\": \"NG\",\n    \"currency\": \"NGN\",\n    \"allowPartialDebit\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://merchants.seerbitapi.com/api/v1/recurrent/plan/create",
+              "protocol": "https",
+              "host": [
+                "merchants",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "recurrent",
+                "plan",
+                "create"
+              ]
+            },
+            "description": "Defines a recurring billing plan (amount + cadence + how many cycles to run). Once created, subscribe a tokenized card to it and SeerBit charges automatically on schedule. Host is `merchants.seerbitapi.com` (plural) — a documented inconsistency vs. the `merchant.seerbitapi.com` (singular) invoicing host, easy to mistype.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `productId` | string | Yes | Plan name/identifier |\n| `productDescription` | string | Yes | Description of the plan |\n| `amount` | string | Yes | Amount charged per cycle |\n| `billingCycle` | string | Yes | `HOURLY`, `DAILY`, `WEEKLY`, `MONTHLY`, or `ANNUALLY` |\n| `limit` | integer | Yes | Maximum number of billing cycles before the plan stops |\n| `publicKey` | string | Yes | Merchant public key |\n| `country` | string | Yes | Country code, e.g. `NG` |\n| `currency` | string | Yes | Currency code, e.g. `NGN` |\n| `allowPartialDebit` | boolean | Yes | Whether to charge whatever's available if the customer has insufficient funds for the full amount |\n\nResponse includes `planId`, `payUrl`, and `status: \"ACTIVE\"` — save `planId` for future reference."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:56:37.000Z",
+          "uid": "37518756-a06a65d2-b9ee-41c6-bc04-ea9eefb50e7e"
+        },
+        {
+          "name": "Get Merchant Subscriptions",
+          "id": "58e66f22-b8d2-4ff4-8fa5-dae6a9a390ae",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/recurring/publicKey/{{publicKey}}",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "recurring",
+                "publicKey",
+                "{{publicKey}}"
+              ]
+            },
+            "description": "Lists every subscription under this `publicKey`, with `amount`, `customerId`, `cardName`, `cardNumber` (masked), `plan`, `status`, `billingId`, `authorizationCode`, `startDate`, and `createdAt` per entry."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:56:39.000Z",
+          "uid": "37518756-58e66f22-b8d2-4ff4-8fa5-dae6a9a390ae"
+        },
+        {
+          "name": "Charge Subscription",
+          "id": "26f07f68-5690-4d61-9108-a7e8f444ab3d",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": \"100\",\n    \"publicKey\": \"{{publicKey}}\",\n    \"email\": \"customer@example.com\",\n    \"authorizationCode\": \"{{authorizationCode}}\",\n    \"paymentReference\": \"sub_charge_ref_001\",\n    \"currency\": \"NGN\",\n    \"allowPartialDebit\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/recurring/charge",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "recurring",
+                "charge"
+              ]
+            },
+            "description": "Manually triggers a charge against an existing subscription's tokenized card, outside the automatic billing schedule (e.g. to bill immediately rather than wait for the next cycle).\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `amount` | string | Yes | Amount to charge |\n| `publicKey` | string | Yes | Merchant public key |\n| `email` | string | Yes | Customer email |\n| `authorizationCode` | string | Yes | From the customer's completed subscription |\n| `paymentReference` | string | Yes | New, unique reference for this charge |\n| `currency` | string | Yes | Currency code |\n| `allowPartialDebit` | string | No | Whether to allow a partial charge on insufficient funds |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:56:42.000Z",
+          "uid": "37518756-26f07f68-5690-4d61-9108-a7e8f444ab3d"
+        },
+        {
+          "name": "Get Customer Subscription",
+          "id": "7029b82d-e124-4bc9-a5bf-e3db44eda499",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/recurring/{{publicKey}}/customerId/{{customerId}}",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "recurring",
+                "{{publicKey}}",
+                "customerId",
+                "{{customerId}}"
+              ]
+            },
+            "description": "Lists the subscriptions belonging to one customer (`customerId`) under this `publicKey` — a customer can have more than one active plan."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:56:43.000Z",
+          "uid": "37518756-7029b82d-e124-4bc9-a5bf-e3db44eda499"
+        },
+        {
+          "name": "Update Customer Subscription",
+          "id": "41e0186d-bc1d-4af7-b087-fc0a4109301e",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"billingId\": \"{{billingId}}\",\n    \"publicKey\": \"{{publicKey}}\",\n    \"status\": \"ACTIVE\",\n    \"amount\": \"100\",\n    \"currency\": \"NGN\",\n    \"country\": \"NG\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://seerbitapi.com/api/v2/recurring/updates",
+              "protocol": "https",
+              "host": [
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "recurring",
+                "updates"
+              ]
+            },
+            "description": "Changes an existing subscription's status or terms, identified by `billingId`.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `billingId` | string | Yes | Identifies the subscription being updated |\n| `publicKey` | string | Yes | Merchant public key |\n| `currency` | string | Yes | Currency code |\n| `country` | string | Yes | Country code |\n| `amount` | string | No | New charge amount |\n| `status` | string | No | `ACTIVE` or `INACTIVE` — set to `INACTIVE` to cancel future billing |\n| `mobileNumber` | string | No | Update the customer's phone number on file |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:56:46.000Z",
+          "uid": "37518756-41e0186d-bc1d-4af7-b087-fc0a4109301e"
+        }
+      ],
+      "id": "734dfd53-aabb-44fb-86e5-86827cc9898e",
+      "description": "Define a billing plan, subscribe a tokenized card to it, and let SeerBit charge the customer on a schedule (hourly through annually) until the plan's charge limit or the customer cancels.\n\n### Variables used in this folder\n\n| Variable | Description |\n|---|---|\n| `publicKey` | Your merchant public key from the SeerBit dashboard. Sent in the body of most payment-initiation requests (never as a header) to identify which merchant account a transaction belongs to. |\n| `customerId` | SeerBit's identifier for a customer, typically returned after tokenizing a card or creating a customer-linked resource such as a subscription plan. |\n| `billingId` | Identifier for a specific billing/recurring-charge record under a subscription plan. |\n| `authorizationCode` | Card authorization code returned after a successful tokenized charge, used to charge the same card again without re-entering card details. |",
+      "createdAt": "2026-09-02T17:09:41.000Z",
+      "updatedAt": "2026-09-03T16:27:48.000Z",
+      "uid": "37518756-734dfd53-aabb-44fb-86e5-86827cc9898e"
+    },
+    {
+      "name": "Payment Links",
+      "item": [
+        {
+          "name": "Create Payment Link",
+          "id": "ac6ff2d9-7bbc-44dc-a53d-42bc25a567ed",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"ACTIVE\",\n    \"paymentLinkName\": \"testing out\",\n    \"description\": \"Give out donations\",\n    \"currency\": \"NGN\",\n    \"successMessage\": \"Thank you for your payment\",\n    \"publicKey\": \"{{publicKey}}\",\n    \"customizationName\": \"dot dty it\",\n    \"paymentFrequency\": \"ONE_TIME\",\n    \"paymentReference\": \"\",\n    \"email\": \"js@emaildomain.com\",\n    \"requiredFields\": {\n        \"address\": true,\n        \"amount\": true,\n        \"customerName\": true,\n        \"mobileNumber\": true,\n        \"invoiceNumber\": false\n    },\n    \"additionalData\": \"Customer Email: js@mailinator.com\",\n    \"linkExpirable\": false,\n    \"expiryDate\": \"\",\n    \"oneTime\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api",
+              "protocol": "https",
+              "host": [
+                "paymentlink",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "paymentlink",
+                "v2",
+                "payLinks",
+                "api"
+              ]
+            },
+            "description": "Creates a hosted, shareable payment URL — send it directly to a customer instead of building a checkout flow. Supports one-time links and recurring links.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `status` | string | Yes | `ACTIVE` or `INACTIVE` |\n| `paymentLinkName` | string | Yes | Internal name for the link |\n| `description` | string | Yes | Shown to the customer on the payment page |\n| `currency` | string | Yes | Currency code, e.g. `NGN` |\n| `publicKey` | string | Yes | Merchant public key |\n| `paymentFrequency` | string | Yes | `ONE_TIME` or `RECURRENT` |\n| `requiredFields` | object | Yes | Which customer fields the payer must fill in: `address`, `amount`, `customerName`, `mobileNumber`, `invoiceNumber` (each boolean) |\n| `email` | string | No | Notification email |\n| `successMessage` | string | No | Shown after a successful payment |\n| `customizationName` | string | No | Branding/customization preset |\n| `additionalData` | string | No | Free-text metadata attached to the link |\n| `linkExpirable` | boolean | No | Whether the link expires |\n| `expiryDate` | string | No | Expiry date, required if `linkExpirable` is true |\n| `oneTime` | boolean | No | Whether the link is invalidated after first use |\n\nResponse returns `paymentLinkUrl` and `paymentLinkId` — save the latter, it's needed to update or delete the link later."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:56:13.000Z",
+          "uid": "37518756-ac6ff2d9-7bbc-44dc-a53d-42bc25a567ed"
+        },
+        {
+          "name": "Get Merchant Payment Links",
+          "id": "1d605690-3bf5-4e5f-b3a4-cf50c571627b",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/{{publicKey}}",
+              "protocol": "https",
+              "host": [
+                "paymentlink",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "paymentlink",
+                "v2",
+                "payLinks",
+                "api",
+                "{{publicKey}}"
+              ]
+            },
+            "description": "Lists every payment link created under this `publicKey`, with their current status, configuration, and timestamps. Use this to find a `paymentLinkId` if you didn't save it when creating the link."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:56:19.000Z",
+          "uid": "37518756-1d605690-3bf5-4e5f-b3a4-cf50c571627b"
+        },
+        {
+          "name": "Update Payment Link",
+          "id": "13e15e9a-c364-49ac-b8dd-244b5c5e850e",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"paymentLinkId\": \"77287988\",\n    \"status\": \"INACTIVE\",\n    \"description\": \"Test paymentLink\",\n    \"successMessage\": \"Payment made successfully!\",\n    \"businessName\": \"My Business\",\n    \"publicKey\": \"{{publicKey}}\",\n    \"customizationName\": \"my_link_4\",\n    \"paymentFrequency\": \"RECURRENT\",\n    \"email\": \"customer@seerbit.com\",\n    \"requiredFields\": {\n        \"address\": true,\n        \"amount\": true,\n        \"customerName\": true,\n        \"mobileNumber\": true,\n        \"invoiceNumber\": false\n    },\n    \"linkExpirable\": false,\n    \"expiryDate\": \"\",\n    \"oneTime\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api",
+              "protocol": "https",
+              "host": [
+                "paymentlink",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "paymentlink",
+                "v2",
+                "payLinks",
+                "api"
+              ]
+            },
+            "description": "Updates an existing payment link's configuration. Source: doc.seerbit.com/online-payment/payment-features/payment-links.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `paymentLinkId` | string | Yes | From *Create Payment Link*'s response, or *Get Merchant Payment Links* |\n| `status`, `description`, `successMessage`, `customizationName`, `paymentFrequency`, `requiredFields`, `linkExpirable`, `expiryDate`, `oneTime` | — | No | Any subset of these can be updated; omit fields you don't want to change |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:56:20.000Z",
+          "uid": "37518756-13e15e9a-c364-49ac-b8dd-244b5c5e850e"
+        },
+        {
+          "name": "Delete Payment Link",
+          "id": "7fc117e7-dd7d-4252-b332-0a8293315520",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/deleteLink/{{paymentLinkId}}",
+              "protocol": "https",
+              "host": [
+                "paymentlink",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "paymentlink",
+                "v2",
+                "payLinks",
+                "api",
+                "deleteLink",
+                "{{paymentLinkId}}"
+              ]
+            },
+            "description": "Permanently deactivates a payment link. Source: doc.seerbit.com/online-payment/payment-features/payment-links, which documents this as DELETE (the original collection request used GET — fixed)."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:56:22.000Z",
+          "uid": "37518756-7fc117e7-dd7d-4252-b332-0a8293315520"
+        }
+      ],
+      "id": "34b6fea8-d15b-4f99-85a5-f6c543c8f6c3",
+      "description": "Create a reusable or one-time hosted payment URL you can share directly (email, chat, socials) instead of building a checkout page. Supports one-time and recurring links.\n\n### Variables used in this folder\n\n| Variable | Description |\n|---|---|\n| `publicKey` | Your merchant public key from the SeerBit dashboard. Sent in the body of most payment-initiation requests (never as a header) to identify which merchant account a transaction belongs to. |\n| `paymentLinkId` | Identifier for a payment link created via the Payment Links folder, used to fetch, update, or delete that link. |",
+      "createdAt": "2026-09-02T17:09:41.000Z",
+      "updatedAt": "2026-09-02T17:09:41.000Z",
+      "uid": "37518756-34b6fea8-d15b-4f99-85a5-f6c543c8f6c3"
+    },
+    {
+      "name": "Pocket",
+      "item": [
+        {
+          "name": "Authenticate",
+          "id": "b554f438-f6b7-4a71-a8e3-7bae3dfa6281",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{pocketEmail}}\",\n    \"password\": \"{{pocketPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/authenticate",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "authenticate"
+              ]
+            },
+            "description": "Logs in to a Pocket (SeerBit's wallet product) and returns a Bearer token scoped to Pocket and Payout endpoints — **not** the same token as `{{BearerToken}}` (the OAuth token from *Get Access Token* in the Authentication folder, used everywhere else in this collection). Pocket is a **separate feature from Payout**: the doc site describes Pocket as sending funds between pockets, sub-pockets, or out to banks (that last case *is* a payout), while the Payout folder above covers the signed, OTP-gated bank-payout flow specifically — both folders share this same login and the same token.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `email` | string | Yes | Pocket account email |\n| `password` | string | Yes | Your **Pocket password** — not your SeerBit merchant dashboard password. This is the password for your Pocket account at flow.seerbitapi.com. |\n\nResponse includes `bearerToken`, `expiryTime`, and `requirePasswordChange` — check the last one and call *Change Password* if true. Save `bearerToken` as `{{pocketAuthToken}}` — the variable used on Pocket and Payout requests that require this login, kept distinct from `{{BearerToken}}` on purpose."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T15:49:11.000Z",
+          "uid": "37518756-b554f438-f6b7-4a71-a8e3-7bae3dfa6281"
+        },
+        {
+          "name": "Change Password",
+          "id": "bb46d3a4-7f07-48fd-af86-637b63914030",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{pocketAuthToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"currentPassword\": \"{{pocketPassword}}\",\n    \"newPassword\": \"{{newPocketPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/user/change-password",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "user",
+                "change-password"
+              ]
+            },
+            "description": "Changes the Pocket account's password — required on first login if *Authenticate*'s response flagged `requirePasswordChange: true`.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `currentPassword` | string | Yes | Current Pocket password |\n| `newPassword` | string | Yes | New Pocket password |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T15:49:27.000Z",
+          "uid": "37518756-bb46d3a4-7f07-48fd-af86-637b63914030"
+        },
+        {
+          "name": "Add Sub-Pocket",
+          "id": "21b93947-3d23-44c1-b11e-1332489f525c",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{pocketAuthToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              },
+              {
+                "key": "Public-Key",
+                "value": "{{publicKey}}",
+                "description": "Merchant public key — required alongside Bearer auth for every Pocket endpoint."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n    {\n        \"reference\": \"subpocket_ref_001\",\n        \"pocketFunction\": \"BOTH\",\n        \"currency\": \"NGN\",\n        \"selfOwned\": true,\n        \"pocketOwner\": {\n            \"existingPocketOwner\": \"false\",\n            \"pocketOwnerDetails\": {\n                \"firstName\": \"Jane\",\n                \"lastName\": \"Doe\",\n                \"emailAddress\": \"jane@example.com\",\n                \"phoneNumber\": \"08012345678\",\n                \"businessName\": \"Acme Ltd\"\n            }\n        }\n    }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/pocket-id/{{pocketID}}/sub-pocket",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "pocket-id",
+                "{{pocketID}}",
+                "sub-pocket"
+              ]
+            },
+            "description": "Creates a sub-pocket under a parent pocket — e.g. one wallet per vendor, department, or customer, all rolling up to the parent. Body is an array, so you can create several sub-pockets in one call.\n\n**Body fields (per array entry)**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `reference` | string | Yes | Your unique reference for this sub-pocket |\n| `pocketFunction` | string | Yes | e.g. `BOTH` (can send and receive) |\n| `currency` | string | Yes | Currency the sub-pocket holds |\n| `selfOwned` | boolean | Yes | Whether the sub-pocket belongs to you or an external owner |\n| `pocketOwner` | object | Yes | `existingPocketOwner` plus `pocketOwnerDetails` (`firstName`, `lastName`, `emailAddress`, `phoneNumber`, `businessName`) |\n| `tagGroup` | string | No | Grouping label |\n| `tagName` | string | No | Display label |\n\nResponse returns the new `pocketId`, its dedicated `bankAccountNumber`/`bankAccountName`/`bankName`, and login details for the sub-pocket's own user."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T15:49:29.000Z",
+          "uid": "37518756-21b93947-3d23-44c1-b11e-1332489f525c"
+        },
+        {
+          "name": "Pocket to Pocket Transfer",
+          "id": "c3602316-062b-4559-9d24-eb1e51efdf86",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{pocketAuthToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              },
+              {
+                "key": "Public-Key",
+                "value": "{{publicKey}}",
+                "description": "Merchant public key — required alongside Bearer auth for every Pocket endpoint."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": \"5000.00\",\n    \"currency\": \"NGN\",\n    \"reference\": \"transfer_ref_001\",\n    \"description\": \"Internal transfer\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/transfer/from-pocket/{{pocketID}}/to-pocket/{{destinationPocketID}}",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "transfer",
+                "from-pocket",
+                "{{pocketID}}",
+                "to-pocket",
+                "{{destinationPocketID}}"
+              ]
+            },
+            "description": "Moves funds between two pockets (parent-to-sub-pocket, sub-to-sub, etc.) — an internal transfer, not a bank payout.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `amount` | string | Yes | Amount to move |\n| `currency` | string | Yes | Currency, must match both pockets |\n| `reference` | string | Yes | Unique reference for this transfer |\n| `description` | string | Yes | Free-text note |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T15:49:31.000Z",
+          "uid": "37518756-c3602316-062b-4559-9d24-eb1e51efdf86"
+        },
+        {
+          "name": "Get Pocket Details",
+          "id": "4a60f373-198e-406e-99fa-c0c81c9e4283",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{pocketAuthToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Public-Key",
+                "value": "{{publicKey}}",
+                "description": "Merchant public key — required alongside Bearer auth for every Pocket endpoint."
+              }
+            ],
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/pocket-id/{{pocketID}}",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "pocket-id",
+                "{{pocketID}}"
+              ]
+            },
+            "description": "Fetches a pocket's full profile: status, balances, its own dedicated bank account (`accountNumber`, `fundingLink`), owner details, and any linked `pocketAccounts`."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T15:49:32.000Z",
+          "uid": "37518756-4a60f373-198e-406e-99fa-c0c81c9e4283"
+        },
+        {
+          "name": "Get Pocket Balance",
+          "id": "e9263813-51fc-421a-a42c-fc94784acd5d",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{pocketAuthToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Public-Key",
+                "value": "{{publicKey}}",
+                "description": "Merchant public key — required alongside Bearer auth for every Pocket endpoint."
+              }
+            ],
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/balance/pocket-id/{{pocketID}}",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "balance",
+                "pocket-id",
+                "{{pocketID}}"
+              ]
+            },
+            "description": "Fast balance-only lookup for one pocket — `availableBalanceAmount`/`Currency` and `lastTransactionAt`. Use *Get Pocket Details* instead when you also need the account number or owner info."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T15:49:34.000Z",
+          "uid": "37518756-e9263813-51fc-421a-a42c-fc94784acd5d"
+        },
+        {
+          "name": "Get Merchant Balance Summation",
+          "id": "aa7094b1-6e96-4d94-8994-445c9bcd25e9",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{pocketAuthToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Public-Key",
+                "value": "{{publicKey}}",
+                "description": "Merchant public key — required alongside Bearer auth for every Pocket endpoint."
+              }
+            ],
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/balances-summation/pocket-id/{{pocketID}}",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "balances-summation",
+                "pocket-id",
+                "{{pocketID}}"
+              ]
+            },
+            "description": "Rolls up balances across pockets: `merchantSubPocketsBalanceSummation` (just the sub-pockets under this one) and `merchantAllPocketsBalanceSummation` (every pocket under the merchant)."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T15:49:35.000Z",
+          "uid": "37518756-aa7094b1-6e96-4d94-8994-445c9bcd25e9"
+        },
+        {
+          "name": "Get Transaction by Reference",
+          "id": "8fc43e24-cc1a-49dd-9ebc-35073ac69812",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{pocketAuthToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Public-Key",
+                "value": "{{publicKey}}",
+                "description": "Merchant public key — required alongside Bearer auth for every Pocket endpoint."
+              }
+            ],
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/transaction/reference/{{reference}}",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "transaction",
+                "reference",
+                "{{reference}}"
+              ]
+            },
+            "description": "Looks up one Pocket transaction (funding, transfer, fee, etc.) by its `reference`. Returns `transactionLeg` (`DEBIT`/`CREDIT`), `transactionType`, `status`, and counterparty details."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T15:49:37.000Z",
+          "uid": "37518756-8fc43e24-cc1a-49dd-9ebc-35073ac69812"
+        },
+        {
+          "name": "Search Transactions",
+          "id": "4dddc13e-d263-4c89-9e40-3f19e2d08227",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{pocketAuthToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Not required for a GET with no body, but present in the saved doc example."
+              },
+              {
+                "key": "Public-Key",
+                "value": "{{publicKey}}",
+                "description": "Merchant public key — required alongside Bearer auth for every Pocket endpoint."
+              }
+            ],
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/transaction/search?pocketId={{pocketID}}&page=0&size=10",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "transaction",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "pocketId",
+                  "value": "{{pocketID}}"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Lists a pocket's transaction history, paginated.\n\n**Query parameters**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `pocketId` | string | Yes | The pocket to list transactions for |\n| `page` | integer | Yes | Zero-based page number |\n| `size` | integer | Yes | Records per page |\n\nResponse wraps results in `content` plus `pageable`, `totalElements`, `totalPages` for pagination."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T15:49:38.000Z",
+          "uid": "37518756-4dddc13e-d263-4c89-9e40-3f19e2d08227"
+        }
+      ],
+      "id": "e77e4d09-0a36-404b-bd4c-16170d562df5",
+      "description": "SeerBit's wallet product — hold balances in \"pockets,\" create sub-pockets per vendor/department/customer, and move money between them. Distinct from the **Payout** folder: Pocket-to-Pocket transfers stay inside SeerBit; sending a pocket's funds *out* to an external bank account is what the Payout flow (Account Enquiry → Generate OTP → Generate Signature → Initiate Payout) is for. Added because it was fully documented on doc.seerbit.com but missing from this collection.\n\nEvery endpoint here needs Bearer auth (from *Authenticate* below, not the collection's merchant `BearerToken`) plus a `Public-Key` header.\n\n### Variables used in this folder\n\n| Variable | Description |\n|---|---|\n| `publicKey` | Your merchant public key from the SeerBit dashboard. Sent in the body of most payment-initiation requests (never as a header) to identify which merchant account a transaction belongs to. |\n| `reference` | A generic transaction or operation reference used to look up a specific record where no more specific reference variable applies. |\n| `pocketID` | Identifier for a SeerBit Pocket (an internal sub-wallet under your merchant account), used to fund, debit, or transfer between pockets. |\n| `destinationPocketID` | The receiving Pocket's identifier in a Pocket-to-Pocket transfer, as distinct from the source `pocketID`. |\n| `pocketEmail` | Email address associated with a Pocket, used for Pocket creation or lookup. |\n| `pocketPassword` | Password for a Pocket account, required to authorize sensitive Pocket operations. |\n| `newPocketPassword` | New password value when calling the Pocket password-change endpoint. |",
+      "createdAt": "2026-09-02T17:35:23.000Z",
+      "updatedAt": "2026-09-03T16:27:59.000Z",
+      "uid": "37518756-e77e4d09-0a36-404b-bd4c-16170d562df5"
+    },
+    {
+      "name": "Payout",
+      "item": [
+        {
+          "name": "Account Enquiry",
+          "id": "0280dad6-dbbe-4d2a-a65a-344407c7db9e",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{pocketAuthToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"accountnumber\": \"0123456789\",\n    \"bankcode\": \"058\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/payout/account-enquiry",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "payout",
+                "account-enquiry"
+              ]
+            },
+            "description": "Reconfirms the account holder's name for a bank account before sending a payout — use it to catch a wrong account number before money moves.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `accountnumber` | string | Yes | Recipient bank account number |\n| `bankcode` | string | Yes | Recipient bank's code, from *Bank List* |\n\n**Note:** the payout flow (*Authenticate for Payout* → *Initiate Single/Bulk Payout* → *Confirm Payout with OTP*) doesn't call this endpoint — it goes straight from authentication to initiating the payout, with no separate account-name-confirmation step built in. Whether it's still expected to run first, is optional, or belongs to a different flow isn't stated; use it as a manual pre-check if you want extra assurance before sending funds."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T15:49:12.000Z",
+          "uid": "37518756-0280dad6-dbbe-4d2a-a65a-344407c7db9e"
+        },
+        {
+          "name": "Bank List",
+          "id": "d5f1caf1-f49a-4b35-b0a9-d9f810ff23a9",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{pocketAuthToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Public-Key",
+                "value": "{{publicKey}}",
+                "description": "Merchant public key — required in addition to Bearer auth for Payout endpoints."
+              }
+            ],
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/banks/category/NIP",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "banks",
+                "category",
+                "NIP"
+              ]
+            },
+            "description": "Returns the banks supported for payouts in a given category — `NIP` in the saved URL is Nigeria's instant transfer network; swap the path segment if a different category is documented for your corridor. Requires Bearer auth plus a Public-Key header."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T15:49:14.000Z",
+          "uid": "37518756-d5f1caf1-f49a-4b35-b0a9-d9f810ff23a9"
+        },
+        {
+          "name": "Authenticate for Payout",
+          "id": "a85c40f0-af7f-4b07-897f-2792d70f7aa7",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              },
+              {
+                "key": "Public-Key",
+                "value": "{{publicKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"your-merchant-login-email@example.com\",\n    \"password\": \"your-merchant-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/authenticate",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "authenticate"
+              ]
+            },
+            "description": "Logs in with your merchant account email and Pocket password to obtain the bearer token required by every other request in this payout flow.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `email` | string | Yes | Your merchant account's login email |\n| `password` | string | Yes | Your **Pocket password** — not your SeerBit merchant dashboard password. This is the password for your Pocket account at flow.seerbitapi.com. |\n\n**Response: 200 OK**\n```json\n{\n    \"data\": {\n        \"bearerToken\": \"...\"\n    }\n}\n```\nSave `data.bearerToken` as `{{pocketAuthToken}}` — used as the `Authorization: Bearer` value on *Initiate Single Payout*, *Initiate Bulk Payout*, and *Confirm Payout with OTP*. This is the same login and token as *Authenticate* in the Pocket folder — kept as one shared variable, `{{pocketAuthToken}}`, and kept distinct from `{{BearerToken}}` (the OAuth token used everywhere else in this collection).\n\n**Note:** this is the only endpoint in this collection that authenticates with an email/password pair rather than an API key or OAuth token."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T15:52:00.000Z",
+          "uid": "37518756-a85c40f0-af7f-4b07-897f-2792d70f7aa7"
+        },
+        {
+          "name": "Initiate Single Payout",
+          "id": "fdca3597-4c4c-4adb-a945-204f50cf5978",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{pocketAuthToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              },
+              {
+                "key": "Public-Key",
+                "value": "{{publicKey}}",
+                "description": "Merchant public key."
+              },
+              {
+                "key": "X-Seerbit-Signature",
+                "value": "{{payoutSignature}}",
+                "description": "HMAC-SHA256 of the exact raw JSON request body, computed with your merchant secret key ({{SECRET_KEY}}), hex-encoded."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"pocketId\": \"SBP0016878\",\n    \"reference\": \"PAY-SINGLE-Ideal-001\",\n    \"currency\": \"NGN\",\n    \"amount\": 10,\n    \"description\": \"Single Payout API test\",\n    \"accountNumber\": \"0522376248\",\n    \"bankCode\": \"000013\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/v2/payouts",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "v2",
+                "payouts"
+              ]
+            },
+            "description": "Phase 1 of 2 — initiates a single payout. Validates the request signature, encrypts the payload, and emails an OTP to the merchant; the payout only moves money once that OTP is submitted to *Confirm Payout with OTP*.\n\n**Required headers**\n\n| Header | Description |\n|---|---|\n| `Public-Key` | Your merchant public key (`{{publicKey}}`) |\n| `X-Seerbit-Signature` | HMAC-SHA256 of the exact raw JSON request body, computed with your merchant secret key (`{{SECRET_KEY}}`), hex-encoded. |\n| `Authorization` | `Bearer {{pocketAuthToken}}` — from *Authenticate for Payout* (same token as Pocket's *Authenticate*), not the OAuth `{{BearerToken}}`. |\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `pocketId` | string | Yes | The Pocket to pay out from |\n| `reference` | string | Yes | Your unique reference for this payout. Re-submitting the same `reference` is idempotent — it returns the existing `payoutId` and a message that the OTP was already sent, rather than sending a new OTP. |\n| `currency` | string | Yes | Currency code |\n| `amount` | number | Yes | Amount to send |\n| `description` | string | No | Free-text note for the payout |\n| `accountNumber` | string | Yes | Recipient bank account number |\n| `bankCode` | string | Yes | Recipient bank's code — see *Bank List* |\n\n**Response: 202 Accepted**\n```json\n{\n    \"payoutId\": \"PV2-ABCDEF123456\",\n    \"status\": \"PENDING_OTP\",\n    \"message\": \"OTP sent to registered email. Please confirm to proceed.\"\n}\n```\nSave `payoutId` as the `{{payoutId}}` collection variable — it's the path parameter for *Confirm Payout with OTP*.\n\n**Error responses:**\n- 401 Unauthorized — missing or invalid `X-Seerbit-Signature`\n- 400 Bad Request — missing `Public-Key` header\n- 400 Bad Request — missing/invalid required fields (e.g. \"currency is required\", \"amount must be positive\")\n\n**Note:** this flow doesn't include a separate account-name-confirmation step before initiating — call *Account Enquiry* first if you want to verify the recipient's account name."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T15:49:17.000Z",
+          "uid": "37518756-fdca3597-4c4c-4adb-a945-204f50cf5978"
+        },
+        {
+          "name": "Confirm Payout with OTP",
+          "id": "0d5c6ac3-8bbd-49f7-9aeb-8a88485e7a1d",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{pocketAuthToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "value": "application/json",
+                "description": "Request body is JSON.",
+                "key": "Content-Type"
+              },
+              {
+                "value": "{{publicKey}}",
+                "description": "Merchant public key.",
+                "key": "Public-Key"
+              },
+              {
+                "value": "{{payoutSignature}}",
+                "description": "HMAC-SHA256 of the exact raw JSON request body, computed with your merchant secret key ({{SECRET_KEY}}), hex-encoded.",
+                "key": "X-Seerbit-Signature"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/v2/payouts/{{payoutId}}/confirm",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "v2",
+                "payouts",
+                "{{payoutId}}",
+                "confirm"
+              ]
+            },
+            "description": "Phase 2 of 2 — submits the OTP emailed to the merchant during *Initiate Single Payout* / *Initiate Bulk Payout*. On success, SeerBit decrypts the payload and dispatches it for processing; this is what actually moves money.\n\n**Path parameter**\n\n| Parameter | Description |\n|---|---|\n| `payoutId` (in URL path) | From the Initiate call's response, saved to `{{payoutId}}` |\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `otp` | string | Yes | 6-digit code emailed to the merchant. Expires 5 minutes after being issued. It's presumably sent to the email used to log in via *Authenticate for Payout*, though this isn't stated explicitly. |\n\n**Response: 200 OK**\n```json\n{\n    \"payoutId\": \"PV2-ABCDEF123456\",\n    \"status\": \"QUEUED\",\n    \"message\": \"Payout confirmed and queued for processing\",\n    \"batchId\": \"BATCH-XYZ\"\n}\n```\n\n**Error responses (400):**\n- Payout not found\n- Unauthorized access\n- Not in `PENDING_OTP` state\n- OTP has expired\n- Invalid OTP\n- Insufficient funds"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T15:49:22.000Z",
+          "uid": "37518756-0d5c6ac3-8bbd-49f7-9aeb-8a88485e7a1d"
+        },
+        {
+          "name": "Initiate Bulk Payout",
+          "id": "5c675c86-c5c9-5203-c2b0-f88c50248c11",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{pocketAuthToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "value": "application/json",
+                "key": "Content-Type",
+                "description": "Request body is JSON."
+              },
+              {
+                "value": "{{publicKey}}",
+                "key": "Public-Key",
+                "description": "Merchant public key."
+              },
+              {
+                "value": "{{payoutSignature}}",
+                "key": "X-Seerbit-Signature",
+                "description": "HMAC-SHA256 of the exact raw JSON request body, computed with your merchant secret key ({{SECRET_KEY}}), hex-encoded."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"pocketId\": \"SBP0003440\",\n    \"batchReference\": \"BATCH-PAY-001\",\n    \"transfers\": [\n        {\n            \"reference\": \"BULK-REF-001\",\n            \"currency\": \"NGN\",\n            \"amount\": 500.00,\n            \"description\": \"Payment to vendor A\",\n            \"accountNumber\": \"0522376248\",\n            \"bankCode\": \"000013\"\n        },\n        {\n            \"reference\": \"BULK-REF-002\",\n            \"currency\": \"NGN\",\n            \"amount\": 500.00,\n            \"description\": \"Payment to vendor B\",\n            \"accountNumber\": \"0522376248\",\n            \"bankCode\": \"000013\"\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "https://pocket.seerbitapi.com/pocket/v2/payouts",
+              "protocol": "https",
+              "host": [
+                "pocket",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "pocket",
+                "v2",
+                "payouts"
+              ]
+            },
+            "description": "Phase 1 of 2 — initiates a payout to multiple recipients in one call, sharing a single OTP confirmation. Same endpoint as *Initiate Single Payout*; a non-empty `transfers` array is what puts the request in bulk mode.\n\n**Required headers:** same as *Initiate Single Payout* — `Public-Key`, `X-Seerbit-Signature` (HMAC-SHA256 of the raw body using `{{SECRET_KEY}}`), `Authorization: Bearer {{pocketAuthToken}}` from *Authenticate for Payout*.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `pocketId` | string | Yes | The Pocket to pay out from |\n| `batchReference` | string | Yes | Your unique reference for the whole batch. Re-submitting the same `batchReference` is idempotent — returns the existing `payoutId` rather than creating a new batch. |\n| `transfers` | array | Yes | One entry per recipient — see fields below. Must be non-empty to trigger bulk mode. |\n| `transfers[].reference` | string | Yes | Your unique reference for this individual transfer within the batch |\n| `transfers[].currency` | string | Yes | Currency code |\n| `transfers[].amount` | number | Yes | Amount to send to this recipient |\n| `transfers[].description` | string | No | Free-text note for this transfer |\n| `transfers[].accountNumber` | string | Yes | Recipient bank account number |\n| `transfers[].bankCode` | string | Yes | Recipient bank's code — see *Bank List* |\n\n**Response: 202 Accepted** — same shape as *Initiate Single Payout*: one `payoutId` for the whole batch, `status: \"PENDING_OTP\"`.\n\n**Note:** there's no documented endpoint for checking an individual transfer's outcome within a batch — only the batch-level `batchId` returned by *Confirm Payout with OTP*."
+          },
+          "response": [],
+          "createdAt": "2026-09-03T15:24:04.000Z",
+          "updatedAt": "2026-09-03T15:49:20.000Z",
+          "uid": "37518756-5c675c86-c5c9-5203-c2b0-f88c50248c11"
+        }
+      ],
+      "id": "c200fa21-25e8-4f32-bc55-c4a22f601b32",
+      "description": "Send money out to a bank account (vendor payouts, refunds settled outside the original rail, etc.). The flow is sequential: confirm the receiving account, get an OTP, sign the payout, then submit it — each step's output feeds the next.\n\n### Variables used in this folder\n\n| Variable | Description |\n|---|---|\n| `publicKey` | Your merchant public key from the SeerBit dashboard. Sent in the body of most payment-initiation requests (never as a header) to identify which merchant account a transaction belongs to. |\n| `pocketID` | Identifier for a SeerBit Pocket (an internal sub-wallet under your merchant account), used to fund, debit, or transfer between pockets. |\n| `passKey` | A pocket-specific security key required to authorize certain Pocket operations, separate from your account-level public/secret keys. |\n| `payoutSignature` | HMAC signature you generate to authenticate a Payout request, proving it was signed with your secret key rather than tampered with in transit. |",
+      "createdAt": "2026-09-02T17:09:41.000Z",
+      "updatedAt": "2026-09-03T15:24:04.000Z",
+      "uid": "37518756-c200fa21-25e8-4f32-bc55-c4a22f601b32"
+    },
+    {
+      "name": "Partners API",
+      "item": [
+        {
+          "name": "Partner Login",
+          "id": "ff4d5389-5702-4c9f-946c-9922815efcfc",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"partner@example.com\",\n    \"password\": \"{{partnerPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://partners.seerbitapi.com/auth/login",
+              "protocol": "https",
+              "host": [
+                "partners",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticates a SeerBit partner and returns a Bearer token for the Partners API endpoints below (a separate token from the merchant `BearerToken` used elsewhere in this collection). No auth required to call it.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `email` | string | Yes | Partner's registered email |\n| `password` | string | Yes | Partner account password |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:57:04.000Z",
+          "uid": "37518756-ff4d5389-5702-4c9f-946c-9922815efcfc"
+        },
+        {
+          "name": "Request Password Reset",
+          "id": "edf71b8d-df9c-42c9-8ec3-9778f7fc59c8",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"partner@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://partners.seerbitapi.com/auth/password",
+              "protocol": "https",
+              "host": [
+                "partners",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "auth",
+                "password"
+              ]
+            },
+            "description": "Triggers a password-reset email containing an OTP, which you then pass to *Reset Password*. No auth required.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `email` | string | Yes | Registered partner email |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:57:05.000Z",
+          "uid": "37518756-edf71b8d-df9c-42c9-8ec3-9778f7fc59c8"
+        },
+        {
+          "name": "Reset Password",
+          "id": "6a8ff608-1977-4c69-a262-c1a2b07ebf72",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"partner@example.com\",\n    \"newPassword\": \"{{newPartnerPassword}}\",\n    \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://partners.seerbitapi.com/auth/reset",
+              "protocol": "https",
+              "host": [
+                "partners",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "auth",
+                "reset"
+              ]
+            },
+            "description": "Completes a password reset using the OTP emailed by *Request Password Reset*.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `email` | string | Yes | Registered partner email |\n| `newPassword` | string | Yes | Minimum 8 characters, must include an uppercase letter and a special character |\n| `otp` | string | Yes | Code sent by *Request Password Reset* |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:57:11.000Z",
+          "uid": "37518756-6a8ff608-1977-4c69-a262-c1a2b07ebf72"
+        },
+        {
+          "name": "Invite Business",
+          "id": "ef2af48c-f569-4f78-8446-f46c22a4cb13",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              },
+              {
+                "key": "Public-Key",
+                "value": "{{publicKey}}",
+                "description": "Merchant/partner public key — used instead of relying on Bearer alone for this endpoint."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Jane Doe\",\n    \"businessName\": \"Acme Ltd\",\n    \"email\": \"jane@acme.com\",\n    \"countryCode\": \"NG\",\n    \"partnerId\": \"{{partnerId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://partners.seerbitapi.com/api/v1/business/invite",
+              "protocol": "https",
+              "host": [
+                "partners",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "business",
+                "invite"
+              ]
+            },
+            "description": "Invites a new sub-merchant business under this partner account. Auth is via a Public-Key header rather than Bearer alone.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `name` | string | Yes | Contact person's name at the business |\n| `businessName` | string | Yes | Business's registered name |\n| `email` | string | Yes | Business contact email — the invite is sent here |\n| `countryCode` | string | Yes | Defaults to `NG`; change only if the business operates outside Nigeria |\n| `partnerId` | string | Yes | Your partner ID — don't modify this |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:57:14.000Z",
+          "uid": "37518756-ef2af48c-f569-4f78-8446-f46c22a4cb13"
+        },
+        {
+          "name": "Get Business Invite",
+          "id": "44c84b1f-8a28-4003-b728-86c2c1cd9f51",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://partners.seerbitapi.com/api/v1/business/SBT0050/invite",
+              "protocol": "https",
+              "host": [
+                "partners",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "business",
+                "SBT0050",
+                "invite"
+              ]
+            },
+            "description": "Lists businesses invited under a given business/partner ID. `SBT0050` in the saved URL is the example ID shown in the doc — replace it with a real one. Returns each invited business's ID, name, and email."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:57:15.000Z",
+          "uid": "37518756-44c84b1f-8a28-4003-b728-86c2c1cd9f51"
+        },
+        {
+          "name": "Set Business Commission",
+          "id": "784d2dea-bc7c-4a59-91e1-2b6fd5e9fa12",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              },
+              {
+                "key": "Public-Key",
+                "value": "{{publicKey}}",
+                "description": "Merchant/partner public key — used instead of relying on Bearer alone for this endpoint."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"cappedAmount\": \"10000\",\n    \"mccPercentage\": \"1.5\",\n    \"businessId\": \"{{businessId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://partners.seerbitapi.com/api/v1/business/commission",
+              "protocol": "https",
+              "host": [
+                "partners",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "business",
+                "commission"
+              ]
+            },
+            "description": "Sets the commission SeerBit deducts on transactions for one sub-merchant business. Auth is via a Public-Key header rather than Bearer alone.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `businessId` | string | Yes | The sub-merchant business to set commission for |\n| `mccPercentage` | number | Yes | Commission percentage charged per transaction |\n| `cappedAmount` | string | Yes | Maximum commission amount per transaction, regardless of percentage |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:57:18.000Z",
+          "uid": "37518756-784d2dea-bc7c-4a59-91e1-2b6fd5e9fa12"
+        },
+        {
+          "name": "Change Partner Password",
+          "id": "06e26a63-af11-430a-867b-e1c7ddb0a711",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "Request body is JSON."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"currentPassword\": \"{{partnerPassword}}\",\n    \"newPassword\": \"{{newPartnerPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://partners.seerbitapi.com/api/v1/business/password",
+              "protocol": "https",
+              "host": [
+                "partners",
+                "seerbitapi",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "business",
+                "password"
+              ]
+            },
+            "description": "Changes the logged-in partner's password. Requires Bearer auth (the partner token from *Partner Login*).\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `currentPassword` | string | Yes | Partner's current password |\n| `newPassword` | string | Yes | Must meet the same complexity rules as *Reset Password* |"
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:09:41.000Z",
+          "updatedAt": "2026-09-03T09:57:20.000Z",
+          "uid": "37518756-06e26a63-af11-430a-867b-e1c7ddb0a711"
+        }
+      ],
+      "id": "cdc8677f-7dd2-4cd0-8dd1-8ef7709e5259",
+      "description": "For SeerBit partners managing sub-merchants: authenticate as a partner, invite and manage businesses under your partner account, and set their commission terms.\n\n### Variables used in this folder\n\n| Variable | Description |\n|---|---|\n| `publicKey` | Your merchant public key from the SeerBit dashboard. Sent in the body of most payment-initiation requests (never as a header) to identify which merchant account a transaction belongs to. |\n| `partnerId` | Identifier for a partner/sub-merchant account under the Partners API, used to manage that partner's businesses and settings. |\n| `businessId` | Identifier for a specific business/sub-account created under a partner via the Partners API. |\n| `partnerPassword` | Password used to authenticate as a partner when calling Partners API endpoints. |\n| `newPartnerPassword` | New password value when calling a Partners API endpoint that changes a partner's password. |",
+      "createdAt": "2026-09-02T17:09:41.000Z",
+      "updatedAt": "2026-09-02T17:09:41.000Z",
+      "uid": "37518756-cdc8677f-7dd2-4cd0-8dd1-8ef7709e5259"
+    },
+    {
+      "name": "Webhooks (reference)",
+      "item": [
+        {
+          "name": "refund",
+          "id": "b5cd39b6-fa23-4921-bfe4-d8c8408c2735",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "SeerBit sends this as a JSON POST."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventType\": \"refund\",\n  \"eventDate\": \"2026-05-01 12:55:57\",\n  \"eventId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"data\": {\n    \"amount\": \"5000.00\",\n    \"createdAt\": \"2026-05-01T12:55:00Z\",\n    \"transactionRef\": \"payment_reference8\",\n    \"description\": \"Customer requested refund\",\n    \"type\": \"FULL_REFUND\",\n    \"mode\": \"LIVE\",\n    \"updatedAt\": \"2026-05-01T12:55:57Z\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{yourWebhookUrl}}",
+              "host": [
+                "{{yourWebhookUrl}}"
+              ]
+            },
+            "description": "**Reference only — not a request you send.** This documents the `refund` payload SeerBit POSTs to *your* configured webhook URL after the matching event happens; there is nothing at SeerBit to call here. The body below is the shape of what you'll receive.\n\nSent when a refund is processed against one of your transactions (full or partial, per `type`).\n\nYour endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T09:57:50.000Z",
+          "uid": "37518756-b5cd39b6-fa23-4921-bfe4-d8c8408c2735"
+        },
+        {
+          "name": "dispute",
+          "id": "adc12cb6-a687-4fa3-9ea5-acc40775d5c6",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "SeerBit sends this as a JSON POST."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventType\": \"dispute\",\n  \"eventDate\": \"2026-05-01 12:56:07\",\n  \"eventId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"data\": {\n    \"evidence\": [\n      {\n        \"images\": [\n          {\n            \"image\": \"https://example.com/evidence1.png\"\n          }\n        ]\n      }\n    ]\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{yourWebhookUrl}}",
+              "host": [
+                "{{yourWebhookUrl}}"
+              ]
+            },
+            "description": "**Reference only — not a request you send.** This documents the `dispute` payload SeerBit POSTs to *your* configured webhook URL after the matching event happens; there is nothing at SeerBit to call here. The body below is the shape of what you'll receive.\n\nSent when a chargeback/dispute is raised against one of your transactions; `evidence` carries whatever supporting material is attached.\n\nYour endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T09:57:52.000Z",
+          "uid": "37518756-adc12cb6-a687-4fa3-9ea5-acc40775d5c6"
+        },
+        {
+          "name": "transaction",
+          "id": "e723a944-eeb4-44a7-8095-c6dde35d765b",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "SeerBit sends this as a JSON POST."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventType\": \"transaction\",\n  \"eventDate\": \"2026-07-01 08:56:16\",\n  \"eventId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"data\": {\n    \"amount\": 5000,\n    \"reference\": \"payment_reference8\",\n    \"gatewayMessage\": \"Successful\",\n    \"publicKey\": \"{{publicKey}}\",\n    \"businessName\": \"Your Business\",\n    \"fee\": 50,\n    \"channelType\": \"MASTERCARD\",\n    \"maskedPan\": \"5123-40xx-xxxx-0008\",\n    \"fullname\": \"Jane Doe\",\n    \"email\": \"customer@example.com\",\n    \"gatewayReference\": \"GW-REF-001\",\n    \"country\": \"NG\",\n    \"currency\": \"NGN\",\n    \"paymentType\": \"CARD\",\n    \"gatewayCode\": \"00\",\n    \"code\": \"00\",\n    \"createdAt\": \"2026-07-01T08:56:00Z\",\n    \"updatedAt\": \"2026-07-01T08:56:16Z\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{yourWebhookUrl}}",
+              "host": [
+                "{{yourWebhookUrl}}"
+              ]
+            },
+            "description": "**Reference only — not a request you send.** This documents the `transaction` payload SeerBit POSTs to *your* configured webhook URL after the matching event happens; there is nothing at SeerBit to call here. The body below is the shape of what you'll receive.\n\nSent for a card payment (e.g. from Standard Checkout or Tokenization) reaching a final state — this is the async counterpart to polling *Check Payment Status*.\n\nYour endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T09:57:54.000Z",
+          "uid": "37518756-e723a944-eeb4-44a7-8095-c6dde35d765b"
+        },
+        {
+          "name": "transaction.wallet",
+          "id": "d2c503f8-78e9-4e38-9228-4df215b30940",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "SeerBit sends this as a JSON POST."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventType\": \"transaction.wallet\",\n  \"eventDate\": \"2026-05-01 12:52:28\",\n  \"eventId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"data\": {\n    \"amount\": 5000,\n    \"fee\": 0,\n    \"mobile\": \"08012345678\",\n    \"reference\": \"va_ref_001\",\n    \"gatewayMessage\": \"APPROVED\",\n    \"bankCode\": \"000016\",\n    \"description\": \"Wallet funding\",\n    \"type\": \"Transfer\",\n    \"fullname\": \"Jane Doe\",\n    \"email\": \"customer@example.com\",\n    \"country\": \"NG\",\n    \"currency\": \"NGN\",\n    \"creditAccountName\": \"Jane Doe\",\n    \"creditAccountNumber\": \"1234567890\",\n    \"originatorAccountnumber\": \"0987654321\",\n    \"originatorName\": \"John Smith\",\n    \"narration\": \"Funding\",\n    \"createdAt\": \"2026-05-01T12:52:00Z\",\n    \"updatedAt\": \"2026-05-01T12:52:28Z\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{yourWebhookUrl}}",
+              "host": [
+                "{{yourWebhookUrl}}"
+              ]
+            },
+            "description": "**Reference only — not a request you send.** This documents the `transaction.wallet` payload SeerBit POSTs to *your* configured webhook URL after the matching event happens; there is nothing at SeerBit to call here. The body below is the shape of what you'll receive.\n\nSent when a bank transfer lands on a Virtual Account or Pocket — this is what tells you a *Get Payments* or Pocket balance actually changed, without you having to poll.\n\nYour endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T09:57:56.000Z",
+          "uid": "37518756-d2c503f8-78e9-4e38-9228-4df215b30940"
+        },
+        {
+          "name": "transaction.recurrent",
+          "id": "323b4907-4806-4070-b38d-f224a6cdc55f",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "SeerBit sends this as a JSON POST."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventType\": \"transaction.recurrent\",\n  \"eventDate\": \"2026-05-01 12:50:33\",\n  \"eventId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"data\": {\n    \"amount\": 100,\n    \"mobile\": \"08012345678\",\n    \"reference\": \"sub_charge_ref_001\",\n    \"publicKey\": \"{{publicKey}}\",\n    \"description\": \"Subscription charge\",\n    \"productId\": \"product222\",\n    \"maskedPan\": \"5123-40xx-xxxx-0008\",\n    \"email\": \"customer@example.com\",\n    \"country\": \"NG\",\n    \"narration\": \"Recurrent\",\n    \"createdAt\": \"2026-05-01T12:50:00Z\",\n    \"updatedAt\": \"2026-05-01T12:50:33Z\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{yourWebhookUrl}}",
+              "host": [
+                "{{yourWebhookUrl}}"
+              ]
+            },
+            "description": "**Reference only — not a request you send.** This documents the `transaction.recurrent` payload SeerBit POSTs to *your* configured webhook URL after the matching event happens; there is nothing at SeerBit to call here. The body below is the shape of what you'll receive.\n\nSent when a subscription's scheduled charge (from *Create Plan* / *Charge Subscription*) completes.\n\nYour endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T09:58:02.000Z",
+          "uid": "37518756-323b4907-4806-4070-b38d-f224a6cdc55f"
+        },
+        {
+          "name": "transaction.recurring.debit",
+          "id": "8fbe2a81-0df6-4bf5-8c4f-0b58fa51711a",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "SeerBit sends this as a JSON POST."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventType\": \"transaction.recurring.debit\",\n  \"eventDate\": \"2026-05-01 12:55:32\",\n  \"eventId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"data\": {\n    \"amount\": 5000,\n    \"reference\": \"charge_token_ref_001\",\n    \"gatewayMessage\": \"Successful\",\n    \"publicKey\": \"{{publicKey}}\",\n    \"description\": \"Authorised charge\",\n    \"channelType\": \"Recurring Debit\",\n    \"maskedPan\": \"5123-40xx-xxxx-0008\",\n    \"type\": \"TOKEN\",\n    \"fullname\": \"Jane Doe\",\n    \"email\": \"customer@example.com\",\n    \"country\": \"NG\",\n    \"currency\": \"NGN\",\n    \"narration\": \"Authorised charge\",\n    \"paymentType\": \"card\",\n    \"createdAt\": \"2026-05-01T12:55:00Z\",\n    \"updatedAt\": \"2026-05-01T12:55:32Z\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{yourWebhookUrl}}",
+              "host": [
+                "{{yourWebhookUrl}}"
+              ]
+            },
+            "description": "**Reference only — not a request you send.** This documents the `transaction.recurring.debit` payload SeerBit POSTs to *your* configured webhook URL after the matching event happens; there is nothing at SeerBit to call here. The body below is the shape of what you'll receive.\n\nSent for a subsequent automated debit against a stored token (e.g. *Charge Authorization Token*) outside the subscription schedule.\n\nYour endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry."
+          },
+          "response": [],
+          "createdAt": "2026-09-02T17:35:23.000Z",
+          "updatedAt": "2026-09-03T09:58:05.000Z",
+          "uid": "37518756-8fbe2a81-0df6-4bf5-8c4f-0b58fa51711a"
+        }
+      ],
+      "id": "9358f4a9-18b1-49e1-933b-ea06200e6299",
+      "description": "**None of these are requests you send** — SeerBit calls *your* configured webhook URL (set in Dashboard → Account Settings → Webhook) with one of these six event types whenever something happens asynchronously. They're saved here purely as a payload reference so you know what to expect and how to build your handler, the same way the rest of this collection documents outbound calls.\n\n**Acknowledgment — V1:** respond with a plain HTTP 200 within 10 seconds, or SeerBit retries on an escalating schedule for up to 7 days.\n\n**Acknowledgment — V2:** respond within 5 seconds with `{ \"ackReference\": \"<echo the X-Expected-Ack-Reference header, or generate one if absent>\", \"status\": \"received\" }` and HTTP 200. Retries follow a fixed schedule: 30s, 2m, 10m, 30m, then a final attempt at 1h, after which the webhook is marked undelivered.\n\nEvery payload shares one wrapper — `eventType`, `eventDate`, `eventId`, and a `data` object specific to the event — shown in each item below. Use `eventId` to de-duplicate if the same notification arrives more than once (retries can outlast a slow acknowledgment).\n\n### Variables used in this folder\n\n| Variable | Description |\n|---|---|\n| `publicKey` | Your merchant public key from the SeerBit dashboard. Sent in the body of most payment-initiation requests (never as a header) to identify which merchant account a transaction belongs to. |\n| `yourWebhookUrl` | Placeholder for the callback URL you register with SeerBit to receive inbound webhook events (see the Webhooks (reference) folder) — not an endpoint you call, just documents what SeerBit will POST to. |",
+      "createdAt": "2026-09-02T17:35:23.000Z",
+      "updatedAt": "2026-09-02T17:35:23.000Z",
+      "uid": "37518756-9358f4a9-18b1-49e1-933b-ea06200e6299"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{BearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "publicKey",
+      "value": ""
+    },
+    {
+      "key": "BearerToken",
+      "value": ""
+    },
+    {
+      "key": "SECRET_KEY",
+      "value": ""
+    },
+    {
+      "key": "paymentReference",
+      "value": "payment_reference86"
+    },
+    {
+      "key": "customerId",
+      "value": ""
+    },
+    {
+      "key": "billingId",
+      "value": ""
+    },
+    {
+      "key": "batchId",
+      "value": ""
+    },
+    {
+      "key": "accountNumber",
+      "value": ""
+    },
+    {
+      "key": "reference",
+      "value": "FIRST_VIRTUAL_17"
+    },
+    {
+      "key": "paymentLinkId",
+      "value": "77287988"
+    },
+    {
+      "key": "authorizationCode",
+      "value": ""
+    },
+    {
+      "key": "planId",
+      "value": ""
+    },
+    {
+      "key": "pocketID",
+      "value": ""
+    },
+    {
+      "key": "passKey",
+      "value": ""
+    },
+    {
+      "key": "payoutSignature",
+      "value": ""
+    },
+    {
+      "key": "partnerId",
+      "value": ""
+    },
+    {
+      "key": "businessId",
+      "value": ""
+    },
+    {
+      "key": "partnerPassword",
+      "value": ""
+    },
+    {
+      "key": "newPartnerPassword",
+      "value": ""
+    },
+    {
+      "key": "destinationPocketID",
+      "value": ""
+    },
+    {
+      "key": "pocketEmail",
+      "value": ""
+    },
+    {
+      "key": "pocketPassword",
+      "value": ""
+    },
+    {
+      "key": "newPocketPassword",
+      "value": ""
+    },
+    {
+      "key": "yourWebhookUrl",
+      "value": "https://your-server.com/webhooks/seerbit"
+    },
+    {
+      "key": "customerEmail",
+      "value": ""
+    },
+    {
+      "key": "InvoiceNo",
+      "value": ""
+    },
+    {
+      "key": "orderNo",
+      "value": ""
+    }
+  ]
+}

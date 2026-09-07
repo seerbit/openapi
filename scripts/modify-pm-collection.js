@@ -21,15 +21,16 @@ const apiSpec = YAML.parse(fs.readFileSync(apiSpecFile).toString());
 
 console.log("Reading auths from examples in " + apiSpecFile);
 
-var specToken, specPK;
-try {
-  specPK = apiSpec.components.schemas.GenerateHashRequest.example.publicKey;
-  specToken =
-    apiSpec.components.schemas.GenerateEncryptedSecretKeyResponse.example.data
-      .EncrytedSecKey.encryptedKey;
-} catch (err) {
-  throw err;
-}
+// The OpenAPI definition now keeps request samples with their operations rather
+// than in legacy named component schemas. Read the current Generate Hash sample
+// and retain Postman variables for values a user supplies at runtime.
+const hashExamples =
+  apiSpec.paths?.["/api/v2/encrypt/hashs"]?.post?.requestBody?.content?.[
+    "application/json"
+  ]?.examples;
+const hashExample = hashExamples && Object.values(hashExamples)[0]?.value;
+const specPK = hashExample?.publicKey || "{{publicKey}}";
+const specToken = "{{BearerToken}}";
 
 console.log("Token: " + specToken);
 console.log("Username (Public Key): " + specPK);
