@@ -1,24 +1,24 @@
 {
   "item": [
     {
-      "id": "ba763c9d-84e6-4085-b3ad-bbe9a503d305",
+      "id": "2dc83bfb-7c0e-4498-8303-2cedabbb5dfa",
       "name": "api",
       "item": [
         {
-          "id": "fa342855-1556-4dbb-af63-623ed4be426a",
+          "id": "b8d23644-89e1-43a3-9fd5-ca8236743fe2",
           "name": "v2",
           "item": [
             {
-              "id": "a0fe5b25-8dec-4e84-bcf0-584c1b0f4518",
+              "id": "a6563d3d-9025-454e-af0b-9fe41f446ef2",
               "name": "encrypt",
               "item": [
                 {
-                  "id": "a92152ab-6c16-49f6-b8bc-8f8302c7bcc1",
+                  "id": "f07beed2-7034-48c8-aa06-a74b42923729",
                   "name": "Generate Encrypted Key",
                   "request": {
                     "name": "Generate Encrypted Key",
                     "description": {
-                      "content": "Exchanges your `SECRET_KEY` and `publicKey` for an `EncryptedSecKey`. Use that value as the `BearerToken` collection variable — it's the Bearer token for every other authenticated request here. Call this once per session, or whenever your key changes; it does not expire on a fixed schedule but should be re-generated if a request starts failing auth.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `key` | string | Yes | Your `SECRET_KEY` and `publicKey` joined with a period: `SECRET_KEY.publicKey` |\n\nThis endpoint is intentionally **No Auth** — you don't have a token yet when you call it.",
+                      "content": "Create the encrypted key used as the Bearer token for authenticated SeerBit API requests.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -51,7 +51,7 @@
                   },
                   "response": [
                     {
-                      "id": "c5e5bfa0-5dd4-444d-a731-8eb34ad8712a",
+                      "id": "397d2f24-312d-48c8-aedf-f24ff3dca260",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -80,12 +80,12 @@
                   "event": []
                 },
                 {
-                  "id": "eb74c3b3-12b2-4809-a549-72f93befa023",
+                  "id": "a16c3930-dcd5-488a-a1fc-3aa5d9790983",
                   "name": "Generate Hash",
                   "request": {
                     "name": "Generate Hash",
                     "description": {
-                      "content": "Generic hash-generation endpoint — you pass the exact same body as the request you want a hash for, and SeerBit returns a hash you attach to that other call. The doc page's own worked example happens to use a subscription-creation payload (shown in this request's saved body); swap the body for whatever request you're actually hashing, keeping the same field names and types that request expects.\n\n**Not independently re-confirmed in this pass:** the doc page's response example describes the _downstream_ payment response (redirectUrl, paymentReference) rather than what this endpoint itself returns — no saved example response here; verify against a live sandbox call before relying on the shape.",
+                      "content": "Create the encrypted key used as the Bearer token for authenticated SeerBit API requests.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -118,7 +118,7 @@
                   },
                   "response": [
                     {
-                      "id": "83397f39-c4ff-481b-bc28-aec9939e2842",
+                      "id": "36b307a0-899e-4578-871e-4ce56b40cce3",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -150,16 +150,16 @@
               "event": []
             },
             {
-              "id": "12bd6438-8c82-4410-a14d-39a6b1e854ce",
+              "id": "28d089b6-b8d8-42a5-b7a2-82fd55ebd0b0",
               "name": "payments",
               "item": [
                 {
-                  "id": "24f427ba-adc8-4bb6-961b-aee65a30123a",
+                  "id": "cb178617-fded-45ca-8ffc-d54e1e470544",
                   "name": "Normal Payment (No Split)",
                   "request": {
                     "name": "Normal Payment (No Split)",
                     "description": {
-                      "content": "Creates a transaction and returns a `redirectLink` to SeerBit's hosted checkout page — send the customer there to enter payment details and complete the charge. No card data touches your server with this flow, and the full amount settles to your main merchant account with no split.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `publicKey` | string | Yes | Merchant public key from the dashboard |\n| `amount` | string | Yes | Amount to charge |\n| `currency` | string | Yes | Transaction currency, e.g. `NGN`, `USD` |\n| `country` | string | Yes | Country the transaction originates from |\n| `paymentReference` | string | Yes | Unique reference you generate per transaction |\n| `email` | string | Yes | Customer email address |\n| `fullName` | string | Yes | Customer full name |\n| `callbackUrl` | string | Yes | Where SeerBit redirects the customer after payment |\n| `tokenize` | boolean | No | **Confirmed by SeerBit.** If `true`: (1) the checkout page on `redirectLink` only offers **Card** as a payment method — no bank transfer, USSD, or other channels; (2) SeerBit tokenizes the card, and the resulting `authorizationCode` is not in this endpoint's own response — it's returned when you call **Check Payment Status** afterward with the `paymentReference`. Use that `authorizationCode` with *Charge Authorization Token* / *Bulk Charge Token* to charge the same card again. Defaults to `false` if omitted. |\n\nThis is the baseline request with no split fields — see the sibling requests in this folder **Standard Checkout — Easy Split (Split Code)** and **Standard Checkout — Full Dynamic Split** for the two ways to divide a payment across sub-accounts.\n\nA `409` means `paymentReference` has already been used — generate a new one per attempt, don't retry with the same value.",
+                      "content": "Create hosted checkout payment links, including normal and split-payment flows.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -199,7 +199,7 @@
                   },
                   "response": [
                     {
-                      "id": "707a6681-b8f0-4c52-8717-0473e31a9020",
+                      "id": "97aa67d0-ada6-4178-b84a-bb66724cd49d",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -238,12 +238,12 @@
                   "event": []
                 },
                 {
-                  "id": "9a5cdd2d-a20b-4208-84c2-2364136adb7b",
+                  "id": "a0cc4131-80cf-4119-93e6-9542ecfac3f0",
                   "name": "Card Payment",
                   "request": {
                     "name": "Card Payment",
                     "description": {
-                      "content": "Direct/inline card charge — you collect the card's PAN, expiry and CVV on your own form and POST them here, instead of redirecting the customer to SeerBit's hosted page (compare **Standard Checkout**, which never touches raw card data on your server). Because this endpoint receives raw card details, your integration is in PCI-DSS scope — SeerBit's hosted **Standard Checkout** flow is the lower-compliance-burden alternative most integrators should default to.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `publicKey` | string | Yes | Merchant public key |\n| `amount` | string | Yes | Amount to charge |\n| `currency` | string | Yes | e.g. `NGN` |\n| `country` | string | Yes | Country code |\n| `paymentReference` | string | Yes | Unique reference you generate |\n| `email` | string | Yes | Customer email |\n| `fullName` | string | Yes | Customer full name |\n| `paymentType` | string | Yes | `CARD` for this flow |\n| `cardDetails.pan` | string | Yes | Card number |\n| `cardDetails.expiryMonth` / `expiryYear` | string | Yes | Card expiry |\n| `cardDetails.cvv` | string | Yes | Card CVV |\n| `callbackUrl` | string | Yes | Where SeerBit sends the final result |\n\n**OTP step**: many card transactions come back requiring 3DS/OTP authentication. Per the Card Payment doc page, you complete this by POSTing again to this **same** `/api/v2/payments/initiates` URL with a body shaped like:\n```json\n{\n  \"transaction\": {\n    \"linkingreference\": \"<from initial response>\",\n    \"otp\": \"<code entered by customer>\"\n  }\n}\n```\nThen poll **Check Payment Status** (Payment Query folder) with `paymentReference` to confirm the final state.",
+                      "content": "Initiate direct payments by card, bank account, transfer, USSD, or mobile money.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -284,7 +284,7 @@
                   },
                   "response": [
                     {
-                      "id": "1c8a54e9-d2cb-4238-8389-23b0e51b98f7",
+                      "id": "c2508842-6088-4d89-b16a-d56055cf4a53",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -323,12 +323,12 @@
                   "event": []
                 },
                 {
-                  "id": "e4306b9d-b3f8-4724-8214-582adead9980",
+                  "id": "681980b8-96b2-4154-9a24-2ed1fc7900ff",
                   "name": "Bank Account Payment",
                   "request": {
                     "name": "Bank Account Payment",
                     "description": {
-                      "content": "Initiates a direct bank-account debit: the customer authorizes a charge straight from their bank account (via account number + bank code) rather than a card, USSD code, or transfer-in.\n\n**Not confirmed against doc.seerbit.com** — two details on the Bank Account Payment doc page could not be pinned down and are flagged rather than guessed:\n1. The exact `paymentType` value for this flow (unlike `CARD`/`USSD`/`TRANSFER`/`MOMO`, the doc page doesn't spell this one out explicitly) — placeholder left in the sample body above; check the dashboard/API response or contact SeerBit support to confirm before using this request.\n2. The doc page references a separate **`/payments/validate`** endpoint for the OTP/authorization step, but doesn't give its full URL, method, or body — this conflicts with the Card Payment page, which documents OTP validation as a second POST to this *same* `/api/v2/payments/initiates` URL with a `{\"transaction\": {\"linkingreference\":..., \"otp\":...}}` body. It's unclear whether Bank Account Payment genuinely uses a different endpoint or the doc page is just describing the same flow loosely.\n\n**Body fields** (`accountNumber` + `bankCode` identify the account to debit; other fields match Card Payment). Verify the `paymentType` value and validation step directly with SeerBit before relying on this request.",
+                      "content": "Initiate direct payments by card, bank account, transfer, USSD, or mobile money.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -365,12 +365,12 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"amount\": \"5000.00\",\n    \"currency\": \"NGN\",\n    \"country\": \"NG\",\n    \"paymentReference\": \"payment_reference_bank1\",\n    \"email\": \"customer@example.com\",\n    \"fullName\": \"Jane Doe\",\n    \"paymentType\": \"**Not confirmed** — see description\",\n    \"accountNumber\": \"0000000000\",\n    \"bankCode\": \"058\",\n    \"callbackUrl\": \"https://example.com/callback\"\n}"
+                      "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"amount\": \"5000.00\",\n    \"currency\": \"NGN\",\n    \"country\": \"NG\",\n    \"paymentReference\": \"payment_reference_bank1\",\n    \"email\": \"customer@example.com\",\n    \"fullName\": \"Jane Doe\",\n    \"paymentType\": \"<confirm paymentType>\",\n    \"accountNumber\": \"0000000000\",\n    \"bankCode\": \"058\",\n    \"callbackUrl\": \"https://example.com/callback\"\n}"
                     }
                   },
                   "response": [
                     {
-                      "id": "2b89bdf5-9f46-4c6f-a46b-a3bae2e06b98",
+                      "id": "ee61a8da-fbcf-487e-ac72-4649ca2f4ee3",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -390,7 +390,7 @@
                         "method": "POST",
                         "body": {
                           "mode": "raw",
-                          "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"amount\": \"5000.00\",\n    \"currency\": \"NGN\",\n    \"country\": \"NG\",\n    \"paymentReference\": \"payment_reference_bank1\",\n    \"email\": \"customer@example.com\",\n    \"fullName\": \"Jane Doe\",\n    \"paymentType\": \"**Not confirmed** — see description\",\n    \"accountNumber\": \"0000000000\",\n    \"bankCode\": \"058\",\n    \"callbackUrl\": \"https://example.com/callback\"\n}"
+                          "raw": "{\n    \"publicKey\": \"{{publicKey}}\",\n    \"amount\": \"5000.00\",\n    \"currency\": \"NGN\",\n    \"country\": \"NG\",\n    \"paymentReference\": \"payment_reference_bank1\",\n    \"email\": \"customer@example.com\",\n    \"fullName\": \"Jane Doe\",\n    \"paymentType\": \"<confirm paymentType>\",\n    \"accountNumber\": \"0000000000\",\n    \"bankCode\": \"058\",\n    \"callbackUrl\": \"https://example.com/callback\"\n}"
                         }
                       },
                       "status": "OK",
@@ -409,12 +409,12 @@
                   "event": []
                 },
                 {
-                  "id": "6456cac3-6478-4ce2-8c87-a7f3dcea0b19",
+                  "id": "9d52cc37-236e-45fc-b17e-fffdd07c8ad7",
                   "name": "Transfer",
                   "request": {
                     "name": "Transfer",
                     "description": {
-                      "content": "Initiates a bank-transfer payment: SeerBit returns a dynamic virtual account number for this transaction that the customer transfers the exact amount into from their own banking app; SeerBit matches the credit and confirms the transaction. This is distinct from the **Virtual Accounts** folder, which provisions a *persistent* account number for a customer across many transactions — this is a one-off, per-transaction account.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `paymentType` | string | Yes | `TRANSFER` |\n| (other fields) | | Yes | Same core fields as Card Payment |\n\nPoll **Check Payment Status** (Payment Query folder) with `paymentReference`, or listen for the `transaction` webhook, to detect when the transfer lands.",
+                      "content": "Initiate direct payments by card, bank account, transfer, USSD, or mobile money.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -456,7 +456,7 @@
                   },
                   "response": [
                     {
-                      "id": "1d667904-2fb3-4a01-8b5a-88e84f4cfb24",
+                      "id": "87611461-f4d5-4a58-b168-9ce75fe18ae2",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -495,12 +495,12 @@
                   "event": []
                 },
                 {
-                  "id": "2f25d413-09d6-41cf-ae8c-b69afdb71c10",
+                  "id": "a9cbdf71-db83-4813-a2b3-b39f7b13162a",
                   "name": "USSD Payment",
                   "request": {
                     "name": "USSD Payment",
                     "description": {
-                      "content": "Initiates a USSD payment: SeerBit returns a USSD string (e.g. `*723*...#`) the customer dials on their phone from the bank account linked to `bankCode` to authorize the debit — no card or app needed.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `paymentType` | string | Yes | `USSD` |\n| `bankCode` | string | Yes | Bank's USSD routing code, e.g. `058` for GTBank |\n| (other fields) | | Yes | Same `publicKey`/`amount`/`currency`/`country`/`paymentReference`/`email`/`fullName`/`callbackUrl` as Card Payment |\n\nThe initial response includes the USSD code to display to the customer. Poll **Check Payment Status** (Payment Query folder) with `paymentReference` — there's no separate OTP step; authorization happens on the phone via the USSD session itself.",
+                      "content": "Initiate direct payments by card, bank account, transfer, USSD, or mobile money.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -542,7 +542,7 @@
                   },
                   "response": [
                     {
-                      "id": "67636a92-61e7-4eac-9137-f151acd0bff5",
+                      "id": "6fa661ed-8b69-45f6-bd3f-6f410e0aaae7",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -581,12 +581,12 @@
                   "event": []
                 },
                 {
-                  "id": "9e110126-9f50-4695-a9ec-45713a233d00",
+                  "id": "859eaf0a-c55f-4dca-a908-f233909a02c3",
                   "name": "Mobile Money Payment",
                   "request": {
                     "name": "Mobile Money Payment",
                     "description": {
-                      "content": "Initiates a mobile-money payment (e.g. MTN MoMo, AirtelTigo) — SeerBit sends a prompt to the customer's phone on the given `mobileNumber`/`network`, and the customer approves the debit directly on their handset. Used primarily for Ghana (`GHS`) and other African mobile-money markets.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `paymentType` | string | Yes | `MOMO` |\n| `mobileNumber` | string | Yes | Customer's mobile-money-linked phone number |\n| `network` | string | Yes | Mobile network operator, e.g. `MTN`, `AIRTELTIGO`, `VODAFONE` |\n| (other fields) | | Yes | Same core fields as Card Payment |\n\nPoll **Check Payment Status** (Payment Query folder) with `paymentReference` after the customer approves the prompt on their phone.",
+                      "content": "Initiate direct payments by card, bank account, transfer, USSD, or mobile money.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -628,7 +628,7 @@
                   },
                   "response": [
                     {
-                      "id": "04b03a80-8db2-4501-ac99-af9595263d50",
+                      "id": "c5a1cb37-fe57-4c4b-9681-b6c2e1cfb347",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -667,12 +667,12 @@
                   "event": []
                 },
                 {
-                  "id": "9b4c810a-6a0b-49c7-a925-d65db38b844d",
+                  "id": "685891d1-6212-4e1a-b5dd-46972ed48426",
                   "name": "Create Token",
                   "request": {
                     "name": "Create Token",
                     "description": {
-                      "content": "Charges a card for the first time **and** saves it, returning card details you can later exchange for an `authorizationCode` (via *Get Card Authorization Code*) to charge the same card again without re-collecting details. Requires the customer to complete 3DS/OTP authentication on `redirectUrl`.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `publicKey` | string | Yes | Merchant public key |\n| `amount` | string | Yes | Charge amount — minimum is currency-dependent (e.g. NGN 50, GHS 1, KES 1, USD 0.50) |\n| `fullName` | string | Yes | Cardholder's name |\n| `mobileNumber` | string | Yes | Customer phone number |\n| `email` | string | Yes | Customer email |\n| `currency` | string | Yes | Transaction currency |\n| `country` | string | Yes | Country of the transaction |\n| `paymentType` | string | Yes | Must be `\"CARD\"` |\n| `cardNumber` | string | Yes | Full card number |\n| `expiryMonth` | string | Yes | Two-digit expiry month (`01`–`12`) |\n| `expiryYear` | string | Yes | Card expiry year |\n| `cvv` | string | Yes | Card security code |\n| `pin` | string | Yes | Card PIN (required by some card schemes/issuers) |\n| `redirectUrl` | string | Yes | Where the customer lands after completing 3DS/OTP authentication |\n| `paymentReference` | string | Yes | Unique reference you generate per transaction |",
+                      "content": "Tokenize cards and use authorization tokens for subsequent or bulk charges.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -713,7 +713,7 @@
                   },
                   "response": [
                     {
-                      "id": "0d67dbcd-f11c-4ed3-9630-bccdd22782a3",
+                      "id": "1195a17c-1d9a-46a3-afa4-b2a22994a014",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -752,12 +752,12 @@
                   "event": []
                 },
                 {
-                  "id": "e2cb6071-b4ca-4326-a105-e655c0da378c",
+                  "id": "28d4a43c-ac97-462a-82a1-0d764fef7792",
                   "name": "Charge Authorization Token",
                   "request": {
                     "name": "Charge Authorization Token",
                     "description": {
-                      "content": "Charges a previously tokenized card using its `authorizationCode`, without asking the customer for card details again. Use this for one-off repeat charges; for scheduled recurring billing, use *Charge Subscription* instead.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `publicKey` | string | Yes | Merchant public key |\n| `amount` | string | Yes | Amount to charge |\n| `paymentReference` | string | Yes | New, unique reference for this charge |\n| `authorizationCode` | string | Yes | From *Get Card Authorization Code* |",
+                      "content": "Tokenize cards and use authorization tokens for subsequent or bulk charges.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -798,7 +798,7 @@
                   },
                   "response": [
                     {
-                      "id": "fbe21c1d-2433-4b3a-a195-8a700fac30c9",
+                      "id": "c7e02f58-9df0-4e8a-bf17-6fa88c191473",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -837,12 +837,12 @@
                   "event": []
                 },
                 {
-                  "id": "29bd741c-d0fd-4a76-ab8a-acc79e6b4f9b",
+                  "id": "2430838d-e7ff-446a-b772-9162f31b748c",
                   "name": "Bulk Charge Token",
                   "request": {
                     "name": "Bulk Charge Token",
                     "description": {
-                      "content": "Same as *Charge Authorization Token*, but accepts a JSON array so you can charge many tokenized cards in one call. Each array entry needs its own unique `paymentReference`. Returns a `batchId` — poll *Query Bulk Charge* with it to see per-entry results, since a bulk call can partially succeed.\n\n**Body:** array of objects, each with the same fields as *Charge Authorization Token* (`publicKey`, `amount`, `paymentReference`, `authorizationCode`).",
+                      "content": "Tokenize cards and use authorization tokens for subsequent or bulk charges.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -883,7 +883,7 @@
                   },
                   "response": [
                     {
-                      "id": "6a3def99-c22b-475b-b08d-dd1c69cb823e",
+                      "id": "205e6e65-da03-462c-8d05-23971c8d821b",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -922,7 +922,7 @@
                   "event": []
                 },
                 {
-                  "id": "fdfba7cf-d860-4207-91a0-16e44fa06db1",
+                  "id": "e963e7d2-9cb5-4ac0-a658-c8e93cea030a",
                   "name": "Query Bulk Charge",
                   "request": {
                     "name": "Query Bulk Charge",
@@ -946,7 +946,7 @@
                         {
                           "description": "Query parameter batchId",
                           "key": "batchId",
-                          "value": "incididunt est minim"
+                          "value": "Excepteur"
                         }
                       ],
                       "variable": []
@@ -964,7 +964,7 @@
                   },
                   "response": [
                     {
-                      "id": "e749fabf-09eb-4f07-bf62-fcd790ef2b6b",
+                      "id": "154e4322-de90-4872-a62c-140513d26fbe",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -974,7 +974,7 @@
                           "query": [
                             {
                               "key": "batchId",
-                              "value": "incididunt est minim"
+                              "value": "Excepteur"
                             }
                           ],
                           "variable": []
@@ -1011,12 +1011,12 @@
               "event": []
             },
             {
-              "id": "a5c88d36-70cb-4f41-8ef6-7ee5ccf7a6b2",
+              "id": "b8d07e7f-1d66-4d52-bbea-85b863a7ff80",
               "name": "Standard Checkout — Easy Split (Split Code)",
               "request": {
                 "name": "Standard Checkout — Easy Split (Split Code)",
                 "description": {
-                  "content": "Same Standard Checkout flow as **Normal Payment (No Split)**, plus a single `splitCode` field: the code of a split rule you pre-configure once (recipients, percentages/amounts, fee bearer) on the SeerBit dashboard, then reference by code at payment time. This is the \"easy\" option — you don't specify recipients or amounts inline; the rule already defines them.\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `splitCode` | string | Yes (for this variant) | Reference to a split rule created in advance on the SeerBit dashboard. |\n| `tokenize` | boolean | No | **Confirmed by SeerBit.** If `true`, the checkout page restricts payment to **Card only**, and the `authorizationCode` for the tokenized card comes back from **Check Payment Status**, not this endpoint's own response. Defaults to `false`. |\n| *(all other fields)* | | Yes | Same as **Normal Payment (No Split)** |\n\nUse this when your split recipients and their shares are fixed and known ahead of time. If you need to set the split's recipients or shares dynamically per transaction, use **Standard Checkout — Full Dynamic Split** instead.\n\n**Not fully confirmed**: doc.seerbit.com documents `splitCode` only as `\"Split rule Code\"` in an example body, without a dedicated page describing how split rules are created on the dashboard or the exact code format — check your dashboard's split-rule setup screen for the value to use here.",
+                  "content": "Create hosted checkout payment links, including normal and split-payment flows.",
                   "type": "text/plain"
                 },
                 "url": {
@@ -1057,7 +1057,7 @@
               },
               "response": [
                 {
-                  "id": "81b48a03-d72e-4458-8cdd-13250ba260fa",
+                  "id": "761f8409-ef31-4556-943d-2168b88ba361",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -1096,12 +1096,12 @@
               "event": []
             },
             {
-              "id": "e4a408cd-4c38-4287-ba48-ff81af8a31c5",
+              "id": "d0eed543-4bf1-4458-8e87-8cefdddd9616",
               "name": "Standard Checkout — Full Dynamic Split",
               "request": {
                 "name": "Standard Checkout — Full Dynamic Split",
                 "description": {
-                  "content": "Same Standard Checkout flow as **Normal Payment (No Split)**, plus a `splits` object defining recipients and shares inline, at payment time — no pre-configured split rule needed. Use this when split details aren't known in advance (e.g. a marketplace computing a different vendor split per order).\n\n**`splits` object fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `type` | string | Yes | `FLAT` (fixed amount per recipient) or `PERCENTAGE` |\n| `transactionFee` | string | Yes | Who bears the transaction fee — `ALL_ACCOUNTS`, `PROPORTIONATE`, `SUB_ACCOUNT`, or `PARENT_ACCOUNT` |\n| `bearerSubAccountCode` | string | Only if `transactionFee` is `SUB_ACCOUNT` | Which sub-account bears the fee |\n| `items` | array | Yes | Each entry: `subAccountCode` and its `value` (amount or percentage, matching `type`) |\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `tokenize` | boolean | No | **Confirmed by SeerBit.** If `true`, the checkout page restricts payment to **Card only**, and the `authorizationCode` for the tokenized card comes back from **Check Payment Status**, not this endpoint's own response. Defaults to `false`. |\n| *(all other core fields)* | | Yes | Same as **Normal Payment (No Split)** |\n\nCompare **Standard Checkout — Easy Split (Split Code)**, which references a split rule you configured ahead of time instead of specifying recipients inline.",
+                  "content": "Create hosted checkout payment links, including normal and split-payment flows.",
                   "type": "text/plain"
                 },
                 "url": {
@@ -1142,7 +1142,7 @@
               },
               "response": [
                 {
-                  "id": "e07ed0f0-f8ce-4377-b237-3f5a28a75193",
+                  "id": "d0c0ab04-ca52-45b7-afcb-c3aecc494fc0",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -1181,16 +1181,16 @@
               "event": []
             },
             {
-              "id": "509cf7bc-8918-4863-8b3b-4cf7767dd9cb",
+              "id": "7f40252f-07a4-4fe2-9c4b-9180e5a276fb",
               "name": "virtual-accounts",
               "item": [
                 {
-                  "id": "7e0ac48d-02b5-40b4-acb3-352227d93429",
+                  "id": "1950bdf1-94aa-4d73-ae98-42cdb9ecafc8",
                   "name": "Create Virtual Account",
                   "request": {
                     "name": "Create Virtual Account",
                     "description": {
-                      "content": "Issues a dedicated bank account number for one customer. Transfers into that account are reconciled back to the customer automatically — use *Get Payments* to see what's landed on it.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `publicKey` | string | Yes | Merchant public key |\n| `fullName` | string | Yes | Customer's full name, used as the account name |\n| `email` | string | Yes | Customer email |\n| `currency` | string | Yes | Currency code, e.g. `NGN` |\n| `country` | string | Yes | Country code, e.g. `NG` |\n| `reference` | string | Yes | Your unique reference for this virtual account — also used to fetch/delete it later |\n| `bankVerificationNumber` | string | No | Customer's BVN, for verification |\n\nResponse returns `walletName`, `bankName`, and `accountNumber` for the customer to pay into.",
+                      "content": "Create and manage virtual bank accounts and retrieve their payment activity.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -1230,7 +1230,7 @@
                   },
                   "response": [
                     {
-                      "id": "c45e858f-7e51-4b47-9983-3aca7085a657",
+                      "id": "29264ffc-2c0d-4ff7-956e-78d19d3eeeb6",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -1269,7 +1269,7 @@
                   "event": []
                 },
                 {
-                  "id": "10c235c4-2748-4078-b4d5-f30885110aae",
+                  "id": "c2066341-3795-4b64-82a5-906e7cabd19d",
                   "name": "Get Virtual Account",
                   "request": {
                     "name": "Get Virtual Account",
@@ -1294,7 +1294,7 @@
                         {
                           "description": "(Required) Value of paymentReference",
                           "type": "any",
-                          "value": "incididunt est minim",
+                          "value": "Excepteur",
                           "key": "paymentReference"
                         }
                       ]
@@ -1312,7 +1312,7 @@
                   },
                   "response": [
                     {
-                      "id": "19994545-51aa-4104-8988-7d09f47a121c",
+                      "id": "049d2250-7924-44a6-898e-46e5cf177b7b",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -1348,7 +1348,7 @@
                   "event": []
                 },
                 {
-                  "id": "58e7cdd3-2024-44ce-a61b-fbe2b9f352ac",
+                  "id": "60c24894-60b0-4d87-b434-0a5ef7d9712e",
                   "name": "Delete Virtual Account",
                   "request": {
                     "name": "Delete Virtual Account",
@@ -1373,7 +1373,7 @@
                         {
                           "description": "(Required) Value of reference",
                           "type": "any",
-                          "value": "incididunt est minim",
+                          "value": "Excepteur",
                           "key": "reference"
                         }
                       ]
@@ -1391,7 +1391,7 @@
                   },
                   "response": [
                     {
-                      "id": "ec6edd0b-e3c3-4439-8beb-616a16ada3ee",
+                      "id": "7424b57f-998e-433d-aaa6-104f0a3e638c",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -1427,7 +1427,7 @@
                   "event": []
                 },
                 {
-                  "id": "d634efe6-06d6-4643-b73c-cea1254e8835",
+                  "id": "eaa0cbd7-44ea-4cd4-b976-cc4b84f62be5",
                   "name": "Get Payments",
                   "request": {
                     "name": "Get Payments",
@@ -1453,13 +1453,13 @@
                         {
                           "description": "(Required) Value of publicKey",
                           "type": "any",
-                          "value": "incididunt est minim",
+                          "value": "Excepteur",
                           "key": "publicKey"
                         },
                         {
                           "description": "(Required) Value of accountNumber",
                           "type": "any",
-                          "value": "incididunt est minim",
+                          "value": "Excepteur",
                           "key": "accountNumber"
                         }
                       ]
@@ -1477,7 +1477,7 @@
                   },
                   "response": [
                     {
-                      "id": "592279e5-673f-475d-bf3f-50b7b45ed8c9",
+                      "id": "bc4b4e16-7ced-443f-a3c4-61d7b6cd7583",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -1516,11 +1516,11 @@
               "event": []
             },
             {
-              "id": "84d2f0fd-e0e2-4d47-913b-0703ece95ac3",
+              "id": "c9cc0f0e-713e-45de-a39d-f047eb8e6593",
               "name": "recurring",
               "item": [
                 {
-                  "id": "1b888b61-8070-44cc-b47a-fbfe7ddeb7c1",
+                  "id": "bebe90c3-5165-4dac-aed2-91d5cd1cef93",
                   "name": "Get Merchant Subscriptions",
                   "request": {
                     "name": "Get Merchant Subscriptions",
@@ -1546,7 +1546,7 @@
                         {
                           "description": "(Required) Value of publicKey",
                           "type": "any",
-                          "value": "incididunt est minim",
+                          "value": "Excepteur",
                           "key": "publicKey"
                         }
                       ]
@@ -1564,7 +1564,7 @@
                   },
                   "response": [
                     {
-                      "id": "f65a240f-5cb0-45f9-abfe-a770f77c4d57",
+                      "id": "0a277ce8-56e4-42c1-9de5-33285ec336fe",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -1600,12 +1600,12 @@
                   "event": []
                 },
                 {
-                  "id": "7c73a790-6e03-4cab-a966-9384f2ccad3c",
+                  "id": "af27a473-1819-4d96-80a9-66b1f6e22866",
                   "name": "Charge Subscription",
                   "request": {
                     "name": "Charge Subscription",
                     "description": {
-                      "content": "Manually triggers a charge against an existing subscription's tokenized card, outside the automatic billing schedule (e.g. to bill immediately rather than wait for the next cycle).\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `amount` | string | Yes | Amount to charge |\n| `publicKey` | string | Yes | Merchant public key |\n| `email` | string | Yes | Customer email |\n| `authorizationCode` | string | Yes | From the customer's completed subscription |\n| `paymentReference` | string | Yes | New, unique reference for this charge |\n| `currency` | string | Yes | Currency code |\n| `allowPartialDebit` | string | No | Whether to allow a partial charge on insufficient funds |",
+                      "content": "Create and manage subscription plans, customer subscriptions, and recurring charges.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -1646,7 +1646,7 @@
                   },
                   "response": [
                     {
-                      "id": "96a33829-64af-41fe-b202-e1e0563adaed",
+                      "id": "59558ed4-cb56-4de8-a106-165e82bcfeaf",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -1685,7 +1685,7 @@
                   "event": []
                 },
                 {
-                  "id": "b778e9b1-62aa-4315-9233-eac2d97ac796",
+                  "id": "74fe2395-e61a-4b33-8e52-4fbd81b61de5",
                   "name": "Get Customer Subscription",
                   "request": {
                     "name": "Get Customer Subscription",
@@ -1712,13 +1712,13 @@
                         {
                           "description": "(Required) Value of publicKey",
                           "type": "any",
-                          "value": "incididunt est minim",
+                          "value": "Excepteur",
                           "key": "publicKey"
                         },
                         {
                           "description": "(Required) Value of customerId",
                           "type": "any",
-                          "value": "incididunt est minim",
+                          "value": "Excepteur",
                           "key": "customerId"
                         }
                       ]
@@ -1736,7 +1736,7 @@
                   },
                   "response": [
                     {
-                      "id": "10d31d69-248f-459d-9302-5dc1dae01ef3",
+                      "id": "9c75fcf2-0e9d-4801-9cf9-a83630eeaad5",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -1772,12 +1772,12 @@
                   "event": []
                 },
                 {
-                  "id": "305a2b53-3f97-4636-8c57-d9fa23cc42a8",
+                  "id": "85d85ead-6fca-40c9-925e-1aaeda60052f",
                   "name": "Update Customer Subscription",
                   "request": {
                     "name": "Update Customer Subscription",
                     "description": {
-                      "content": "Changes an existing subscription's status or terms, identified by `billingId`.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `billingId` | string | Yes | Identifies the subscription being updated |\n| `publicKey` | string | Yes | Merchant public key |\n| `currency` | string | Yes | Currency code |\n| `country` | string | Yes | Country code |\n| `amount` | string | No | New charge amount |\n| `status` | string | No | `ACTIVE` or `INACTIVE` — set to `INACTIVE` to cancel future billing |\n| `mobileNumber` | string | No | Update the customer's phone number on file |",
+                      "content": "Create and manage subscription plans, customer subscriptions, and recurring charges.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -1818,7 +1818,7 @@
                   },
                   "response": [
                     {
-                      "id": "0711fa6e-8ed3-48af-b8f9-5a8ba528ee56",
+                      "id": "f8f4391e-4e8d-4a6f-bcac-6b45e0415b2b",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -1863,11 +1863,11 @@
           "event": []
         },
         {
-          "id": "09b81d06-8d49-40c8-ba3c-fc10182e73b7",
+          "id": "fd1e79ec-d0ae-40a9-9625-d9a8aac6597c",
           "name": "v3/payments/query",
           "item": [
             {
-              "id": "08732365-59e7-421c-93a1-4eb843dd7389",
+              "id": "e012a0c9-7f39-492c-a491-09ac366e4a66",
               "name": "Check Payment Status",
               "request": {
                 "name": "Check Payment Status",
@@ -1893,7 +1893,7 @@
                     {
                       "description": "(Required) Value of paymentReference",
                       "type": "any",
-                      "value": "incididunt est minim",
+                      "value": "Excepteur",
                       "key": "paymentReference"
                     }
                   ]
@@ -1911,7 +1911,7 @@
               },
               "response": [
                 {
-                  "id": "056c5883-7b85-4001-8a1f-498cd2278146",
+                  "id": "3c2928ca-e1f4-4071-9456-bea861323574",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -1947,7 +1947,7 @@
               "event": []
             },
             {
-              "id": "5a4951b3-6859-4db2-9ff6-34d018e33648",
+              "id": "60db0fb0-071a-4321-b113-d4b665e70c98",
               "name": "Get Card Authorization Code",
               "request": {
                 "name": "Get Card Authorization Code",
@@ -1985,7 +1985,7 @@
               },
               "response": [
                 {
-                  "id": "6d407145-de53-470f-be4e-6a4e2f3416b1",
+                  "id": "e441af88-a155-4c7b-831e-b1556d2517d1",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -2024,16 +2024,16 @@
           "event": []
         },
         {
-          "id": "5792753b-c061-43a6-b2f6-4509a4ab124a",
+          "id": "6f387c2e-2190-4ffd-80ff-491fb4d5921f",
           "name": "v1",
           "item": [
             {
-              "id": "8eaeced5-e7d5-4b5e-8d95-0589f38bc603",
+              "id": "8f1f4fed-1af3-49c2-8f4b-039e4a8356e5",
               "name": "Create Plan",
               "request": {
                 "name": "Create Plan",
                 "description": {
-                  "content": "Defines a recurring billing plan (amount + cadence + how many cycles to run). Once created, subscribe a tokenized card to it and SeerBit charges automatically on schedule. Host is `merchants.seerbitapi.com` (plural) — a documented inconsistency vs. the `merchant.seerbitapi.com` (singular) invoicing host, easy to mistype.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `productId` | string | Yes | Plan name/identifier |\n| `productDescription` | string | Yes | Description of the plan |\n| `amount` | string | Yes | Amount charged per cycle |\n| `billingCycle` | string | Yes | `HOURLY`, `DAILY`, `WEEKLY`, `MONTHLY`, or `ANNUALLY` |\n| `limit` | integer | Yes | Maximum number of billing cycles before the plan stops |\n| `publicKey` | string | Yes | Merchant public key |\n| `country` | string | Yes | Country code, e.g. `NG` |\n| `currency` | string | Yes | Currency code, e.g. `NGN` |\n| `allowPartialDebit` | boolean | Yes | Whether to charge whatever's available if the customer has insufficient funds for the full amount |\n\nResponse includes `planId`, `payUrl`, and `status: \"ACTIVE\"` — save `planId` for future reference.",
+                  "content": "Create and manage subscription plans, customer subscriptions, and recurring charges.",
                   "type": "text/plain"
                 },
                 "url": {
@@ -2076,7 +2076,7 @@
               },
               "response": [
                 {
-                  "id": "c542e01e-6e34-4c70-83b0-4729c9773187",
+                  "id": "2f7243ac-9c8d-4188-90ce-6fb3b6c9f8e4",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -2115,16 +2115,16 @@
               "event": []
             },
             {
-              "id": "7e58984a-eca0-4a89-b65b-7bf369a24895",
+              "id": "b00416ba-ff51-423c-a907-17d6ec43709e",
               "name": "business",
               "item": [
                 {
-                  "id": "e3c3de82-ef43-42ec-b7a7-d24a5c31323f",
+                  "id": "f85c8e1e-1e99-4a48-b468-98960fb7be36",
                   "name": "Invite Business",
                   "request": {
                     "name": "Invite Business",
                     "description": {
-                      "content": "Invites a new sub-merchant business under this partner account. Auth is via a Public-Key header rather than Bearer alone.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `name` | string | Yes | Contact person's name at the business |\n| `businessName` | string | Yes | Business's registered name |\n| `email` | string | Yes | Business contact email — the invite is sent here |\n| `countryCode` | string | Yes | Defaults to `NG`; change only if the business operates outside Nigeria |\n| `partnerId` | string | Yes | Your partner ID — don't modify this |",
+                      "content": "Authenticate partner accounts and manage invited businesses, commissions, and partner credentials.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -2165,7 +2165,7 @@
                   },
                   "response": [
                     {
-                      "id": "3a25ff07-7263-4756-80ed-c00dc9761ff8",
+                      "id": "09e77244-e92b-4969-bb7e-65bcfca6f520",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -2204,7 +2204,7 @@
                   "event": []
                 },
                 {
-                  "id": "f7d406cb-f10b-41f7-8d6f-f7a7da63e0e7",
+                  "id": "bb24f32f-40aa-4356-85e1-e8c0906aeaf4",
                   "name": "Get Business Invite",
                   "request": {
                     "name": "Get Business Invite",
@@ -2241,7 +2241,7 @@
                   },
                   "response": [
                     {
-                      "id": "e0abf493-37ab-48a9-8797-35dbaf77c464",
+                      "id": "bd704721-cbc6-4d6a-b6b2-9eac8416041b",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -2277,12 +2277,12 @@
                   "event": []
                 },
                 {
-                  "id": "2e1367e0-604f-44d6-8607-681813cecf18",
+                  "id": "6e985b8e-806b-4cf1-8f32-1af3a4c9b275",
                   "name": "Set Business Commission",
                   "request": {
                     "name": "Set Business Commission",
                     "description": {
-                      "content": "Sets the commission SeerBit deducts on transactions for one sub-merchant business. Auth is via a Public-Key header rather than Bearer alone.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `businessId` | string | Yes | The sub-merchant business to set commission for |\n| `mccPercentage` | number | Yes | Commission percentage charged per transaction |\n| `cappedAmount` | string | Yes | Maximum commission amount per transaction, regardless of percentage |",
+                      "content": "Authenticate partner accounts and manage invited businesses, commissions, and partner credentials.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -2323,7 +2323,7 @@
                   },
                   "response": [
                     {
-                      "id": "c5f62fce-8d12-4a55-b8d6-3756e5171457",
+                      "id": "bfe8fcbe-66a2-40c8-b386-26aaeac09973",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -2362,12 +2362,12 @@
                   "event": []
                 },
                 {
-                  "id": "22b1cf2e-ec15-413d-a57b-96de5252521a",
+                  "id": "bb160fa6-11dd-4499-8e0f-e968cbe3b379",
                   "name": "Change Partner Password",
                   "request": {
                     "name": "Change Partner Password",
                     "description": {
-                      "content": "Changes the logged-in partner's password. Requires Bearer auth (the partner token from *Partner Login*).\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `currentPassword` | string | Yes | Partner's current password |\n| `newPassword` | string | Yes | Must meet the same complexity rules as *Reset Password* |",
+                      "content": "Authenticate partner accounts and manage invited businesses, commissions, and partner credentials.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -2408,7 +2408,7 @@
                   },
                   "response": [
                     {
-                      "id": "22d33fc3-25a0-4a79-b7b0-95544134f23c",
+                      "id": "4ab4bc95-cc2f-43d0-b058-4b729f9f309a",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -2456,16 +2456,16 @@
       "event": []
     },
     {
-      "id": "8e700ffa-bfab-44ca-a577-846016d082e3",
+      "id": "6d98cc6e-d356-45ab-b130-fd6b1133b418",
       "name": "invoice",
       "item": [
         {
-          "id": "af6f8c4b-a3da-4873-a448-d76ce29c2bd8",
+          "id": "54ead5eb-661d-4df4-9470-a76c197d1d1a",
           "name": "Create Invoice",
           "request": {
             "name": "Create Invoice",
             "description": {
-              "content": "Creates and sends an itemised invoice to a customer by email, without you building a checkout flow. Source: doc.seerbit.com/online-payment/payment-features/invoicing, cross-checked with the original collection (the doc page's own code samples only show empty placeholder URLs, so the exact host/path is carried over from the original working collection, not independently re-confirmed).\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `publicKey` | string | Yes | Merchant public key |\n| `orderNo` | string | Yes | Unique order identifier |\n| `dueDate` | string | Yes | Invoice due date |\n| `currency` | string | Yes | Currency code, e.g. `NGN` |\n| `receiversName` | string | Yes | Customer name shown on the invoice |\n| `customerEmail` | string | Yes | Where the invoice is sent |\n| `invoiceItems` | array | Yes | Line items, each with `itemName`, `quantity`, `rate`, `tax` (tax as a percentage) |",
+              "content": "Create, send, retrieve, and manage merchant invoices.",
               "type": "text/plain"
             },
             "url": {
@@ -2505,7 +2505,7 @@
           },
           "response": [
             {
-              "id": "30c7bb83-4748-47c4-8dae-8a8d976de3b9",
+              "id": "d5c52690-a76c-42bc-bba1-e22557204493",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -2544,16 +2544,16 @@
           "event": []
         },
         {
-          "id": "69342134-d261-40c9-8bfd-ac67a31a65d4",
+          "id": "57511220-739c-4cc7-8313-5d897b81d6ab",
           "name": "{public Key}",
           "item": [
             {
-              "id": "092a3de8-4734-46cf-b26c-644bfd16331a",
+              "id": "ea5a8845-4ec1-432f-ba7d-2e5e17c5a7ef",
               "name": "Bulk Invoice Requests",
               "request": {
                 "name": "Bulk Invoice Requests",
                 "description": {
-                  "content": "Same as *Create Invoice*, but accepts a JSON array to send multiple invoices in one call. Same sourcing caveat as Create Invoice — host/path carried over from the original collection, not independently re-confirmed against a doc.seerbit.com code sample.\n\n**Body:** array of invoice objects, each shaped like *Create Invoice*'s body (`receiversName` is optional per the saved example — the other fields are required).",
+                  "content": "Create, send, retrieve, and manage merchant invoices.",
                   "type": "text/plain"
                 },
                 "url": {
@@ -2573,7 +2573,7 @@
                     {
                       "description": "(Required) Value of publicKey",
                       "type": "any",
-                      "value": "incididunt est minim",
+                      "value": "Excepteur",
                       "key": "publicKey"
                     }
                   ]
@@ -2601,7 +2601,7 @@
               },
               "response": [
                 {
-                  "id": "159467dd-ac05-439d-9ba1-da7ecbb75cf9",
+                  "id": "092cd4e0-0c20-45d3-bd47-83580e04da2c",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -2640,7 +2640,7 @@
               "event": []
             },
             {
-              "id": "6045e7f1-9aa9-4f99-a7c4-7b1d379b614a",
+              "id": "2572f36c-fdb3-49b6-aec8-b2957d8445bc",
               "name": "Re-send an Invoice",
               "request": {
                 "name": "Re-send an Invoice",
@@ -2665,13 +2665,13 @@
                     {
                       "description": "(Required) Value of publicKey",
                       "type": "any",
-                      "value": "incididunt est minim",
+                      "value": "Excepteur",
                       "key": "publicKey"
                     },
                     {
                       "description": "(Required) Value of InvoiceNo",
                       "type": "any",
-                      "value": "incididunt est minim",
+                      "value": "Excepteur",
                       "key": "InvoiceNo"
                     }
                   ]
@@ -2689,7 +2689,7 @@
               },
               "response": [
                 {
-                  "id": "7d90f9bb-7b23-473f-b14f-7f2189976f26",
+                  "id": "26098069-90c6-42b5-b5e4-1a94d27c3084",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -2725,7 +2725,7 @@
               "event": []
             },
             {
-              "id": "ee57fdc0-c264-40b8-869a-b8241465b423",
+              "id": "9ef86e50-151d-47bf-80b2-c9a69f5a29ff",
               "name": "Get Invoice by Customer Email",
               "request": {
                 "name": "Get Invoice by Customer Email",
@@ -2750,13 +2750,13 @@
                     {
                       "description": "(Required) Value of publicKey",
                       "type": "any",
-                      "value": "incididunt est minim",
+                      "value": "Excepteur",
                       "key": "publicKey"
                     },
                     {
                       "description": "(Required) Value of customerEmail",
                       "type": "any",
-                      "value": "incididunt est minim",
+                      "value": "Excepteur",
                       "key": "customerEmail"
                     }
                   ]
@@ -2774,7 +2774,7 @@
               },
               "response": [
                 {
-                  "id": "b893c616-1034-4bfd-a843-bab176e982d6",
+                  "id": "b362a339-fbfc-4575-8b35-c0a0283337ee",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -2810,7 +2810,7 @@
               "event": []
             },
             {
-              "id": "63d91e7d-2fa4-419e-a28f-deaaaaa53d24",
+              "id": "7568da2a-54ce-4080-a20f-3571b6ef047c",
               "name": "Get Invoice by Invoice Number",
               "request": {
                 "name": "Get Invoice by Invoice Number",
@@ -2834,13 +2834,13 @@
                     {
                       "description": "(Required) Value of publicKey",
                       "type": "any",
-                      "value": "incididunt est minim",
+                      "value": "Excepteur",
                       "key": "publicKey"
                     },
                     {
                       "description": "(Required) Value of InvoiceNo",
                       "type": "any",
-                      "value": "incididunt est minim",
+                      "value": "Excepteur",
                       "key": "InvoiceNo"
                     }
                   ]
@@ -2858,7 +2858,7 @@
               },
               "response": [
                 {
-                  "id": "32a07784-cbd8-43dc-9dff-30412b03c03e",
+                  "id": "748d0cd8-807c-4dcd-afe3-964d054db521",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -2894,7 +2894,7 @@
               "event": []
             },
             {
-              "id": "b1650e77-53f0-4e0d-82eb-191545a141a7",
+              "id": "809f2252-a35c-4311-bac8-2f94d1db0e81",
               "name": "Get Invoice by Order Number",
               "request": {
                 "name": "Get Invoice by Order Number",
@@ -2919,13 +2919,13 @@
                     {
                       "description": "(Required) Value of publicKey",
                       "type": "any",
-                      "value": "incididunt est minim",
+                      "value": "Excepteur",
                       "key": "publicKey"
                     },
                     {
                       "description": "(Required) Value of orderNo",
                       "type": "any",
-                      "value": "incididunt est minim",
+                      "value": "Excepteur",
                       "key": "orderNo"
                     }
                   ]
@@ -2943,7 +2943,7 @@
               },
               "response": [
                 {
-                  "id": "17969860-2551-4e5d-a16f-0cd1d3d50609",
+                  "id": "388c2acf-a256-4ae3-8841-9c8709c38036",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -2985,16 +2985,16 @@
       "event": []
     },
     {
-      "id": "352dfead-3537-4cd2-ab6e-b7622091f317",
+      "id": "8ad06cf0-03b9-4160-8c77-94564a61d5fc",
       "name": "paymentlink/v2/pay Links/api",
       "item": [
         {
-          "id": "c6f3a4d6-a0f6-4b93-8cea-c33d9999be0f",
+          "id": "966fce1d-b1dc-4364-b5a5-d42d543e7f1b",
           "name": "Create Payment Link",
           "request": {
             "name": "Create Payment Link",
             "description": {
-              "content": "Creates a hosted, shareable payment URL — send it directly to a customer instead of building a checkout flow. Supports one-time links and recurring links.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `status` | string | Yes | `ACTIVE` or `INACTIVE` |\n| `paymentLinkName` | string | Yes | Internal name for the link |\n| `description` | string | Yes | Shown to the customer on the payment page |\n| `currency` | string | Yes | Currency code, e.g. `NGN` |\n| `publicKey` | string | Yes | Merchant public key |\n| `paymentFrequency` | string | Yes | `ONE_TIME` or `RECURRENT` |\n| `requiredFields` | object | Yes | Which customer fields the payer must fill in: `address`, `amount`, `customerName`, `mobileNumber`, `invoiceNumber` (each boolean) |\n| `email` | string | No | Notification email |\n| `successMessage` | string | No | Shown after a successful payment |\n| `customizationName` | string | No | Branding/customization preset |\n| `additionalData` | string | No | Free-text metadata attached to the link |\n| `linkExpirable` | boolean | No | Whether the link expires |\n| `expiryDate` | string | No | Expiry date, required if `linkExpirable` is true |\n| `oneTime` | boolean | No | Whether the link is invalidated after first use |\n\nResponse returns `paymentLinkUrl` and `paymentLinkId` — save the latter, it's needed to update or delete the link later.",
+              "content": "Create, retrieve, update, and remove reusable payment links.",
               "type": "text/plain"
             },
             "url": {
@@ -3035,7 +3035,7 @@
           },
           "response": [
             {
-              "id": "643ef7dc-2169-476d-be34-666cedcafe56",
+              "id": "ea4e8431-b9cd-4e62-8b33-c827dbe9ea47",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -3074,12 +3074,12 @@
           "event": []
         },
         {
-          "id": "786a2d61-a2e8-4fea-b5aa-caf97bb72d16",
+          "id": "978f91e5-5093-4895-b4b0-d443d3a35f3e",
           "name": "Update Payment Link",
           "request": {
             "name": "Update Payment Link",
             "description": {
-              "content": "Updates an existing payment link's configuration. Source: doc.seerbit.com/online-payment/payment-features/payment-links.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `paymentLinkId` | string | Yes | From *Create Payment Link*'s response, or *Get Merchant Payment Links* |\n| `status`, `description`, `successMessage`, `customizationName`, `paymentFrequency`, `requiredFields`, `linkExpirable`, `expiryDate`, `oneTime` | — | No | Any subset of these can be updated; omit fields you don't want to change |",
+              "content": "Create, retrieve, update, and remove reusable payment links.",
               "type": "text/plain"
             },
             "url": {
@@ -3120,7 +3120,7 @@
           },
           "response": [
             {
-              "id": "c4de6d98-4e77-44c5-8b1f-b0599b39dc23",
+              "id": "17c7f9e4-00a2-493b-9c40-b732f7ee208d",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -3159,7 +3159,7 @@
           "event": []
         },
         {
-          "id": "943ecdc3-554b-4176-a7c7-81337675c71b",
+          "id": "53a8afaf-ea33-4b55-ac02-9526c5ebfa76",
           "name": "Get Merchant Payment Links",
           "request": {
             "name": "Get Merchant Payment Links",
@@ -3185,7 +3185,7 @@
                 {
                   "description": "(Required) Value of publicKey",
                   "type": "any",
-                  "value": "incididunt est minim",
+                  "value": "Excepteur",
                   "key": "publicKey"
                 }
               ]
@@ -3203,7 +3203,7 @@
           },
           "response": [
             {
-              "id": "7644b486-88c7-4b71-bd56-e2e5a7cab265",
+              "id": "8e2c557a-8ace-4616-9f91-8385b88e11d9",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -3239,7 +3239,7 @@
           "event": []
         },
         {
-          "id": "1a2165a4-47be-4ae9-b8b7-f7315780a40e",
+          "id": "91903a0f-467b-4391-95d2-0fd567b0cb15",
           "name": "Delete Payment Link",
           "request": {
             "name": "Delete Payment Link",
@@ -3266,7 +3266,7 @@
                 {
                   "description": "(Required) Value of paymentLinkId",
                   "type": "any",
-                  "value": "incididunt est minim",
+                  "value": "Excepteur",
                   "key": "paymentLinkId"
                 }
               ]
@@ -3284,7 +3284,7 @@
           },
           "response": [
             {
-              "id": "f083635e-eec0-402c-a771-f13726326095",
+              "id": "cecc29e9-6fa2-4e5f-ab3b-b417f5f30985",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -3323,16 +3323,16 @@
       "event": []
     },
     {
-      "id": "31f95d0a-a5a7-4c32-a15b-4fdcee87c31c",
+      "id": "8aff4517-b5af-440f-bc63-b250380941da",
       "name": "pocket",
       "item": [
         {
-          "id": "0091a3a8-5ef5-4339-80ac-0c97cd0ef78e",
+          "id": "848ce7ae-9e02-46a6-a5c3-9d0d28779017",
           "name": "Authenticate",
           "request": {
             "name": "Authenticate",
             "description": {
-              "content": "Logs in to a Pocket (SeerBit's wallet product) and returns a Bearer token scoped to Pocket and Payout endpoints — **not** the same token as `{{BearerToken}}` (the OAuth token from *Get Access Token* in the Authentication folder, used everywhere else in this collection). Pocket is a **separate feature from Payout**: the doc site describes Pocket as sending funds between pockets, sub-pockets, or out to banks (that last case *is* a payout), while the Payout folder above covers the signed, OTP-gated bank-payout flow specifically — both folders share this same login and the same token.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `email` | string | Yes | Pocket account email |\n| `password` | string | Yes | Your **Pocket password** — not your SeerBit merchant dashboard password. This is the password for your Pocket account at flow.seerbitapi.com. |\n\nResponse includes `bearerToken`, `expiryTime`, and `requirePasswordChange` — check the last one and call *Change Password* if true. Save `bearerToken` as `{{pocketAuthToken}}` — the variable used on Pocket and Payout requests that require this login, kept distinct from `{{BearerToken}}` on purpose.",
+              "content": "Authenticate and manage SeerBit Pockets, including balances, sub-pockets, and internal transfers.",
               "type": "text/plain"
             },
             "url": {
@@ -3371,7 +3371,7 @@
           },
           "response": [
             {
-              "id": "9d6cba6d-8a90-48ae-b239-acd664e44460",
+              "id": "d98b8124-169b-47ab-8dfa-3b97aa5bb8a5",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -3410,12 +3410,12 @@
           "event": []
         },
         {
-          "id": "667babf1-8eee-4cab-af14-bebc918b8102",
+          "id": "e9c62308-9a53-48b5-b93b-8c7375e9c421",
           "name": "Change Password",
           "request": {
             "name": "Change Password",
             "description": {
-              "content": "Changes the Pocket account's password — required on first login if *Authenticate*'s response flagged `requirePasswordChange: true`.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `currentPassword` | string | Yes | Current Pocket password |\n| `newPassword` | string | Yes | New Pocket password |",
+              "content": "Authenticate and manage SeerBit Pockets, including balances, sub-pockets, and internal transfers.",
               "type": "text/plain"
             },
             "url": {
@@ -3455,7 +3455,7 @@
           },
           "response": [
             {
-              "id": "1580704f-0edf-41b5-910b-f7214a20a734",
+              "id": "1bb85be6-628f-4bdb-859e-8104adbc74fe",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -3494,11 +3494,11 @@
           "event": []
         },
         {
-          "id": "b6563690-ceba-4ea8-b3a5-676307289dfd",
+          "id": "6f7d8c6f-7742-487c-9202-87fc51e08d87",
           "name": "pocket-id/{pocket ID}",
           "item": [
             {
-              "id": "3dc81f5b-4bb2-4158-a763-a2526ddd6325",
+              "id": "5b3f4e77-0909-4632-8be8-fd3c7f0fb226",
               "name": "Get Pocket Details",
               "request": {
                 "name": "Get Pocket Details",
@@ -3522,7 +3522,7 @@
                     {
                       "description": "(Required) Value of pocketID",
                       "type": "any",
-                      "value": "incididunt est minim",
+                      "value": "Excepteur",
                       "key": "pocketID"
                     }
                   ]
@@ -3540,7 +3540,7 @@
               },
               "response": [
                 {
-                  "id": "f7ca32f7-95df-401f-9b4d-f2afe1d0d2ff",
+                  "id": "b4913ab2-a55a-4c87-adb4-0011383c8b2e",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -3576,12 +3576,12 @@
               "event": []
             },
             {
-              "id": "c09ee82b-9439-41c4-b336-995b16ba30ee",
+              "id": "967a1bcb-9cff-4531-9ebc-6afed088e4ec",
               "name": "Add Sub-Pocket",
               "request": {
                 "name": "Add Sub-Pocket",
                 "description": {
-                  "content": "Creates a sub-pocket under a parent pocket — e.g. one wallet per vendor, department, or customer, all rolling up to the parent. Body is an array, so you can create several sub-pockets in one call.\n\n**Body fields (per array entry)**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `reference` | string | Yes | Your unique reference for this sub-pocket |\n| `pocketFunction` | string | Yes | e.g. `BOTH` (can send and receive) |\n| `currency` | string | Yes | Currency the sub-pocket holds |\n| `selfOwned` | boolean | Yes | Whether the sub-pocket belongs to you or an external owner |\n| `pocketOwner` | object | Yes | `existingPocketOwner` plus `pocketOwnerDetails` (`firstName`, `lastName`, `emailAddress`, `phoneNumber`, `businessName`) |\n| `tagGroup` | string | No | Grouping label |\n| `tagName` | string | No | Display label |\n\nResponse returns the new `pocketId`, its dedicated `bankAccountNumber`/`bankAccountName`/`bankName`, and login details for the sub-pocket's own user.",
+                  "content": "Authenticate and manage SeerBit Pockets, including balances, sub-pockets, and internal transfers.",
                   "type": "text/plain"
                 },
                 "url": {
@@ -3601,7 +3601,7 @@
                     {
                       "description": "(Required) Value of pocketID",
                       "type": "any",
-                      "value": "incididunt est minim",
+                      "value": "Excepteur",
                       "key": "pocketID"
                     }
                   ]
@@ -3629,7 +3629,7 @@
               },
               "response": [
                 {
-                  "id": "cdba360c-10df-420c-ac25-e2a7295b1f36",
+                  "id": "0dafaf95-6b5f-4565-b536-beba1adeb58b",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -3671,12 +3671,12 @@
           "event": []
         },
         {
-          "id": "0c559209-f6c8-42bd-960e-c48c6327a2de",
+          "id": "55d7068d-dac3-48f3-90e0-aa0ed492d04d",
           "name": "Pocket to Pocket Transfer",
           "request": {
             "name": "Pocket to Pocket Transfer",
             "description": {
-              "content": "Moves funds between two pockets (parent-to-sub-pocket, sub-to-sub, etc.) — an internal transfer, not a bank payout.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `amount` | string | Yes | Amount to move |\n| `currency` | string | Yes | Currency, must match both pockets |\n| `reference` | string | Yes | Unique reference for this transfer |\n| `description` | string | Yes | Free-text note |",
+              "content": "Authenticate and manage SeerBit Pockets, including balances, sub-pockets, and internal transfers.",
               "type": "text/plain"
             },
             "url": {
@@ -3698,13 +3698,13 @@
                 {
                   "description": "(Required) Value of pocketID",
                   "type": "any",
-                  "value": "incididunt est minim",
+                  "value": "Excepteur",
                   "key": "pocketID"
                 },
                 {
                   "description": "(Required) Value of destinationPocketID",
                   "type": "any",
-                  "value": "incididunt est minim",
+                  "value": "Excepteur",
                   "key": "destinationPocketID"
                 }
               ]
@@ -3732,7 +3732,7 @@
           },
           "response": [
             {
-              "id": "7ba8b077-a919-46a9-a93e-c28c1686d527",
+              "id": "babc8ebe-13b6-43f4-89e6-7724343e8f4f",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -3771,7 +3771,7 @@
           "event": []
         },
         {
-          "id": "0c2666fb-9502-4a56-a212-b1122d30a804",
+          "id": "03fb7773-b763-4d82-b542-82b34aa3f7ba",
           "name": "Get Pocket Balance",
           "request": {
             "name": "Get Pocket Balance",
@@ -3796,7 +3796,7 @@
                 {
                   "description": "(Required) Value of pocketID",
                   "type": "any",
-                  "value": "incididunt est minim",
+                  "value": "Excepteur",
                   "key": "pocketID"
                 }
               ]
@@ -3814,7 +3814,7 @@
           },
           "response": [
             {
-              "id": "ad5f2f6e-53e6-4b42-a7ab-52fab79ece83",
+              "id": "6b6c8d15-a92a-45d0-b8c8-efb993ae69d9",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -3850,7 +3850,7 @@
           "event": []
         },
         {
-          "id": "6dfd21ea-8156-45f8-a644-e48dd35bf59b",
+          "id": "cda994d7-114d-4677-abfb-6b399a54cd7a",
           "name": "Get Merchant Balance Summation",
           "request": {
             "name": "Get Merchant Balance Summation",
@@ -3875,7 +3875,7 @@
                 {
                   "description": "(Required) Value of pocketID",
                   "type": "any",
-                  "value": "incididunt est minim",
+                  "value": "Excepteur",
                   "key": "pocketID"
                 }
               ]
@@ -3893,7 +3893,7 @@
           },
           "response": [
             {
-              "id": "7910306f-4b8e-48d3-84b8-d2fe88285bd4",
+              "id": "6b85f07d-77e4-46a4-84d0-eb2ba5ddafb0",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -3929,11 +3929,11 @@
           "event": []
         },
         {
-          "id": "7dda7e19-a7d7-4848-8ed7-2845518e60a3",
+          "id": "ea788264-512f-4974-8248-f44f2459488f",
           "name": "transaction",
           "item": [
             {
-              "id": "4efe0089-9bdd-4e69-be20-ad47416a64e6",
+              "id": "8cef4c53-c417-4761-a834-708b70600f71",
               "name": "Get Transaction by Reference",
               "request": {
                 "name": "Get Transaction by Reference",
@@ -3958,7 +3958,7 @@
                     {
                       "description": "(Required) Value of reference",
                       "type": "any",
-                      "value": "incididunt est minim",
+                      "value": "Excepteur",
                       "key": "reference"
                     }
                   ]
@@ -3976,7 +3976,7 @@
               },
               "response": [
                 {
-                  "id": "ad083403-14fd-483b-9a9e-99b71287e159",
+                  "id": "a20d1a07-3bdf-474e-8701-130b36202cf8",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -4012,7 +4012,7 @@
               "event": []
             },
             {
-              "id": "91dd973d-695c-4c7f-9aa1-c98e1c226cf4",
+              "id": "4fc9b972-9eaa-404c-8279-102e48ced037",
               "name": "Search Transactions",
               "request": {
                 "name": "Search Transactions",
@@ -4035,17 +4035,17 @@
                     {
                       "description": "Query parameter pocketId",
                       "key": "pocketId",
-                      "value": "incididunt est minim"
+                      "value": "Excepteur"
                     },
                     {
                       "description": "Query parameter page",
                       "key": "page",
-                      "value": "incididunt est minim"
+                      "value": "Excepteur"
                     },
                     {
                       "description": "Query parameter size",
                       "key": "size",
-                      "value": "incididunt est minim"
+                      "value": "Excepteur"
                     }
                   ],
                   "variable": []
@@ -4063,7 +4063,7 @@
               },
               "response": [
                 {
-                  "id": "32b0ee17-58dc-4975-9e44-186e1d192069",
+                  "id": "5fa713c8-0927-45cd-bd6e-31b4589084d8",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -4073,15 +4073,15 @@
                       "query": [
                         {
                           "key": "pocketId",
-                          "value": "incididunt est minim"
+                          "value": "Excepteur"
                         },
                         {
                           "key": "page",
-                          "value": "incididunt est minim"
+                          "value": "Excepteur"
                         },
                         {
                           "key": "size",
-                          "value": "incididunt est minim"
+                          "value": "Excepteur"
                         }
                       ],
                       "variable": []
@@ -4118,12 +4118,12 @@
           "event": []
         },
         {
-          "id": "a5b6c160-1f48-430f-91ab-421cea0a9a83",
+          "id": "49b41d5a-fe0a-4887-bf6a-31fa886cfeaf",
           "name": "Account Enquiry",
           "request": {
             "name": "Account Enquiry",
             "description": {
-              "content": "Reconfirms the account holder's name for a bank account before sending a payout — use it to catch a wrong account number before money moves.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `accountnumber` | string | Yes | Recipient bank account number |\n| `bankcode` | string | Yes | Recipient bank's code, from *Bank List* |\n\n**Note:** the payout flow (*Authenticate for Payout* → *Initiate Single/Bulk Payout* → *Confirm Payout with OTP*) doesn't call this endpoint — it goes straight from authentication to initiating the payout, with no separate account-name-confirmation step built in. Whether it's still expected to run first, is optional, or belongs to a different flow isn't stated; use it as a manual pre-check if you want extra assurance before sending funds.",
+              "content": "Verify destination accounts and initiate or confirm external bank payouts.",
               "type": "text/plain"
             },
             "url": {
@@ -4163,7 +4163,7 @@
           },
           "response": [
             {
-              "id": "25f5fbb4-3e1f-4eb4-b7f0-80ddd692ce89",
+              "id": "981faec0-17c2-4610-8fab-566bda39c2f3",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -4202,7 +4202,7 @@
           "event": []
         },
         {
-          "id": "b7c09a21-8591-44ee-950b-bd02c1a84a17",
+          "id": "f0b07329-dc74-4cab-b23d-ee0f089e0b72",
           "name": "Bank List",
           "request": {
             "name": "Bank List",
@@ -4238,7 +4238,7 @@
           },
           "response": [
             {
-              "id": "973923a1-a86c-48f8-bb98-1fc567a76d74",
+              "id": "c986c366-6673-4298-a447-965f5d1d6c09",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -4274,12 +4274,12 @@
           "event": []
         },
         {
-          "id": "f6ca7b7d-194c-440f-80c8-2e9777ec97f5",
+          "id": "b5fc85d3-8bec-464b-b959-f66443d7d5d1",
           "name": "Authenticate for Payout",
           "request": {
             "name": "Authenticate for Payout",
             "description": {
-              "content": "Logs in with your merchant account email and Pocket password to obtain the bearer token required by every other request in this payout flow.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `email` | string | Yes | Your merchant account's login email |\n| `password` | string | Yes | Your **Pocket password** — not your SeerBit merchant dashboard password. This is the password for your Pocket account at flow.seerbitapi.com. |\n\n**Response: 200 OK**\n```json\n{\n    \"data\": {\n        \"bearerToken\": \"...\"\n    }\n}\n```\nSave `data.bearerToken` as `{{pocketAuthToken}}` — used as the `Authorization: Bearer` value on *Initiate Single Payout*, *Initiate Bulk Payout*, and *Confirm Payout with OTP*. This is the same login and token as *Authenticate* in the Pocket folder — kept as one shared variable, `{{pocketAuthToken}}`, and kept distinct from `{{BearerToken}}` (the OAuth token used everywhere else in this collection).\n\n**Note:** this is the only endpoint in this collection that authenticates with an email/password pair rather than an API key or OAuth token.",
+              "content": "Verify destination accounts and initiate or confirm external bank payouts.",
               "type": "text/plain"
             },
             "url": {
@@ -4319,7 +4319,7 @@
           },
           "response": [
             {
-              "id": "4ca009b8-f27e-47e1-ac08-56a514256326",
+              "id": "ff963b7a-3772-4821-ac47-ef3420acf108",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -4358,20 +4358,20 @@
           "event": []
         },
         {
-          "id": "723503c4-664f-462f-a6ae-aafa7208d15d",
+          "id": "98679b45-0dee-4ab3-90cb-e1895ba30457",
           "name": "v2",
           "item": [
             {
-              "id": "4fb6a29f-9654-44d4-a3e4-436e3cb347a4",
+              "id": "d5dd2071-bee1-460b-b8da-db6a48f92a5a",
               "name": "payouts",
               "item": [
                 {
-                  "id": "65ab8ae4-f646-43a3-a1ac-e70bb0bf7e32",
+                  "id": "a1bd66a1-5e4f-4ff3-908e-33b9da2c9d9b",
                   "name": "Initiate Single Payout",
                   "request": {
                     "name": "Initiate Single Payout",
                     "description": {
-                      "content": "Phase 1 of 2 — initiates a single payout. Validates the request signature, encrypts the payload, and emails an OTP to the merchant; the payout only moves money once that OTP is submitted to *Confirm Payout with OTP*.\n\n**Required headers**\n\n| Header | Description |\n|---|---|\n| `Public-Key` | Your merchant public key (`{{publicKey}}`) |\n| `X-Seerbit-Signature` | HMAC-SHA256 of the exact raw JSON request body, computed with your merchant secret key (`{{SECRET_KEY}}`), hex-encoded. |\n| `Authorization` | `Bearer {{pocketAuthToken}}` — from *Authenticate for Payout* (same token as Pocket's *Authenticate*), not the OAuth `{{BearerToken}}`. |\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `pocketId` | string | Yes | The Pocket to pay out from |\n| `reference` | string | Yes | Your unique reference for this payout. Re-submitting the same `reference` is idempotent — it returns the existing `payoutId` and a message that the OTP was already sent, rather than sending a new OTP. |\n| `currency` | string | Yes | Currency code |\n| `amount` | number | Yes | Amount to send |\n| `description` | string | No | Free-text note for the payout |\n| `accountNumber` | string | Yes | Recipient bank account number |\n| `bankCode` | string | Yes | Recipient bank's code — see *Bank List* |\n\n**Response: 202 Accepted**\n```json\n{\n    \"payoutId\": \"PV2-ABCDEF123456\",\n    \"status\": \"PENDING_OTP\",\n    \"message\": \"OTP sent to registered email. Please confirm to proceed.\"\n}\n```\nSave `payoutId` as the `{{payoutId}}` collection variable — it's the path parameter for *Confirm Payout with OTP*.\n\n**Error responses:**\n- 401 Unauthorized — missing or invalid `X-Seerbit-Signature`\n- 400 Bad Request — missing `Public-Key` header\n- 400 Bad Request — missing/invalid required fields (e.g. \"currency is required\", \"amount must be positive\")\n\n**Note:** this flow doesn't include a separate account-name-confirmation step before initiating — call *Account Enquiry* first if you want to verify the recipient's account name.",
+                      "content": "Verify destination accounts and initiate or confirm external bank payouts.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -4411,7 +4411,7 @@
                   },
                   "response": [
                     {
-                      "id": "a48eff0f-80bf-436f-acbb-d4b88dd75c5f",
+                      "id": "aa2c79f7-d537-42f9-9c33-16148454ef88",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -4450,12 +4450,12 @@
                   "event": []
                 },
                 {
-                  "id": "fb9ae44d-8dbd-4938-bd6c-681c0d42c3ea",
+                  "id": "fc99caea-3bf9-415a-ad19-97a632dfe4c5",
                   "name": "Confirm Payout with OTP",
                   "request": {
                     "name": "Confirm Payout with OTP",
                     "description": {
-                      "content": "Phase 2 of 2 — submits the OTP emailed to the merchant during *Initiate Single Payout* / *Initiate Bulk Payout*. On success, SeerBit decrypts the payload and dispatches it for processing; this is what actually moves money.\n\n**Path parameter**\n\n| Parameter | Description |\n|---|---|\n| `payoutId` (in URL path) | From the Initiate call's response, saved to `{{payoutId}}` |\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `otp` | string | Yes | 6-digit code emailed to the merchant. Expires 5 minutes after being issued. It's presumably sent to the email used to log in via *Authenticate for Payout*, though this isn't stated explicitly. |\n\n**Response: 200 OK**\n```json\n{\n    \"payoutId\": \"PV2-ABCDEF123456\",\n    \"status\": \"QUEUED\",\n    \"message\": \"Payout confirmed and queued for processing\",\n    \"batchId\": \"BATCH-XYZ\"\n}\n```\n\n**Error responses (400):**\n- Payout not found\n- Unauthorized access\n- Not in `PENDING_OTP` state\n- OTP has expired\n- Invalid OTP\n- Insufficient funds",
+                      "content": "Verify destination accounts and initiate or confirm external bank payouts.",
                       "type": "text/plain"
                     },
                     "url": {
@@ -4476,7 +4476,7 @@
                         {
                           "description": "(Required) Value of payoutId",
                           "type": "any",
-                          "value": "incididunt est minim",
+                          "value": "Excepteur",
                           "key": "payoutId"
                         }
                       ]
@@ -4504,7 +4504,7 @@
                   },
                   "response": [
                     {
-                      "id": "f6c19346-ff2e-4a12-87fd-fdeaa73c62bb",
+                      "id": "987ad28d-c5a5-429f-8e0c-0783683756c5",
                       "name": "Successful response",
                       "originalRequest": {
                         "url": {
@@ -4546,12 +4546,12 @@
               "event": []
             },
             {
-              "id": "f0ee0cb4-416b-42ce-aada-92c36b572b90",
+              "id": "b5cf9470-af72-4c8f-8e34-1586ccea6d3e",
               "name": "Initiate Bulk Payout",
               "request": {
                 "name": "Initiate Bulk Payout",
                 "description": {
-                  "content": "Phase 1 of 2 — initiates a payout to multiple recipients in one call, sharing a single OTP confirmation. Same endpoint as *Initiate Single Payout*; a non-empty `transfers` array is what puts the request in bulk mode.\n\n**Required headers:** same as *Initiate Single Payout* — `Public-Key`, `X-Seerbit-Signature` (HMAC-SHA256 of the raw body using `{{SECRET_KEY}}`), `Authorization: Bearer {{pocketAuthToken}}` from *Authenticate for Payout*.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `pocketId` | string | Yes | The Pocket to pay out from |\n| `batchReference` | string | Yes | Your unique reference for the whole batch. Re-submitting the same `batchReference` is idempotent — returns the existing `payoutId` rather than creating a new batch. |\n| `transfers` | array | Yes | One entry per recipient — see fields below. Must be non-empty to trigger bulk mode. |\n| `transfers[].reference` | string | Yes | Your unique reference for this individual transfer within the batch |\n| `transfers[].currency` | string | Yes | Currency code |\n| `transfers[].amount` | number | Yes | Amount to send to this recipient |\n| `transfers[].description` | string | No | Free-text note for this transfer |\n| `transfers[].accountNumber` | string | Yes | Recipient bank account number |\n| `transfers[].bankCode` | string | Yes | Recipient bank's code — see *Bank List* |\n\n**Response: 202 Accepted** — same shape as *Initiate Single Payout*: one `payoutId` for the whole batch, `status: \"PENDING_OTP\"`.\n\n**Note:** there's no documented endpoint for checking an individual transfer's outcome within a batch — only the batch-level `batchId` returned by *Confirm Payout with OTP*.",
+                  "content": "Verify destination accounts and initiate or confirm external bank payouts.",
                   "type": "text/plain"
                 },
                 "url": {
@@ -4592,7 +4592,7 @@
               },
               "response": [
                 {
-                  "id": "985e263a-5a36-4b70-982f-269c5e46ad57",
+                  "id": "bc7793d0-9a82-413d-bc15-f5c2ec06253b",
                   "name": "Successful response",
                   "originalRequest": {
                     "url": {
@@ -4637,16 +4637,16 @@
       "event": []
     },
     {
-      "id": "50db0033-d357-4c14-b6f1-5475481e0bd5",
+      "id": "867091f1-deb2-410d-a286-b47d42a12ed7",
       "name": "auth",
       "item": [
         {
-          "id": "80268728-2443-4c1b-a7cc-69b6eb4fb313",
+          "id": "5e081dae-3d7f-4b5d-ac28-fd182668e5a3",
           "name": "Partner Login",
           "request": {
             "name": "Partner Login",
             "description": {
-              "content": "Authenticates a SeerBit partner and returns a Bearer token for the Partners API endpoints below (a separate token from the merchant `BearerToken` used elsewhere in this collection). No auth required to call it.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `email` | string | Yes | Partner's registered email |\n| `password` | string | Yes | Partner account password |",
+              "content": "Authenticate partner accounts and manage invited businesses, commissions, and partner credentials.",
               "type": "text/plain"
             },
             "url": {
@@ -4685,7 +4685,7 @@
           },
           "response": [
             {
-              "id": "ae65b4d1-1946-4acd-a307-81bc11e15fde",
+              "id": "c6eaa286-8ad2-4c47-92d7-aea15ec01fdd",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -4724,12 +4724,12 @@
           "event": []
         },
         {
-          "id": "51ca181d-a96e-49f9-be5f-e6ad3fd62d8a",
+          "id": "c7fc5783-c8d5-459b-a0bc-2d09a23193fd",
           "name": "Request Password Reset",
           "request": {
             "name": "Request Password Reset",
             "description": {
-              "content": "Triggers a password-reset email containing an OTP, which you then pass to *Reset Password*. No auth required.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `email` | string | Yes | Registered partner email |",
+              "content": "Authenticate partner accounts and manage invited businesses, commissions, and partner credentials.",
               "type": "text/plain"
             },
             "url": {
@@ -4768,7 +4768,7 @@
           },
           "response": [
             {
-              "id": "aee62622-f104-473f-99dc-828ece8cf1b3",
+              "id": "23a3c51e-9f19-4847-b3a1-39df06d37988",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -4807,12 +4807,12 @@
           "event": []
         },
         {
-          "id": "cce77a61-e46b-4fbd-9c29-0fdb6b4132bd",
+          "id": "172f616b-37f6-4e28-be82-1efed375aad5",
           "name": "Reset Password",
           "request": {
             "name": "Reset Password",
             "description": {
-              "content": "Completes a password reset using the OTP emailed by *Request Password Reset*.\n\n**Body fields**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `email` | string | Yes | Registered partner email |\n| `newPassword` | string | Yes | Minimum 8 characters, must include an uppercase letter and a special character |\n| `otp` | string | Yes | Code sent by *Request Password Reset* |",
+              "content": "Authenticate partner accounts and manage invited businesses, commissions, and partner credentials.",
               "type": "text/plain"
             },
             "url": {
@@ -4851,7 +4851,7 @@
           },
           "response": [
             {
-              "id": "6dc7c4bc-9123-484e-95d2-3d878fb21a62",
+              "id": "dccff1b7-0f05-4446-be3a-5abace0d274a",
               "name": "Successful response",
               "originalRequest": {
                 "url": {
@@ -4893,12 +4893,12 @@
       "event": []
     },
     {
-      "id": "6f396519-094c-4010-91e7-6a28d9a3431c",
+      "id": "91fd3c69-084c-4592-b5e1-6f4d00af59a0",
       "name": "refund",
       "request": {
         "name": "refund",
         "description": {
-          "content": "**Reference only — not a request you send.** This documents the `refund` payload SeerBit POSTs to *your* configured webhook URL after the matching event happens; there is nothing at SeerBit to call here. The body below is the shape of what you'll receive.\n\nSent when a refund is processed against one of your transactions (full or partial, per `type`).\n\nYour endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.",
+          "content": "Reference payloads SeerBit sends to your callback URL for payment-related events.",
           "type": "text/plain"
         },
         "url": {
@@ -4936,7 +4936,7 @@
       },
       "response": [
         {
-          "id": "9dca1796-89fc-4313-afd8-d59ffab5b821",
+          "id": "7a91960c-a9b1-446f-a2de-2afe68d4f358",
           "name": "Successful response",
           "originalRequest": {
             "url": {
@@ -4975,12 +4975,12 @@
       "event": []
     },
     {
-      "id": "6f365ff2-bd6c-4d7f-8bda-5012169bd327",
+      "id": "431639a9-1996-43c2-9f59-8bf586bee9af",
       "name": "dispute",
       "request": {
         "name": "dispute",
         "description": {
-          "content": "**Reference only — not a request you send.** This documents the `dispute` payload SeerBit POSTs to *your* configured webhook URL after the matching event happens; there is nothing at SeerBit to call here. The body below is the shape of what you'll receive.\n\nSent when a chargeback/dispute is raised against one of your transactions; `evidence` carries whatever supporting material is attached.\n\nYour endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.",
+          "content": "Reference payloads SeerBit sends to your callback URL for payment-related events.",
           "type": "text/plain"
         },
         "url": {
@@ -5019,7 +5019,7 @@
       },
       "response": [
         {
-          "id": "de977e53-57b1-407a-895a-cbc4cb77a75e",
+          "id": "0cad0f5b-b40b-44f6-8226-637c88f706ca",
           "name": "Successful response",
           "originalRequest": {
             "url": {
@@ -5058,12 +5058,12 @@
       "event": []
     },
     {
-      "id": "5aef62a3-391a-4f52-bb45-b21400257b07",
+      "id": "4f562aba-2f65-4463-bfee-5352fb589490",
       "name": "transaction",
       "request": {
         "name": "transaction",
         "description": {
-          "content": "**Reference only — not a request you send.** This documents the `transaction` payload SeerBit POSTs to *your* configured webhook URL after the matching event happens; there is nothing at SeerBit to call here. The body below is the shape of what you'll receive.\n\nSent for a card payment (e.g. from Standard Checkout or Tokenization) reaching a final state — this is the async counterpart to polling *Check Payment Status*.\n\nYour endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.",
+          "content": "Reference payloads SeerBit sends to your callback URL for payment-related events.",
           "type": "text/plain"
         },
         "url": {
@@ -5102,7 +5102,7 @@
       },
       "response": [
         {
-          "id": "41dc5f64-4d7f-43ba-84ab-ce36f5c1611c",
+          "id": "f6a9ba0f-8bdc-4a80-8382-683d9db3399b",
           "name": "Successful response",
           "originalRequest": {
             "url": {
@@ -5141,12 +5141,12 @@
       "event": []
     },
     {
-      "id": "4e730888-06db-4e99-b64a-9940d947d092",
+      "id": "59410e4a-59a2-42b4-92cc-ec11225114a8",
       "name": "transaction.wallet",
       "request": {
         "name": "transaction.wallet",
         "description": {
-          "content": "**Reference only — not a request you send.** This documents the `transaction.wallet` payload SeerBit POSTs to *your* configured webhook URL after the matching event happens; there is nothing at SeerBit to call here. The body below is the shape of what you'll receive.\n\nSent when a bank transfer lands on a Virtual Account or Pocket — this is what tells you a *Get Payments* or Pocket balance actually changed, without you having to poll.\n\nYour endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.",
+          "content": "Reference payloads SeerBit sends to your callback URL for payment-related events.",
           "type": "text/plain"
         },
         "url": {
@@ -5185,7 +5185,7 @@
       },
       "response": [
         {
-          "id": "1a2db66c-2035-41f8-8fb5-d7bfcfc9bd38",
+          "id": "c2e27735-b024-4093-92cf-986a1e8dceba",
           "name": "Successful response",
           "originalRequest": {
             "url": {
@@ -5224,12 +5224,12 @@
       "event": []
     },
     {
-      "id": "53bb81c4-42d0-48de-9751-db7c1fef750a",
+      "id": "740ddaed-27c0-4616-84fe-1435e031878b",
       "name": "transaction.recurrent",
       "request": {
         "name": "transaction.recurrent",
         "description": {
-          "content": "**Reference only — not a request you send.** This documents the `transaction.recurrent` payload SeerBit POSTs to *your* configured webhook URL after the matching event happens; there is nothing at SeerBit to call here. The body below is the shape of what you'll receive.\n\nSent when a subscription's scheduled charge (from *Create Plan* / *Charge Subscription*) completes.\n\nYour endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.",
+          "content": "Reference payloads SeerBit sends to your callback URL for payment-related events.",
           "type": "text/plain"
         },
         "url": {
@@ -5268,7 +5268,7 @@
       },
       "response": [
         {
-          "id": "e6abc11f-896f-4244-b1b1-c1ce829ef8f3",
+          "id": "ff1fd679-f2ce-474d-80e5-897deb429e5a",
           "name": "Successful response",
           "originalRequest": {
             "url": {
@@ -5307,12 +5307,12 @@
       "event": []
     },
     {
-      "id": "9587a733-6296-462b-a267-6d537a5f613c",
+      "id": "bfd616d5-893a-4aee-8896-e748fcb1347f",
       "name": "transaction.recurring.debit",
       "request": {
         "name": "transaction.recurring.debit",
         "description": {
-          "content": "**Reference only — not a request you send.** This documents the `transaction.recurring.debit` payload SeerBit POSTs to *your* configured webhook URL after the matching event happens; there is nothing at SeerBit to call here. The body below is the shape of what you'll receive.\n\nSent for a subsequent automated debit against a stored token (e.g. *Charge Authorization Token*) outside the subscription schedule.\n\nYour endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.",
+          "content": "Reference payloads SeerBit sends to your callback URL for payment-related events.",
           "type": "text/plain"
         },
         "url": {
@@ -5351,7 +5351,7 @@
       },
       "response": [
         {
-          "id": "d92fcb8f-cba5-4b7e-b24f-4b905b90a657",
+          "id": "6b4a9225-01ae-4ef3-accc-88d979886cb2",
           "name": "Successful response",
           "originalRequest": {
             "url": {
@@ -5404,7 +5404,7 @@
         "type": "text/plain"
       },
       "type": "any",
-      "value": "incididunt est minim",
+      "value": "Excepteur",
       "key": "paymentReference"
     },
     {
@@ -5424,7 +5424,7 @@
     }
   ],
   "info": {
-    "_postman_id": "5c5909ed-aa1e-4c69-b271-8fab5ca6a413",
+    "_postman_id": "98b1cd15-179a-47c1-a745-831860ce0cd1",
     "name": "SeerBit External API Reference",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": {
