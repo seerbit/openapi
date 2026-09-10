@@ -4,6 +4,16 @@ mkdir -p docs/specs docs/style
 echo -n "Building Documentation... "
 node scripts/normalize-mintlify-openapi.js specs/external-api.yml
 npm run redoc
+for attempt in {1..30}; do
+  if [[ -f redoc-static.html ]]; then
+    break
+  fi
+  sleep 1
+done
+if [[ ! -f redoc-static.html ]]; then
+  echo "Redoc bundle was not generated"
+  exit 1
+fi
 npm run convert:external:api
 npm run modify:external:api
 RESULT=$?
