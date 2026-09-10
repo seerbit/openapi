@@ -2,6 +2,7 @@
 set -e
 mkdir -p docs/specs docs/style
 echo -n "Building Documentation... "
+node scripts/normalize-mintlify-openapi.js specs/external-api.yml
 npm run redoc
 npm run convert:external:api
 npm run modify:external:api

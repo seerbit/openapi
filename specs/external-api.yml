@@ -23,6 +23,9 @@ tags:
     description: Look up the current result and details of a payment using its reference.
   - name: INVOICING
     description: Create, send, retrieve, and manage merchant invoices.
+  - name: PARTNERS API
+    description: Authenticate partner accounts and manage invited businesses,
+      commissions, and partner credentials.
   - name: TOKENIZATION
     description: Tokenize cards and use authorization tokens for subsequent or bulk charges.
   - name: RECURRING & SUBSCRIPTIONS
@@ -35,9 +38,6 @@ tags:
       sub-pockets, and internal transfers.
   - name: PAYOUT
     description: Verify destination accounts and initiate or confirm external bank payouts.
-  - name: PARTNERS API
-    description: Authenticate partner accounts and manage invited businesses,
-      commissions, and partner credentials.
   - name: WEBHOOKS (REFERENCE)
     description: Reference payloads SeerBit sends to your callback URL for
       payment-related events.
@@ -47,34 +47,36 @@ paths:
       tags:
         - AUTHENTICATION
       summary: Generate Encrypted Key
-      description: >-
-        Exchanges your `SECRET_KEY` and `publicKey` for an `EncryptedSecKey`.
-        Use that value as the `BearerToken` collection variable — it's the
-        Bearer token for every other authenticated request here. Call this once
-        per session, or whenever your key changes; it does not expire on a fixed
-        schedule but should be re-generated if a request starts failing auth.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `key` | string | Yes | Your `SECRET_KEY` and `publicKey` joined with a period: `SECRET_KEY.publicKey` |
-
-
-        This endpoint is intentionally **No Auth** — you don't have a token yet when you call it.
+      description: Create the encrypted key used as the Bearer token for authenticated
+        SeerBit API requests.
       operationId: post_generate-encrypted-key_0
       servers:
         - url: https://seerbitapi.com
       requestBody:
         required: true
+        description: >-
+          Exchanges your `SECRET_KEY` and `publicKey` for an `EncryptedSecKey`.
+          Use that value as the `BearerToken` collection variable — it's the
+          Bearer token for every other authenticated request here. Call this
+          once per session, or whenever your key changes; it does not expire on
+          a fixed schedule but should be re-generated if a request starts
+          failing auth.
+
+
+          **Body fields**
+
+          This endpoint is intentionally **No Auth** — you don't have a token yet when you call it.
         content:
           application/json:
             schema:
               type: object
+              properties:
+                key:
+                  type: string
+                  description: "Your `SECRET_KEY` and `publicKey` joined with a period:
+                    `SECRET_KEY.publicKey`"
+              required:
+                - key
             examples:
               generate-encrypted-key:
                 summary: Generate Encrypted Key
@@ -88,16 +90,8 @@ paths:
       tags:
         - AUTHENTICATION
       summary: Generate Hash
-      description: >-
-        Generic hash-generation endpoint — you pass the exact same body as the
-        request you want a hash for, and SeerBit returns a hash you attach to
-        that other call. The doc page's own worked example happens to use a
-        subscription-creation payload (shown in this request's saved body); swap
-        the body for whatever request you're actually hashing, keeping the same
-        field names and types that request expects.
-
-
-        **Not independently re-confirmed in this pass:** the doc page's response example describes the _downstream_ payment response (redirectUrl, paymentReference) rather than what this endpoint itself returns — no saved example response here; verify against a live sandbox call before relying on the shape.
+      description: Create the encrypted key used as the Bearer token for authenticated
+        SeerBit API requests.
       operationId: post_generate-hash_1
       servers:
         - url: https://seerbitapi.com
@@ -107,6 +101,47 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                publicKey:
+                  type: string
+                paymentReference:
+                  type: string
+                planId:
+                  type: string
+                cardNumber:
+                  type: string
+                expiryMonth:
+                  type: string
+                callbackUrl:
+                  type: string
+                expiryYear:
+                  type: string
+                cvv:
+                  type: string
+                amount:
+                  type: string
+                currency:
+                  type: string
+                productDescription:
+                  type: string
+                productId:
+                  type: string
+                country:
+                  type: string
+                startDate:
+                  type: string
+                cardName:
+                  type: string
+                billingCycle:
+                  type: string
+                email:
+                  type: string
+                mobileNumber:
+                  type: string
+                billingPeriod:
+                  type: string
+                subscriptionAmount:
+                  type: boolean
             examples:
               generate-hash:
                 summary: Generate Hash
@@ -131,6 +166,16 @@ paths:
                   mobileNumber: "08012345678"
                   billingPeriod: "1"
                   subscriptionAmount: false
+        description: >-
+          Generic hash-generation endpoint — you pass the exact same body as the
+          request you want a hash for, and SeerBit returns a hash you attach to
+          that other call. The doc page's own worked example happens to use a
+          subscription-creation payload (shown in this request's saved body);
+          swap the body for whatever request you're actually hashing, keeping
+          the same field names and types that request expects.
+
+
+          **Verification note:** The available response example describes the _downstream_ payment response (`redirectUrl`, `paymentReference`) rather than the response returned by this endpoint. Confirm the actual response shape with a live sandbox call before relying on it.
       responses:
         "200":
           description: Successful response
@@ -139,43 +184,8 @@ paths:
       tags:
         - STANDARD CHECKOUT
       summary: Normal Payment (No Split)
-      description: >-
-        Creates a transaction and returns a `redirectLink` to SeerBit's hosted
-        checkout page — send the customer there to enter payment details and
-        complete the charge. No card data touches your server with this flow,
-        and the full amount settles to your main merchant account with no split.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `publicKey` | string | Yes | Merchant public key from the dashboard |
-
-        | `amount` | string | Yes | Amount to charge |
-
-        | `currency` | string | Yes | Transaction currency, e.g. `NGN`, `USD` |
-
-        | `country` | string | Yes | Country the transaction originates from |
-
-        | `paymentReference` | string | Yes | Unique reference you generate per transaction |
-
-        | `email` | string | Yes | Customer email address |
-
-        | `fullName` | string | Yes | Customer full name |
-
-        | `callbackUrl` | string | Yes | Where SeerBit redirects the customer after payment |
-
-        | `tokenize` | boolean | No | **Confirmed by SeerBit.** If `true`: (1) the checkout page on `redirectLink` only offers **Card** as a payment method — no bank transfer, USSD, or other channels; (2) SeerBit tokenizes the card, and the resulting `authorizationCode` is not in this endpoint's own response — it's returned when you call **Check Payment Status** afterward with the `paymentReference`. Use that `authorizationCode` with *Charge Authorization Token* / *Bulk Charge Token* to charge the same card again. Defaults to `false` if omitted. |
-
-
-        This is the baseline request with no split fields — see the sibling requests in this folder **Standard Checkout — Easy Split (Split Code)** and **Standard Checkout — Full Dynamic Split** for the two ways to divide a payment across sub-accounts.
-
-
-        A `409` means `paymentReference` has already been used — generate a new one per attempt, don't retry with the same value.
+      description: Create hosted checkout payment links, including normal and
+        split-payment flows.
       operationId: post_normal-payment-no-split_2
       servers:
         - url: https://seerbitapi.com
@@ -185,6 +195,51 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                publicKey:
+                  type: string
+                  description: Merchant public key from the dashboard
+                amount:
+                  type: string
+                  description: Amount to charge
+                currency:
+                  type: string
+                  description: Transaction currency, e.g. `NGN`, `USD`
+                country:
+                  type: string
+                  description: Country the transaction originates from
+                paymentReference:
+                  type: string
+                  description: Unique reference you generate per transaction
+                email:
+                  type: string
+                  description: Customer email address
+                fullName:
+                  type: string
+                  description: Customer full name
+                callbackUrl:
+                  type: string
+                  description: Where SeerBit redirects the customer after payment
+                tokenize:
+                  type: boolean
+                  description: "**Confirmed by SeerBit.** If `true`: (1) the checkout page on
+                    `redirectLink` only offers **Card** as a payment method — no
+                    bank transfer, USSD, or other channels; (2) SeerBit
+                    tokenizes the card, and the resulting `authorizationCode` is
+                    not in this endpoint's own response — it's returned when you
+                    call **Check Payment Status** afterward with the
+                    `paymentReference`. Use that `authorizationCode` with
+                    *Charge Authorization Token* / *Bulk Charge Token* to charge
+                    the same card again. Defaults to `false` if omitted."
+              required:
+                - publicKey
+                - amount
+                - currency
+                - country
+                - paymentReference
+                - email
+                - fullName
+                - callbackUrl
             examples:
               normal-payment-no-split:
                 summary: Normal Payment (No Split)
@@ -198,6 +253,21 @@ paths:
                   fullName: Jane Doe
                   tokenize: false
                   callbackUrl: https://example.com/callback
+        description: >-
+          Creates a transaction and returns a `redirectLink` to SeerBit's hosted
+          checkout page — send the customer there to enter payment details and
+          complete the charge. No card data touches your server with this flow,
+          and the full amount settles to your main merchant account with no
+          split.
+
+
+          **Body fields**
+
+
+          This is the baseline request with no split fields — see the sibling requests in this folder **Standard Checkout — Easy Split (Split Code)** and **Standard Checkout — Full Dynamic Split** for the two ways to divide a payment across sub-accounts.
+
+
+          A `409` means `paymentReference` has already been used — generate a new one per attempt, don't retry with the same value.
       responses:
         "200":
           description: Successful response
@@ -208,30 +278,8 @@ paths:
       tags:
         - STANDARD CHECKOUT
       summary: Standard Checkout — Easy Split (Split Code)
-      description: >-
-        Same Standard Checkout flow as **Normal Payment (No Split)**, plus a
-        single `splitCode` field: the code of a split rule you pre-configure
-        once (recipients, percentages/amounts, fee bearer) on the SeerBit
-        dashboard, then reference by code at payment time. This is the "easy"
-        option — you don't specify recipients or amounts inline; the rule
-        already defines them.
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `splitCode` | string | Yes (for this variant) | Reference to a split rule created in advance on the SeerBit dashboard. |
-
-        | `tokenize` | boolean | No | **Confirmed by SeerBit.** If `true`, the checkout page restricts payment to **Card only**, and the `authorizationCode` for the tokenized card comes back from **Check Payment Status**, not this endpoint's own response. Defaults to `false`. |
-
-        | *(all other fields)* | | Yes | Same as **Normal Payment (No Split)** |
-
-
-        Use this when your split recipients and their shares are fixed and known ahead of time. If you need to set the split's recipients or shares dynamically per transaction, use **Standard Checkout — Full Dynamic Split** instead.
-
-
-        **Not fully confirmed**: doc.seerbit.com documents `splitCode` only as `"Split rule Code"` in an example body, without a dedicated page describing how split rules are created on the dashboard or the exact code format — check your dashboard's split-rule setup screen for the value to use here.
+      description: Create hosted checkout payment links, including normal and
+        split-payment flows.
       operationId: post_standard-checkout-easy-split-split-code_3
       servers:
         - url: https://seerbitapi.com
@@ -241,6 +289,19 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                splitCode:
+                  type: string
+                  description: Reference to a split rule created in advance on the SeerBit
+                    dashboard.
+                tokenize:
+                  type: boolean
+                  description: "**Confirmed by SeerBit.** If `true`, the checkout page restricts
+                    payment to **Card only**, and the `authorizationCode` for
+                    the tokenized card comes back from **Check Payment Status**,
+                    not this endpoint's own response. Defaults to `false`."
+              required:
+                - splitCode
             examples:
               standard-checkout-easy-split-split-code:
                 summary: Standard Checkout — Easy Split (Split Code)
@@ -255,6 +316,19 @@ paths:
                   tokenize: false
                   callbackUrl: https://example.com/callback
                   splitCode: SPLIT_RULE_CODE
+        description: >-
+          Same Standard Checkout flow as **Normal Payment (No Split)**, plus a
+          single `splitCode` field: the code of a split rule you pre-configure
+          once (recipients, percentages/amounts, fee bearer) on the SeerBit
+          dashboard, then reference by code at payment time. This is the "easy"
+          option — you don't specify recipients or amounts inline; the rule
+          already defines them.
+
+
+          Use this when your split recipients and their shares are fixed and known ahead of time. If you need to set the split's recipients or shares dynamically per transaction, use **Standard Checkout — Full Dynamic Split** instead.
+
+
+          **Verification note:** doc.seerbit.com documents `splitCode` only as `"Split rule Code"` in an example body. Confirm how split rules are created and the exact code format in your dashboard before using this field.
       responses:
         "200":
           description: Successful response
@@ -265,40 +339,8 @@ paths:
       tags:
         - STANDARD CHECKOUT
       summary: Standard Checkout — Full Dynamic Split
-      description: >-
-        Same Standard Checkout flow as **Normal Payment (No Split)**, plus a
-        `splits` object defining recipients and shares inline, at payment time —
-        no pre-configured split rule needed. Use this when split details aren't
-        known in advance (e.g. a marketplace computing a different vendor split
-        per order).
-
-
-        **`splits` object fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `type` | string | Yes | `FLAT` (fixed amount per recipient) or `PERCENTAGE` |
-
-        | `transactionFee` | string | Yes | Who bears the transaction fee — `ALL_ACCOUNTS`, `PROPORTIONATE`, `SUB_ACCOUNT`, or `PARENT_ACCOUNT` |
-
-        | `bearerSubAccountCode` | string | Only if `transactionFee` is `SUB_ACCOUNT` | Which sub-account bears the fee |
-
-        | `items` | array | Yes | Each entry: `subAccountCode` and its `value` (amount or percentage, matching `type`) |
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `tokenize` | boolean | No | **Confirmed by SeerBit.** If `true`, the checkout page restricts payment to **Card only**, and the `authorizationCode` for the tokenized card comes back from **Check Payment Status**, not this endpoint's own response. Defaults to `false`. |
-
-        | *(all other core fields)* | | Yes | Same as **Normal Payment (No Split)** |
-
-
-        Compare **Standard Checkout — Easy Split (Split Code)**, which references a split rule you configured ahead of time instead of specifying recipients inline.
+      description: Create hosted checkout payment links, including normal and
+        split-payment flows.
       operationId: post_standard-checkout-full-dynamic-split_4
       servers:
         - url: https://seerbitapi.com
@@ -308,6 +350,31 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                type:
+                  type: string
+                  description: "`FLAT` (fixed amount per recipient) or `PERCENTAGE`"
+                transactionFee:
+                  type: string
+                  description: Who bears the transaction fee — `ALL_ACCOUNTS`, `PROPORTIONATE`,
+                    `SUB_ACCOUNT`, or `PARENT_ACCOUNT`
+                bearerSubAccountCode:
+                  type: string
+                  description: Which sub-account bears the fee
+                items:
+                  type: array
+                  description: "Each entry: `subAccountCode` and its `value` (amount or
+                    percentage, matching `type`)"
+                tokenize:
+                  type: boolean
+                  description: "**Confirmed by SeerBit.** If `true`, the checkout page restricts
+                    payment to **Card only**, and the `authorizationCode` for
+                    the tokenized card comes back from **Check Payment Status**,
+                    not this endpoint's own response. Defaults to `false`."
+              required:
+                - type
+                - transactionFee
+                - items
             examples:
               standard-checkout-full-dynamic-split:
                 summary: Standard Checkout — Full Dynamic Split
@@ -327,6 +394,18 @@ paths:
                     items:
                       - subAccountCode: SUB_ACC_001
                         value: "30"
+        description: >-
+          Same Standard Checkout flow as **Normal Payment (No Split)**, plus a
+          `splits` object defining recipients and shares inline, at payment time
+          — no pre-configured split rule needed. Use this when split details
+          aren't known in advance (e.g. a marketplace computing a different
+          vendor split per order).
+
+
+          **`splits` object fields**
+
+
+          Compare **Standard Checkout — Easy Split (Split Code)**, which references a split rule you configured ahead of time instead of specifying recipients inline.
       responses:
         "200":
           description: Successful response
@@ -337,35 +416,8 @@ paths:
       tags:
         - VIRTUAL ACCOUNTS
       summary: Create Virtual Account
-      description: >-
-        Issues a dedicated bank account number for one customer. Transfers into
-        that account are reconciled back to the customer automatically — use
-        *Get Payments* to see what's landed on it.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `publicKey` | string | Yes | Merchant public key |
-
-        | `fullName` | string | Yes | Customer's full name, used as the account name |
-
-        | `email` | string | Yes | Customer email |
-
-        | `currency` | string | Yes | Currency code, e.g. `NGN` |
-
-        | `country` | string | Yes | Country code, e.g. `NG` |
-
-        | `reference` | string | Yes | Your unique reference for this virtual account — also used to fetch/delete it later |
-
-        | `bankVerificationNumber` | string | No | Customer's BVN, for verification |
-
-
-        Response returns `walletName`, `bankName`, and `accountNumber` for the customer to pay into.
+      description: Create and manage virtual bank accounts and retrieve their payment
+        activity.
       operationId: post_create-virtual-account_5
       servers:
         - url: https://seerbitapi.com
@@ -375,6 +427,36 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                publicKey:
+                  type: string
+                  description: Merchant public key
+                fullName:
+                  type: string
+                  description: Customer's full name, used as the account name
+                email:
+                  type: string
+                  description: Customer email
+                currency:
+                  type: string
+                  description: Currency code, e.g. `NGN`
+                country:
+                  type: string
+                  description: Country code, e.g. `NG`
+                reference:
+                  type: string
+                  description: Your unique reference for this virtual account — also used to
+                    fetch/delete it later
+                bankVerificationNumber:
+                  type: string
+                  description: Customer's BVN, for verification
+              required:
+                - publicKey
+                - fullName
+                - email
+                - currency
+                - country
+                - reference
             examples:
               create-virtual-account:
                 summary: Create Virtual Account
@@ -386,6 +468,16 @@ paths:
                   country: NG
                   reference: FIRST_VIRTUAL_17
                   email: js@emaildomain.com
+        description: >-
+          Issues a dedicated bank account number for one customer. Transfers
+          into that account are reconciled back to the customer automatically —
+          use *Get Payments* to see what's landed on it.
+
+
+          **Body fields**
+
+
+          Response returns `walletName`, `bankName`, and `accountNumber` for the customer to pay into.
       responses:
         "200":
           description: Successful response
@@ -471,62 +563,8 @@ paths:
       tags:
         - PAYMENT METHODS
       summary: Card Payment
-      description: >-
-        Direct/inline card charge — you collect the card's PAN, expiry and CVV
-        on your own form and POST them here, instead of redirecting the customer
-        to SeerBit's hosted page (compare **Standard Checkout**, which never
-        touches raw card data on your server). Because this endpoint receives
-        raw card details, your integration is in PCI-DSS scope — SeerBit's
-        hosted **Standard Checkout** flow is the lower-compliance-burden
-        alternative most integrators should default to.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `publicKey` | string | Yes | Merchant public key |
-
-        | `amount` | string | Yes | Amount to charge |
-
-        | `currency` | string | Yes | e.g. `NGN` |
-
-        | `country` | string | Yes | Country code |
-
-        | `paymentReference` | string | Yes | Unique reference you generate |
-
-        | `email` | string | Yes | Customer email |
-
-        | `fullName` | string | Yes | Customer full name |
-
-        | `paymentType` | string | Yes | `CARD` for this flow |
-
-        | `cardDetails.pan` | string | Yes | Card number |
-
-        | `cardDetails.expiryMonth` / `expiryYear` | string | Yes | Card expiry |
-
-        | `cardDetails.cvv` | string | Yes | Card CVV |
-
-        | `callbackUrl` | string | Yes | Where SeerBit sends the final result |
-
-
-        **OTP step**: many card transactions come back requiring 3DS/OTP authentication. Per the Card Payment doc page, you complete this by POSTing again to this **same** `/api/v2/payments/initiates` URL with a body shaped like:
-
-        ```json
-
-        {
-          "transaction": {
-            "linkingreference": "<from initial response>",
-            "otp": "<code entered by customer>"
-          }
-        }
-
-        ```
-
-        Then poll **Check Payment Status** (Payment Query folder) with `paymentReference` to confirm the final state.
+      description: Initiate direct payments by card, bank account, transfer, USSD, or
+        mobile money.
       operationId: post_card-payment_9
       servers:
         - url: https://seerbitapi.com
@@ -536,6 +574,48 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                publicKey:
+                  type: string
+                  description: Merchant public key
+                amount:
+                  type: string
+                  description: Amount to charge
+                currency:
+                  type: string
+                  description: e.g. `NGN`
+                country:
+                  type: string
+                  description: Country code
+                paymentReference:
+                  type: string
+                  description: Unique reference you generate
+                email:
+                  type: string
+                  description: Customer email
+                fullName:
+                  type: string
+                  description: Customer full name
+                paymentType:
+                  type: string
+                  description: "`CARD` for this flow"
+                cardDetails:
+                  type: string
+                  description: Card number
+                callbackUrl:
+                  type: string
+                  description: Where SeerBit sends the final result
+              required:
+                - publicKey
+                - amount
+                - currency
+                - country
+                - paymentReference
+                - email
+                - fullName
+                - paymentType
+                - cardDetails
+                - callbackUrl
             examples:
               card-payment:
                 summary: Card Payment
@@ -554,6 +634,34 @@ paths:
                     expiryYear: "2027"
                     cvv: "111"
                   callbackUrl: https://example.com/callback
+        description: >-
+          Direct/inline card charge — you collect the card's PAN, expiry and CVV
+          on your own form and POST them here, instead of redirecting the
+          customer to SeerBit's hosted page (compare **Standard Checkout**,
+          which never touches raw card data on your server). Because this
+          endpoint receives raw card details, your integration is in PCI-DSS
+          scope — SeerBit's hosted **Standard Checkout** flow is the
+          lower-compliance-burden alternative most integrators should default
+          to.
+
+
+          **Body fields**
+
+
+          **OTP step**: many card transactions come back requiring 3DS/OTP authentication. Per the Card Payment doc page, you complete this by POSTing again to this **same** `/api/v2/payments/initiates` URL with a body shaped like:
+
+          ```json
+
+          {
+            "transaction": {
+              "linkingreference": "<from initial response>",
+              "otp": "<code entered by customer>"
+            }
+          }
+
+          ```
+
+          Then poll **Check Payment Status** (Payment Query folder) with `paymentReference` to confirm the final state.
       responses:
         "200":
           description: Successful response
@@ -564,20 +672,8 @@ paths:
       tags:
         - PAYMENT METHODS
       summary: Bank Account Payment
-      description: >-
-        Initiates a direct bank-account debit: the customer authorizes a charge
-        straight from their bank account (via account number + bank code) rather
-        than a card, USSD code, or transfer-in.
-
-
-        **Not confirmed against doc.seerbit.com** — two details on the Bank Account Payment doc page could not be pinned down and are flagged rather than guessed:
-
-        1. The exact `paymentType` value for this flow (unlike `CARD`/`USSD`/`TRANSFER`/`MOMO`, the doc page doesn't spell this one out explicitly) — placeholder left in the sample body above; check the dashboard/API response or contact SeerBit support to confirm before using this request.
-
-        2. The doc page references a separate **`/payments/validate`** endpoint for the OTP/authorization step, but doesn't give its full URL, method, or body — this conflicts with the Card Payment page, which documents OTP validation as a second POST to this *same* `/api/v2/payments/initiates` URL with a `{"transaction": {"linkingreference":..., "otp":...}}` body. It's unclear whether Bank Account Payment genuinely uses a different endpoint or the doc page is just describing the same flow loosely.
-
-
-        **Body fields** (`accountNumber` + `bankCode` identify the account to debit; other fields match Card Payment). Verify the `paymentType` value and validation step directly with SeerBit before relying on this request.
+      description: Initiate direct payments by card, bank account, transfer, USSD, or
+        mobile money.
       operationId: post_bank-account-payment_10
       servers:
         - url: https://seerbitapi.com
@@ -587,6 +683,31 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                publicKey:
+                  type: string
+                amount:
+                  type: string
+                currency:
+                  type: string
+                country:
+                  type: string
+                paymentReference:
+                  type: string
+                email:
+                  type: string
+                fullName:
+                  type: string
+                paymentType:
+                  type: string
+                  description: Confirm the value for this flow with SeerBit before sending the
+                    request.
+                accountNumber:
+                  type: string
+                bankCode:
+                  type: string
+                callbackUrl:
+                  type: string
             examples:
               bank-account-payment:
                 summary: Bank Account Payment
@@ -598,10 +719,24 @@ paths:
                   paymentReference: payment_reference_bank1
                   email: customer@example.com
                   fullName: Jane Doe
-                  paymentType: "**Not confirmed** — see description"
+                  paymentType: <confirm paymentType>
                   accountNumber: "0000000000"
                   bankCode: "058"
                   callbackUrl: https://example.com/callback
+        description: >-
+          Initiates a direct bank-account debit: the customer authorizes a
+          charge straight from their bank account (via account number + bank
+          code) rather than a card, USSD code, or transfer-in.
+
+
+          **Verification note:** Confirm these two details with SeerBit before using this request:
+
+          1. The exact `paymentType` value for this flow. The available documentation does not specify it, so the sample uses `<confirm paymentType>` as a placeholder.
+
+          2. The OTP/authorization endpoint. The documentation references **`/payments/validate`** without specifying its full URL, method, or body. The Card Payment documentation instead describes a second POST to `/api/v2/payments/initiates` with a `{"transaction": {"linkingreference":..., "otp":...}}` body; confirm which flow applies here.
+
+
+          **Body fields** (`accountNumber` + `bankCode` identify the account to debit; other fields match Card Payment). Verify the `paymentType` value and validation step directly with SeerBit before relying on this request.
       responses:
         "200":
           description: Successful response
@@ -612,29 +747,8 @@ paths:
       tags:
         - PAYMENT METHODS
       summary: Transfer
-      description: >-
-        Initiates a bank-transfer payment: SeerBit returns a dynamic virtual
-        account number for this transaction that the customer transfers the
-        exact amount into from their own banking app; SeerBit matches the credit
-        and confirms the transaction. This is distinct from the **Virtual
-        Accounts** folder, which provisions a *persistent* account number for a
-        customer across many transactions — this is a one-off, per-transaction
-        account.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `paymentType` | string | Yes | `TRANSFER` |
-
-        | (other fields) | | Yes | Same core fields as Card Payment |
-
-
-        Poll **Check Payment Status** (Payment Query folder) with `paymentReference`, or listen for the `transaction` webhook, to detect when the transfer lands.
+      description: Initiate direct payments by card, bank account, transfer, USSD, or
+        mobile money.
       operationId: post_transfer_11
       servers:
         - url: https://seerbitapi.com
@@ -644,6 +758,12 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                paymentType:
+                  type: string
+                  description: "`TRANSFER`"
+              required:
+                - paymentType
             examples:
               transfer:
                 summary: Transfer
@@ -657,6 +777,20 @@ paths:
                   fullName: Jane Doe
                   paymentType: TRANSFER
                   callbackUrl: https://example.com/callback
+        description: >-
+          Initiates a bank-transfer payment: SeerBit returns a dynamic virtual
+          account number for this transaction that the customer transfers the
+          exact amount into from their own banking app; SeerBit matches the
+          credit and confirms the transaction. This is distinct from the
+          **Virtual Accounts** folder, which provisions a *persistent* account
+          number for a customer across many transactions — this is a one-off,
+          per-transaction account.
+
+
+          **Body fields**
+
+
+          Poll **Check Payment Status** (Payment Query folder) with `paymentReference`, or listen for the `transaction` webhook, to detect when the transfer lands.
       responses:
         "200":
           description: Successful response
@@ -667,27 +801,8 @@ paths:
       tags:
         - PAYMENT METHODS
       summary: USSD Payment
-      description: >-
-        Initiates a USSD payment: SeerBit returns a USSD string (e.g.
-        `*723*...#`) the customer dials on their phone from the bank account
-        linked to `bankCode` to authorize the debit — no card or app needed.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `paymentType` | string | Yes | `USSD` |
-
-        | `bankCode` | string | Yes | Bank's USSD routing code, e.g. `058` for GTBank |
-
-        | (other fields) | | Yes | Same `publicKey`/`amount`/`currency`/`country`/`paymentReference`/`email`/`fullName`/`callbackUrl` as Card Payment |
-
-
-        The initial response includes the USSD code to display to the customer. Poll **Check Payment Status** (Payment Query folder) with `paymentReference` — there's no separate OTP step; authorization happens on the phone via the USSD session itself.
+      description: Initiate direct payments by card, bank account, transfer, USSD, or
+        mobile money.
       operationId: post_ussd-payment_12
       servers:
         - url: https://seerbitapi.com
@@ -697,6 +812,16 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                paymentType:
+                  type: string
+                  description: "`USSD`"
+                bankCode:
+                  type: string
+                  description: Bank's USSD routing code, e.g. `058` for GTBank
+              required:
+                - paymentType
+                - bankCode
             examples:
               ussd-payment:
                 summary: USSD Payment
@@ -711,6 +836,16 @@ paths:
                   paymentType: USSD
                   bankCode: "058"
                   callbackUrl: https://example.com/callback
+        description: >-
+          Initiates a USSD payment: SeerBit returns a USSD string (e.g.
+          `*723*...#`) the customer dials on their phone from the bank account
+          linked to `bankCode` to authorize the debit — no card or app needed.
+
+
+          **Body fields**
+
+
+          The initial response includes the USSD code to display to the customer. Poll **Check Payment Status** (Payment Query folder) with `paymentReference` — there's no separate OTP step; authorization happens on the phone via the USSD session itself.
       responses:
         "200":
           description: Successful response
@@ -721,31 +856,8 @@ paths:
       tags:
         - PAYMENT METHODS
       summary: Mobile Money Payment
-      description: >-
-        Initiates a mobile-money payment (e.g. MTN MoMo, AirtelTigo) — SeerBit
-        sends a prompt to the customer's phone on the given
-        `mobileNumber`/`network`, and the customer approves the debit directly
-        on their handset. Used primarily for Ghana (`GHS`) and other African
-        mobile-money markets.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `paymentType` | string | Yes | `MOMO` |
-
-        | `mobileNumber` | string | Yes | Customer's mobile-money-linked phone number |
-
-        | `network` | string | Yes | Mobile network operator, e.g. `MTN`, `AIRTELTIGO`, `VODAFONE` |
-
-        | (other fields) | | Yes | Same core fields as Card Payment |
-
-
-        Poll **Check Payment Status** (Payment Query folder) with `paymentReference` after the customer approves the prompt on their phone.
+      description: Initiate direct payments by card, bank account, transfer, USSD, or
+        mobile money.
       operationId: post_mobile-money-payment_13
       servers:
         - url: https://seerbitapi.com
@@ -755,6 +867,20 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                paymentType:
+                  type: string
+                  description: "`MOMO`"
+                mobileNumber:
+                  type: string
+                  description: Customer's mobile-money-linked phone number
+                network:
+                  type: string
+                  description: Mobile network operator, e.g. `MTN`, `AIRTELTIGO`, `VODAFONE`
+              required:
+                - paymentType
+                - mobileNumber
+                - network
             examples:
               mobile-money-payment:
                 summary: Mobile Money Payment
@@ -770,6 +896,18 @@ paths:
                   mobileNumber: "233241234567"
                   network: MTN
                   callbackUrl: https://example.com/callback
+        description: >-
+          Initiates a mobile-money payment (e.g. MTN MoMo, AirtelTigo) — SeerBit
+          sends a prompt to the customer's phone on the given
+          `mobileNumber`/`network`, and the customer approves the debit directly
+          on their handset. Used primarily for Ghana (`GHS`) and other African
+          mobile-money markets.
+
+
+          **Body fields**
+
+
+          Poll **Check Payment Status** (Payment Query folder) with `paymentReference` after the customer approves the prompt on their phone.
       responses:
         "200":
           description: Successful response
@@ -813,35 +951,7 @@ paths:
       tags:
         - INVOICING
       summary: Create Invoice
-      description: >-
-        Creates and sends an itemised invoice to a customer by email, without
-        you building a checkout flow. Source:
-        doc.seerbit.com/online-payment/payment-features/invoicing, cross-checked
-        with the original collection (the doc page's own code samples only show
-        empty placeholder URLs, so the exact host/path is carried over from the
-        original working collection, not independently re-confirmed).
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `publicKey` | string | Yes | Merchant public key |
-
-        | `orderNo` | string | Yes | Unique order identifier |
-
-        | `dueDate` | string | Yes | Invoice due date |
-
-        | `currency` | string | Yes | Currency code, e.g. `NGN` |
-
-        | `receiversName` | string | Yes | Customer name shown on the invoice |
-
-        | `customerEmail` | string | Yes | Where the invoice is sent |
-
-        | `invoiceItems` | array | Yes | Line items, each with `itemName`, `quantity`, `rate`, `tax` (tax as a percentage) |
+      description: Create, send, retrieve, and manage merchant invoices.
       operationId: post_create-invoice_15
       servers:
         - url: https://merchant.seerbitapi.com
@@ -851,6 +961,37 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                publicKey:
+                  type: string
+                  description: Merchant public key
+                orderNo:
+                  type: string
+                  description: Unique order identifier
+                dueDate:
+                  type: string
+                  description: Invoice due date
+                currency:
+                  type: string
+                  description: Currency code, e.g. `NGN`
+                receiversName:
+                  type: string
+                  description: Customer name shown on the invoice
+                customerEmail:
+                  type: string
+                  description: Where the invoice is sent
+                invoiceItems:
+                  type: array
+                  description: Line items, each with `itemName`, `quantity`, `rate`, `tax` (tax as
+                    a percentage)
+              required:
+                - publicKey
+                - orderNo
+                - dueDate
+                - currency
+                - receiversName
+                - customerEmail
+                - invoiceItems
             examples:
               create-invoice:
                 summary: Create Invoice
@@ -870,6 +1011,17 @@ paths:
                       quantity: 4
                       rate: 100000
                       tax: 7.5
+        description: >-
+          Creates and sends an itemised invoice to a customer by email, without
+          you building a checkout flow. Source:
+          doc.seerbit.com/online-payment/payment-features/invoicing,
+          cross-checked with the original collection (the doc page's own code
+          samples only show empty placeholder URLs, so the exact host/path is
+          carried over from the original working collection, not independently
+          re-confirmed).
+
+
+          **Body fields**
       responses:
         "200":
           description: Successful response
@@ -880,14 +1032,7 @@ paths:
       tags:
         - INVOICING
       summary: Bulk Invoice Requests
-      description: >-
-        Same as *Create Invoice*, but accepts a JSON array to send multiple
-        invoices in one call. Same sourcing caveat as Create Invoice — host/path
-        carried over from the original collection, not independently
-        re-confirmed against a doc.seerbit.com code sample.
-
-
-        **Body:** array of invoice objects, each shaped like *Create Invoice*'s body (`receiversName` is optional per the saved example — the other fields are required).
+      description: Create, send, retrieve, and manage merchant invoices.
       operationId: post_bulk-invoice-requests_16
       servers:
         - url: https://merchant.seerbitapi.com
@@ -903,7 +1048,20 @@ paths:
         content:
           application/json:
             schema:
-              type: object
+              type: array
+              items:
+                type: object
+                properties:
+                  orderNo:
+                    type: string
+                  dueDate:
+                    type: string
+                  currency:
+                    type: string
+                  customerEmail:
+                    type: string
+                  invoiceItems:
+                    type: array
             examples:
               bulk-invoice-requests:
                 summary: Bulk Invoice Requests
@@ -935,6 +1093,14 @@ paths:
                         quantity: 10
                         rate: 5
                         tax: 0.5
+        description: >-
+          Same as *Create Invoice*, but accepts a JSON array to send multiple
+          invoices in one call. Same sourcing caveat as Create Invoice —
+          host/path carried over from the original collection, not independently
+          re-confirmed against a doc.seerbit.com code sample.
+
+
+          **Body:** array of invoice objects, each shaped like *Create Invoice*'s body (`receiversName` is optional per the saved example — the other fields are required).
       responses:
         "200":
           description: Successful response
@@ -1125,50 +1291,8 @@ paths:
       tags:
         - TOKENIZATION
       summary: Create Token
-      description: >-
-        Charges a card for the first time **and** saves it, returning card
-        details you can later exchange for an `authorizationCode` (via *Get Card
-        Authorization Code*) to charge the same card again without re-collecting
-        details. Requires the customer to complete 3DS/OTP authentication on
-        `redirectUrl`.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `publicKey` | string | Yes | Merchant public key |
-
-        | `amount` | string | Yes | Charge amount — minimum is currency-dependent (e.g. NGN 50, GHS 1, KES 1, USD 0.50) |
-
-        | `fullName` | string | Yes | Cardholder's name |
-
-        | `mobileNumber` | string | Yes | Customer phone number |
-
-        | `email` | string | Yes | Customer email |
-
-        | `currency` | string | Yes | Transaction currency |
-
-        | `country` | string | Yes | Country of the transaction |
-
-        | `paymentType` | string | Yes | Must be `"CARD"` |
-
-        | `cardNumber` | string | Yes | Full card number |
-
-        | `expiryMonth` | string | Yes | Two-digit expiry month (`01`–`12`) |
-
-        | `expiryYear` | string | Yes | Card expiry year |
-
-        | `cvv` | string | Yes | Card security code |
-
-        | `pin` | string | Yes | Card PIN (required by some card schemes/issuers) |
-
-        | `redirectUrl` | string | Yes | Where the customer lands after completing 3DS/OTP authentication |
-
-        | `paymentReference` | string | Yes | Unique reference you generate per transaction |
+      description: Tokenize cards and use authorization tokens for subsequent or bulk
+        charges.
       operationId: post_create-token_21
       servers:
         - url: https://seerbitapi.com
@@ -1178,6 +1302,69 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                publicKey:
+                  type: string
+                  description: Merchant public key
+                amount:
+                  type: string
+                  description: Charge amount — minimum is currency-dependent (e.g. NGN 50, GHS 1,
+                    KES 1, USD 0.50)
+                fullName:
+                  type: string
+                  description: Cardholder's name
+                mobileNumber:
+                  type: string
+                  description: Customer phone number
+                email:
+                  type: string
+                  description: Customer email
+                currency:
+                  type: string
+                  description: Transaction currency
+                country:
+                  type: string
+                  description: Country of the transaction
+                paymentType:
+                  type: string
+                  description: Must be `"CARD"`
+                cardNumber:
+                  type: string
+                  description: Full card number
+                expiryMonth:
+                  type: string
+                  description: Two-digit expiry month (`01`–`12`)
+                expiryYear:
+                  type: string
+                  description: Card expiry year
+                cvv:
+                  type: string
+                  description: Card security code
+                pin:
+                  type: string
+                  description: Card PIN (required by some card schemes/issuers)
+                redirectUrl:
+                  type: string
+                  description: Where the customer lands after completing 3DS/OTP authentication
+                paymentReference:
+                  type: string
+                  description: Unique reference you generate per transaction
+              required:
+                - publicKey
+                - amount
+                - fullName
+                - mobileNumber
+                - email
+                - currency
+                - country
+                - paymentType
+                - cardNumber
+                - expiryMonth
+                - expiryYear
+                - cvv
+                - pin
+                - redirectUrl
+                - paymentReference
             examples:
               create-token:
                 summary: Create Token
@@ -1197,6 +1384,15 @@ paths:
                   expiryYear: "25"
                   cvv: "000"
                   pin: "2222"
+        description: >-
+          Charges a card for the first time **and** saves it, returning card
+          details you can later exchange for an `authorizationCode` (via *Get
+          Card Authorization Code*) to charge the same card again without
+          re-collecting details. Requires the customer to complete 3DS/OTP
+          authentication on `redirectUrl`.
+
+
+          **Body fields**
       responses:
         "200":
           description: Successful response
@@ -1244,27 +1440,8 @@ paths:
       tags:
         - TOKENIZATION
       summary: Charge Authorization Token
-      description: >-
-        Charges a previously tokenized card using its `authorizationCode`,
-        without asking the customer for card details again. Use this for one-off
-        repeat charges; for scheduled recurring billing, use *Charge
-        Subscription* instead.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `publicKey` | string | Yes | Merchant public key |
-
-        | `amount` | string | Yes | Amount to charge |
-
-        | `paymentReference` | string | Yes | New, unique reference for this charge |
-
-        | `authorizationCode` | string | Yes | From *Get Card Authorization Code* |
+      description: Tokenize cards and use authorization tokens for subsequent or bulk
+        charges.
       operationId: post_charge-authorization-token_23
       servers:
         - url: https://seerbitapi.com
@@ -1274,6 +1451,24 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                publicKey:
+                  type: string
+                  description: Merchant public key
+                amount:
+                  type: string
+                  description: Amount to charge
+                paymentReference:
+                  type: string
+                  description: New, unique reference for this charge
+                authorizationCode:
+                  type: string
+                  description: From *Get Card Authorization Code*
+              required:
+                - publicKey
+                - amount
+                - paymentReference
+                - authorizationCode
             examples:
               charge-authorization-token:
                 summary: Charge Authorization Token
@@ -1282,6 +1477,14 @@ paths:
                   amount: "5000.00"
                   paymentReference: charge_token_ref_001
                   authorizationCode: "{{authorizationCode}}"
+        description: >-
+          Charges a previously tokenized card using its `authorizationCode`,
+          without asking the customer for card details again. Use this for
+          one-off repeat charges; for scheduled recurring billing, use *Charge
+          Subscription* instead.
+
+
+          **Body fields**
       responses:
         "200":
           description: Successful response
@@ -1292,15 +1495,8 @@ paths:
       tags:
         - TOKENIZATION
       summary: Bulk Charge Token
-      description: >-
-        Same as *Charge Authorization Token*, but accepts a JSON array so you
-        can charge many tokenized cards in one call. Each array entry needs its
-        own unique `paymentReference`. Returns a `batchId` — poll *Query Bulk
-        Charge* with it to see per-entry results, since a bulk call can
-        partially succeed.
-
-
-        **Body:** array of objects, each with the same fields as *Charge Authorization Token* (`publicKey`, `amount`, `paymentReference`, `authorizationCode`).
+      description: Tokenize cards and use authorization tokens for subsequent or bulk
+        charges.
       operationId: post_bulk-charge-token_24
       servers:
         - url: https://seerbitapi.com
@@ -1309,7 +1505,18 @@ paths:
         content:
           application/json:
             schema:
-              type: object
+              type: array
+              items:
+                type: object
+                properties:
+                  publicKey:
+                    type: string
+                  amount:
+                    type: string
+                  paymentReference:
+                    type: string
+                  authorizationCode:
+                    type: string
             examples:
               bulk-charge-token:
                 summary: Bulk Charge Token
@@ -1322,6 +1529,15 @@ paths:
                     amount: "2500.00"
                     paymentReference: bulk_ref_002
                     authorizationCode: "{{authorizationCode}}"
+        description: >-
+          Same as *Charge Authorization Token*, but accepts a JSON array so you
+          can charge many tokenized cards in one call. Each array entry needs
+          its own unique `paymentReference`. Returns a `batchId` — poll *Query
+          Bulk Charge* with it to see per-entry results, since a bulk call can
+          partially succeed.
+
+
+          **Body:** array of objects, each with the same fields as *Charge Authorization Token* (`publicKey`, `amount`, `paymentReference`, `authorizationCode`).
       responses:
         "200":
           description: Successful response
@@ -1356,41 +1572,8 @@ paths:
       tags:
         - RECURRING & SUBSCRIPTIONS
       summary: Create Plan
-      description: >-
-        Defines a recurring billing plan (amount + cadence + how many cycles to
-        run). Once created, subscribe a tokenized card to it and SeerBit charges
-        automatically on schedule. Host is `merchants.seerbitapi.com` (plural) —
-        a documented inconsistency vs. the `merchant.seerbitapi.com` (singular)
-        invoicing host, easy to mistype.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `productId` | string | Yes | Plan name/identifier |
-
-        | `productDescription` | string | Yes | Description of the plan |
-
-        | `amount` | string | Yes | Amount charged per cycle |
-
-        | `billingCycle` | string | Yes | `HOURLY`, `DAILY`, `WEEKLY`, `MONTHLY`, or `ANNUALLY` |
-
-        | `limit` | integer | Yes | Maximum number of billing cycles before the plan stops |
-
-        | `publicKey` | string | Yes | Merchant public key |
-
-        | `country` | string | Yes | Country code, e.g. `NG` |
-
-        | `currency` | string | Yes | Currency code, e.g. `NGN` |
-
-        | `allowPartialDebit` | boolean | Yes | Whether to charge whatever's available if the customer has insufficient funds for the full amount |
-
-
-        Response includes `planId`, `payUrl`, and `status: "ACTIVE"` — save `planId` for future reference.
+      description: Create and manage subscription plans, customer subscriptions, and
+        recurring charges.
       operationId: post_create-plan_26
       servers:
         - url: https://merchants.seerbitapi.com
@@ -1400,6 +1583,45 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                productId:
+                  type: string
+                  description: Plan name/identifier
+                productDescription:
+                  type: string
+                  description: Description of the plan
+                amount:
+                  type: string
+                  description: Amount charged per cycle
+                billingCycle:
+                  type: string
+                  description: "`HOURLY`, `DAILY`, `WEEKLY`, `MONTHLY`, or `ANNUALLY`"
+                limit:
+                  type: integer
+                  description: Maximum number of billing cycles before the plan stops
+                publicKey:
+                  type: string
+                  description: Merchant public key
+                country:
+                  type: string
+                  description: Country code, e.g. `NG`
+                currency:
+                  type: string
+                  description: Currency code, e.g. `NGN`
+                allowPartialDebit:
+                  type: boolean
+                  description: Whether to charge whatever's available if the customer has
+                    insufficient funds for the full amount
+              required:
+                - productId
+                - productDescription
+                - amount
+                - billingCycle
+                - limit
+                - publicKey
+                - country
+                - currency
+                - allowPartialDebit
             examples:
               create-plan:
                 summary: Create Plan
@@ -1413,6 +1635,18 @@ paths:
                   country: NG
                   currency: NGN
                   allowPartialDebit: false
+        description: >-
+          Defines a recurring billing plan (amount + cadence + how many cycles
+          to run). Once created, subscribe a tokenized card to it and SeerBit
+          charges automatically on schedule. Host is `merchants.seerbitapi.com`
+          (plural) — a documented inconsistency vs. the
+          `merchant.seerbitapi.com` (singular) invoicing host, easy to mistype.
+
+
+          **Body fields**
+
+
+          Response includes `planId`, `payUrl`, and `status: "ACTIVE"` — save `planId` for future reference.
       responses:
         "200":
           description: Successful response
@@ -1447,32 +1681,8 @@ paths:
       tags:
         - RECURRING & SUBSCRIPTIONS
       summary: Charge Subscription
-      description: >-
-        Manually triggers a charge against an existing subscription's tokenized
-        card, outside the automatic billing schedule (e.g. to bill immediately
-        rather than wait for the next cycle).
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `amount` | string | Yes | Amount to charge |
-
-        | `publicKey` | string | Yes | Merchant public key |
-
-        | `email` | string | Yes | Customer email |
-
-        | `authorizationCode` | string | Yes | From the customer's completed subscription |
-
-        | `paymentReference` | string | Yes | New, unique reference for this charge |
-
-        | `currency` | string | Yes | Currency code |
-
-        | `allowPartialDebit` | string | No | Whether to allow a partial charge on insufficient funds |
+      description: Create and manage subscription plans, customer subscriptions, and
+        recurring charges.
       operationId: post_charge-subscription_28
       servers:
         - url: https://seerbitapi.com
@@ -1482,6 +1692,35 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                amount:
+                  type: string
+                  description: Amount to charge
+                publicKey:
+                  type: string
+                  description: Merchant public key
+                email:
+                  type: string
+                  description: Customer email
+                authorizationCode:
+                  type: string
+                  description: From the customer's completed subscription
+                paymentReference:
+                  type: string
+                  description: New, unique reference for this charge
+                currency:
+                  type: string
+                  description: Currency code
+                allowPartialDebit:
+                  type: string
+                  description: Whether to allow a partial charge on insufficient funds
+              required:
+                - amount
+                - publicKey
+                - email
+                - authorizationCode
+                - paymentReference
+                - currency
             examples:
               charge-subscription:
                 summary: Charge Subscription
@@ -1493,6 +1732,13 @@ paths:
                   paymentReference: sub_charge_ref_001
                   currency: NGN
                   allowPartialDebit: false
+        description: >-
+          Manually triggers a charge against an existing subscription's
+          tokenized card, outside the automatic billing schedule (e.g. to bill
+          immediately rather than wait for the next cycle).
+
+
+          **Body fields**
       responses:
         "200":
           description: Successful response
@@ -1531,31 +1777,8 @@ paths:
       tags:
         - RECURRING & SUBSCRIPTIONS
       summary: Update Customer Subscription
-      description: >-
-        Changes an existing subscription's status or terms, identified by
-        `billingId`.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `billingId` | string | Yes | Identifies the subscription being updated |
-
-        | `publicKey` | string | Yes | Merchant public key |
-
-        | `currency` | string | Yes | Currency code |
-
-        | `country` | string | Yes | Country code |
-
-        | `amount` | string | No | New charge amount |
-
-        | `status` | string | No | `ACTIVE` or `INACTIVE` — set to `INACTIVE` to cancel future billing |
-
-        | `mobileNumber` | string | No | Update the customer's phone number on file |
+      description: Create and manage subscription plans, customer subscriptions, and
+        recurring charges.
       operationId: put_update-customer-subscription_30
       servers:
         - url: https://seerbitapi.com
@@ -1565,6 +1788,34 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                billingId:
+                  type: string
+                  description: Identifies the subscription being updated
+                publicKey:
+                  type: string
+                  description: Merchant public key
+                currency:
+                  type: string
+                  description: Currency code
+                country:
+                  type: string
+                  description: Country code
+                amount:
+                  type: string
+                  description: New charge amount
+                status:
+                  type: string
+                  description: "`ACTIVE` or `INACTIVE` — set to `INACTIVE` to cancel future
+                    billing"
+                mobileNumber:
+                  type: string
+                  description: Update the customer's phone number on file
+              required:
+                - billingId
+                - publicKey
+                - currency
+                - country
             examples:
               update-customer-subscription:
                 summary: Update Customer Subscription
@@ -1575,6 +1826,12 @@ paths:
                   amount: "100"
                   currency: NGN
                   country: NG
+        description: >-
+          Changes an existing subscription's status or terms, identified by
+          `billingId`.
+
+
+          **Body fields**
       responses:
         "200":
           description: Successful response
@@ -1585,49 +1842,7 @@ paths:
       tags:
         - PAYMENT LINKS
       summary: Create Payment Link
-      description: >-
-        Creates a hosted, shareable payment URL — send it directly to a customer
-        instead of building a checkout flow. Supports one-time links and
-        recurring links.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `status` | string | Yes | `ACTIVE` or `INACTIVE` |
-
-        | `paymentLinkName` | string | Yes | Internal name for the link |
-
-        | `description` | string | Yes | Shown to the customer on the payment page |
-
-        | `currency` | string | Yes | Currency code, e.g. `NGN` |
-
-        | `publicKey` | string | Yes | Merchant public key |
-
-        | `paymentFrequency` | string | Yes | `ONE_TIME` or `RECURRENT` |
-
-        | `requiredFields` | object | Yes | Which customer fields the payer must fill in: `address`, `amount`, `customerName`, `mobileNumber`, `invoiceNumber` (each boolean) |
-
-        | `email` | string | No | Notification email |
-
-        | `successMessage` | string | No | Shown after a successful payment |
-
-        | `customizationName` | string | No | Branding/customization preset |
-
-        | `additionalData` | string | No | Free-text metadata attached to the link |
-
-        | `linkExpirable` | boolean | No | Whether the link expires |
-
-        | `expiryDate` | string | No | Expiry date, required if `linkExpirable` is true |
-
-        | `oneTime` | boolean | No | Whether the link is invalidated after first use |
-
-
-        Response returns `paymentLinkUrl` and `paymentLinkId` — save the latter, it's needed to update or delete the link later.
+      description: Create, retrieve, update, and remove reusable payment links.
       operationId: post_create-payment-link_31
       servers:
         - url: https://seerbitapi.com
@@ -1637,6 +1852,59 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                status:
+                  type: string
+                  description: "`ACTIVE` or `INACTIVE`"
+                paymentLinkName:
+                  type: string
+                  description: Internal name for the link
+                description:
+                  type: string
+                  description: Shown to the customer on the payment page
+                currency:
+                  type: string
+                  description: Currency code, e.g. `NGN`
+                publicKey:
+                  type: string
+                  description: Merchant public key
+                paymentFrequency:
+                  type: string
+                  description: "`ONE_TIME` or `RECURRENT`"
+                requiredFields:
+                  type: string
+                  description: "Which customer fields the payer must fill in: `address`, `amount`,
+                    `customerName`, `mobileNumber`, `invoiceNumber` (each
+                    boolean)"
+                email:
+                  type: string
+                  description: Notification email
+                successMessage:
+                  type: string
+                  description: Shown after a successful payment
+                customizationName:
+                  type: string
+                  description: Branding/customization preset
+                additionalData:
+                  type: string
+                  description: Free-text metadata attached to the link
+                linkExpirable:
+                  type: boolean
+                  description: Whether the link expires
+                expiryDate:
+                  type: string
+                  description: Expiry date, required if `linkExpirable` is true
+                oneTime:
+                  type: boolean
+                  description: Whether the link is invalidated after first use
+              required:
+                - status
+                - paymentLinkName
+                - description
+                - currency
+                - publicKey
+                - paymentFrequency
+                - requiredFields
             examples:
               create-payment-link:
                 summary: Create Payment Link
@@ -1661,6 +1929,16 @@ paths:
                   linkExpirable: false
                   expiryDate: ""
                   oneTime: false
+        description: >-
+          Creates a hosted, shareable payment URL — send it directly to a
+          customer instead of building a checkout flow. Supports one-time links
+          and recurring links.
+
+
+          **Body fields**
+
+
+          Response returns `paymentLinkUrl` and `paymentLinkId` — save the latter, it's needed to update or delete the link later.
       responses:
         "200":
           description: Successful response
@@ -1670,21 +1948,7 @@ paths:
       tags:
         - PAYMENT LINKS
       summary: Update Payment Link
-      description: >-
-        Updates an existing payment link's configuration. Source:
-        doc.seerbit.com/online-payment/payment-features/payment-links.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `paymentLinkId` | string | Yes | From *Create Payment Link*'s response, or *Get Merchant Payment Links* |
-
-        | `status`, `description`, `successMessage`, `customizationName`, `paymentFrequency`, `requiredFields`, `linkExpirable`, `expiryDate`, `oneTime` | — | No | Any subset of these can be updated; omit fields you don't want to change |
+      description: Create, retrieve, update, and remove reusable payment links.
       operationId: put_update-payment-link_33
       servers:
         - url: https://seerbitapi.com
@@ -1694,6 +1958,13 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                paymentLinkId:
+                  type: string
+                  description: From *Create Payment Link*'s response, or *Get Merchant Payment
+                    Links*
+              required:
+                - paymentLinkId
             examples:
               update-payment-link:
                 summary: Update Payment Link
@@ -1716,6 +1987,12 @@ paths:
                   linkExpirable: false
                   expiryDate: ""
                   oneTime: false
+        description: >-
+          Updates an existing payment link's configuration. Source:
+          doc.seerbit.com/online-payment/payment-features/payment-links.
+
+
+          **Body fields**
       responses:
         "200":
           description: Successful response
@@ -1773,31 +2050,8 @@ paths:
       tags:
         - POCKET
       summary: Authenticate
-      description: >-
-        Logs in to a Pocket (SeerBit's wallet product) and returns a Bearer
-        token scoped to Pocket and Payout endpoints — **not** the same token as
-        `{{BearerToken}}` (the OAuth token from *Get Access Token* in the
-        Authentication folder, used everywhere else in this collection). Pocket
-        is a **separate feature from Payout**: the doc site describes Pocket as
-        sending funds between pockets, sub-pockets, or out to banks (that last
-        case *is* a payout), while the Payout folder above covers the signed,
-        OTP-gated bank-payout flow specifically — both folders share this same
-        login and the same token.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `email` | string | Yes | Pocket account email |
-
-        | `password` | string | Yes | Your **Pocket password** — not your SeerBit merchant dashboard password. This is the password for your Pocket account at flow.seerbitapi.com. |
-
-
-        Response includes `bearerToken`, `expiryTime`, and `requirePasswordChange` — check the last one and call *Change Password* if true. Save `bearerToken` as `{{pocketAuthToken}}` — the variable used on Pocket and Payout requests that require this login, kept distinct from `{{BearerToken}}` on purpose.
+      description: Authenticate and manage SeerBit Pockets, including balances,
+        sub-pockets, and internal transfers.
       operationId: post_authenticate_35
       servers:
         - url: https://seerbitapi.com
@@ -1807,12 +2061,40 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                email:
+                  type: string
+                  description: Pocket account email
+                password:
+                  type: string
+                  description: Your **Pocket password** — not your SeerBit merchant dashboard
+                    password. This is the password for your Pocket account at
+                    flow.seerbitapi.com.
+              required:
+                - email
+                - password
             examples:
               authenticate:
                 summary: Authenticate
                 value:
                   email: "{{pocketEmail}}"
                   password: "{{pocketPassword}}"
+        description: >-
+          Logs in to a Pocket (SeerBit's wallet product) and returns a Bearer
+          token scoped to Pocket and Payout endpoints — **not** the same token
+          as `{{BearerToken}}` (the OAuth token from *Get Access Token* in the
+          Authentication folder, used everywhere else in this collection).
+          Pocket is a **separate feature from Payout**: the doc site describes
+          Pocket as sending funds between pockets, sub-pockets, or out to banks
+          (that last case *is* a payout), while the Payout folder above covers
+          the signed, OTP-gated bank-payout flow specifically — both folders
+          share this same login and the same token.
+
+
+          **Body fields**
+
+
+          Response includes `bearerToken`, `expiryTime`, and `requirePasswordChange` — check the last one and call *Change Password* if true. Save `bearerToken` as `{{pocketAuthToken}}` — the variable used on Pocket and Payout requests that require this login, kept distinct from `{{BearerToken}}` on purpose.
       responses:
         "200":
           description: Successful response
@@ -1823,21 +2105,8 @@ paths:
       tags:
         - POCKET
       summary: Change Password
-      description: >-
-        Changes the Pocket account's password — required on first login if
-        *Authenticate*'s response flagged `requirePasswordChange: true`.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `currentPassword` | string | Yes | Current Pocket password |
-
-        | `newPassword` | string | Yes | New Pocket password |
+      description: Authenticate and manage SeerBit Pockets, including balances,
+        sub-pockets, and internal transfers.
       operationId: post_change-password_36
       servers:
         - url: https://seerbitapi.com
@@ -1847,12 +2116,28 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                currentPassword:
+                  type: string
+                  description: Current Pocket password
+                newPassword:
+                  type: string
+                  description: New Pocket password
+              required:
+                - currentPassword
+                - newPassword
             examples:
               change-password:
                 summary: Change Password
                 value:
                   currentPassword: "{{pocketPassword}}"
                   newPassword: "{{newPocketPassword}}"
+        description: >-
+          Changes the Pocket account's password — required on first login if
+          *Authenticate*'s response flagged `requirePasswordChange: true`.
+
+
+          **Body fields**
       responses:
         "200":
           description: Successful response
@@ -1863,35 +2148,8 @@ paths:
       tags:
         - POCKET
       summary: Add Sub-Pocket
-      description: >-
-        Creates a sub-pocket under a parent pocket — e.g. one wallet per vendor,
-        department, or customer, all rolling up to the parent. Body is an array,
-        so you can create several sub-pockets in one call.
-
-
-        **Body fields (per array entry)**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `reference` | string | Yes | Your unique reference for this sub-pocket |
-
-        | `pocketFunction` | string | Yes | e.g. `BOTH` (can send and receive) |
-
-        | `currency` | string | Yes | Currency the sub-pocket holds |
-
-        | `selfOwned` | boolean | Yes | Whether the sub-pocket belongs to you or an external owner |
-
-        | `pocketOwner` | object | Yes | `existingPocketOwner` plus `pocketOwnerDetails` (`firstName`, `lastName`, `emailAddress`, `phoneNumber`, `businessName`) |
-
-        | `tagGroup` | string | No | Grouping label |
-
-        | `tagName` | string | No | Display label |
-
-
-        Response returns the new `pocketId`, its dedicated `bankAccountNumber`/`bankAccountName`/`bankName`, and login details for the sub-pocket's own user.
+      description: Authenticate and manage SeerBit Pockets, including balances,
+        sub-pockets, and internal transfers.
       operationId: post_add-sub-pocket_37
       servers:
         - url: https://seerbitapi.com
@@ -1907,7 +2165,39 @@ paths:
         content:
           application/json:
             schema:
-              type: object
+              type: array
+              items:
+                type: object
+                properties:
+                  reference:
+                    type: string
+                    description: Your unique reference for this sub-pocket
+                  pocketFunction:
+                    type: string
+                    description: e.g. `BOTH` (can send and receive)
+                  currency:
+                    type: string
+                    description: Currency the sub-pocket holds
+                  selfOwned:
+                    type: boolean
+                    description: Whether the sub-pocket belongs to you or an external owner
+                  pocketOwner:
+                    type: string
+                    description: "`existingPocketOwner` plus `pocketOwnerDetails` (`firstName`,
+                      `lastName`, `emailAddress`, `phoneNumber`,
+                      `businessName`)"
+                  tagGroup:
+                    type: string
+                    description: Grouping label
+                  tagName:
+                    type: string
+                    description: Display label
+                required:
+                  - reference
+                  - pocketFunction
+                  - currency
+                  - selfOwned
+                  - pocketOwner
             examples:
               add-sub-pocket:
                 summary: Add Sub-Pocket
@@ -1924,6 +2214,16 @@ paths:
                         emailAddress: jane@example.com
                         phoneNumber: "08012345678"
                         businessName: Acme Ltd
+        description: >-
+          Creates a sub-pocket under a parent pocket — e.g. one wallet per
+          vendor, department, or customer, all rolling up to the parent. Body is
+          an array, so you can create several sub-pockets in one call.
+
+
+          **Body fields (per array entry)**
+
+
+          Response returns the new `pocketId`, its dedicated `bankAccountNumber`/`bankAccountName`/`bankName`, and login details for the sub-pocket's own user.
       responses:
         "200":
           description: Successful response
@@ -1934,25 +2234,8 @@ paths:
       tags:
         - POCKET
       summary: Pocket to Pocket Transfer
-      description: >-
-        Moves funds between two pockets (parent-to-sub-pocket, sub-to-sub, etc.)
-        — an internal transfer, not a bank payout.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `amount` | string | Yes | Amount to move |
-
-        | `currency` | string | Yes | Currency, must match both pockets |
-
-        | `reference` | string | Yes | Unique reference for this transfer |
-
-        | `description` | string | Yes | Free-text note |
+      description: Authenticate and manage SeerBit Pockets, including balances,
+        sub-pockets, and internal transfers.
       operationId: post_pocket-to-pocket-transfer_38
       servers:
         - url: https://seerbitapi.com
@@ -1975,6 +2258,24 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                amount:
+                  type: string
+                  description: Amount to move
+                currency:
+                  type: string
+                  description: Currency, must match both pockets
+                reference:
+                  type: string
+                  description: Unique reference for this transfer
+                description:
+                  type: string
+                  description: Free-text note
+              required:
+                - amount
+                - currency
+                - reference
+                - description
             examples:
               pocket-to-pocket-transfer:
                 summary: Pocket to Pocket Transfer
@@ -1983,6 +2284,12 @@ paths:
                   currency: NGN
                   reference: transfer_ref_001
                   description: Internal transfer
+        description: >-
+          Moves funds between two pockets (parent-to-sub-pocket, sub-to-sub,
+          etc.) — an internal transfer, not a bank payout.
+
+
+          **Body fields**
       responses:
         "200":
           description: Successful response
@@ -2138,24 +2445,8 @@ paths:
       tags:
         - PAYOUT
       summary: Account Enquiry
-      description: >-
-        Reconfirms the account holder's name for a bank account before sending a
-        payout — use it to catch a wrong account number before money moves.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `accountnumber` | string | Yes | Recipient bank account number |
-
-        | `bankcode` | string | Yes | Recipient bank's code, from *Bank List* |
-
-
-        **Note:** the payout flow (*Authenticate for Payout* → *Initiate Single/Bulk Payout* → *Confirm Payout with OTP*) doesn't call this endpoint — it goes straight from authentication to initiating the payout, with no separate account-name-confirmation step built in. Whether it's still expected to run first, is optional, or belongs to a different flow isn't stated; use it as a manual pre-check if you want extra assurance before sending funds.
+      description: Verify destination accounts and initiate or confirm external bank
+        payouts.
       operationId: post_account-enquiry_44
       servers:
         - url: https://seerbitapi.com
@@ -2165,12 +2456,31 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                accountnumber:
+                  type: string
+                  description: Recipient bank account number
+                bankcode:
+                  type: string
+                  description: Recipient bank's code, from *Bank List*
+              required:
+                - accountnumber
+                - bankcode
             examples:
               account-enquiry:
                 summary: Account Enquiry
                 value:
                   accountnumber: "0123456789"
                   bankcode: "058"
+        description: >-
+          Reconfirms the account holder's name for a bank account before sending
+          a payout — use it to catch a wrong account number before money moves.
+
+
+          **Body fields**
+
+
+          **Note:** the payout flow (*Authenticate for Payout* → *Initiate Single/Bulk Payout* → *Confirm Payout with OTP*) doesn't call this endpoint — it goes straight from authentication to initiating the payout, with no separate account-name-confirmation step built in. Whether it's still expected to run first, is optional, or belongs to a different flow isn't stated; use it as a manual pre-check if you want extra assurance before sending funds.
       responses:
         "200":
           description: Successful response
@@ -2198,39 +2508,8 @@ paths:
       tags:
         - PAYOUT
       summary: Authenticate for Payout
-      description: >-
-        Logs in with your merchant account email and Pocket password to obtain
-        the bearer token required by every other request in this payout flow.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `email` | string | Yes | Your merchant account's login email |
-
-        | `password` | string | Yes | Your **Pocket password** — not your SeerBit merchant dashboard password. This is the password for your Pocket account at flow.seerbitapi.com. |
-
-
-        **Response: 200 OK**
-
-        ```json
-
-        {
-            "data": {
-                "bearerToken": "..."
-            }
-        }
-
-        ```
-
-        Save `data.bearerToken` as `{{pocketAuthToken}}` — used as the `Authorization: Bearer` value on *Initiate Single Payout*, *Initiate Bulk Payout*, and *Confirm Payout with OTP*. This is the same login and token as *Authenticate* in the Pocket folder — kept as one shared variable, `{{pocketAuthToken}}`, and kept distinct from `{{BearerToken}}` (the OAuth token used everywhere else in this collection).
-
-
-        **Note:** this is the only endpoint in this collection that authenticates with an email/password pair rather than an API key or OAuth token.
+      description: Verify destination accounts and initiate or confirm external bank
+        payouts.
       operationId: post_authenticate-for-payout_46
       servers:
         - url: https://seerbitapi.com
@@ -2240,12 +2519,48 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                email:
+                  type: string
+                  description: Your merchant account's login email
+                password:
+                  type: string
+                  description: Your **Pocket password** — not your SeerBit merchant dashboard
+                    password. This is the password for your Pocket account at
+                    flow.seerbitapi.com.
+              required:
+                - email
+                - password
             examples:
               authenticate-for-payout:
                 summary: Authenticate for Payout
                 value:
                   email: your-merchant-login-email@example.com
                   password: your-merchant-password
+        description: >-
+          Logs in with your merchant account email and Pocket password to obtain
+          the bearer token required by every other request in this payout flow.
+
+
+          **Body fields**
+
+
+          **Response: 200 OK**
+
+          ```json
+
+          {
+              "data": {
+                  "bearerToken": "..."
+              }
+          }
+
+          ```
+
+          Save `data.bearerToken` as `{{pocketAuthToken}}` — used as the `Authorization: Bearer` value on *Initiate Single Payout*, *Initiate Bulk Payout*, and *Confirm Payout with OTP*. This is the same login and token as *Authenticate* in the Pocket folder — kept as one shared variable, `{{pocketAuthToken}}`, and kept distinct from `{{BearerToken}}` (the OAuth token used everywhere else in this collection).
+
+
+          **Note:** this is the only endpoint in this collection that authenticates with an email/password pair rather than an API key or OAuth token.
       responses:
         "200":
           description: Successful response
@@ -2256,74 +2571,8 @@ paths:
       tags:
         - PAYOUT
       summary: Initiate Single Payout
-      description: >-
-        Phase 1 of 2 — initiates a single payout. Validates the request
-        signature, encrypts the payload, and emails an OTP to the merchant; the
-        payout only moves money once that OTP is submitted to *Confirm Payout
-        with OTP*.
-
-
-        **Required headers**
-
-
-        | Header | Description |
-
-        |---|---|
-
-        | `Public-Key` | Your merchant public key (`{{publicKey}}`) |
-
-        | `X-Seerbit-Signature` | HMAC-SHA256 of the exact raw JSON request body, computed with your merchant secret key (`{{SECRET_KEY}}`), hex-encoded. |
-
-        | `Authorization` | `Bearer {{pocketAuthToken}}` — from *Authenticate for Payout* (same token as Pocket's *Authenticate*), not the OAuth `{{BearerToken}}`. |
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `pocketId` | string | Yes | The Pocket to pay out from |
-
-        | `reference` | string | Yes | Your unique reference for this payout. Re-submitting the same `reference` is idempotent — it returns the existing `payoutId` and a message that the OTP was already sent, rather than sending a new OTP. |
-
-        | `currency` | string | Yes | Currency code |
-
-        | `amount` | number | Yes | Amount to send |
-
-        | `description` | string | No | Free-text note for the payout |
-
-        | `accountNumber` | string | Yes | Recipient bank account number |
-
-        | `bankCode` | string | Yes | Recipient bank's code — see *Bank List* |
-
-
-        **Response: 202 Accepted**
-
-        ```json
-
-        {
-            "payoutId": "PV2-ABCDEF123456",
-            "status": "PENDING_OTP",
-            "message": "OTP sent to registered email. Please confirm to proceed."
-        }
-
-        ```
-
-        Save `payoutId` as the `{{payoutId}}` collection variable — it's the path parameter for *Confirm Payout with OTP*.
-
-
-        **Error responses:**
-
-        - 401 Unauthorized — missing or invalid `X-Seerbit-Signature`
-
-        - 400 Bad Request — missing `Public-Key` header
-
-        - 400 Bad Request — missing/invalid required fields (e.g. "currency is required", "amount must be positive")
-
-
-        **Note:** this flow doesn't include a separate account-name-confirmation step before initiating — call *Account Enquiry* first if you want to verify the recipient's account name.
+      description: Verify destination accounts and initiate or confirm external bank
+        payouts.
       operationId: post_initiate-single-payout_47
       servers:
         - url: https://seerbitapi.com
@@ -2333,6 +2582,38 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                pocketId:
+                  type: string
+                  description: The Pocket to pay out from
+                reference:
+                  type: string
+                  description: Your unique reference for this payout. Re-submitting the same
+                    `reference` is idempotent — it returns the existing
+                    `payoutId` and a message that the OTP was already sent,
+                    rather than sending a new OTP.
+                currency:
+                  type: string
+                  description: Currency code
+                amount:
+                  type: number
+                  description: Amount to send
+                description:
+                  type: string
+                  description: Free-text note for the payout
+                accountNumber:
+                  type: string
+                  description: Recipient bank account number
+                bankCode:
+                  type: string
+                  description: Recipient bank's code — see *Bank List*
+              required:
+                - pocketId
+                - reference
+                - currency
+                - amount
+                - accountNumber
+                - bankCode
             examples:
               initiate-single-payout:
                 summary: Initiate Single Payout
@@ -2344,6 +2625,55 @@ paths:
                   description: Single Payout API test
                   accountNumber: "0522376248"
                   bankCode: "000013"
+        description: >-
+          Phase 1 of 2 — initiates a single payout. Validates the request
+          signature, encrypts the payload, and emails an OTP to the merchant;
+          the payout only moves money once that OTP is submitted to *Confirm
+          Payout with OTP*.
+
+
+          **Required headers**
+
+
+          | Header | Description |
+
+          |---|---|
+
+          | `Public-Key` | Your merchant public key (`{{publicKey}}`) |
+
+          | `X-Seerbit-Signature` | HMAC-SHA256 of the exact raw JSON request body, computed with your merchant secret key (`{{SECRET_KEY}}`), hex-encoded. |
+
+          | `Authorization` | `Bearer {{pocketAuthToken}}` — from *Authenticate for Payout* (same token as Pocket's *Authenticate*), not the OAuth `{{BearerToken}}`. |
+
+
+          **Body fields**
+
+
+          **Response: 202 Accepted**
+
+          ```json
+
+          {
+              "payoutId": "PV2-ABCDEF123456",
+              "status": "PENDING_OTP",
+              "message": "OTP sent to registered email. Please confirm to proceed."
+          }
+
+          ```
+
+          Save `payoutId` as the `{{payoutId}}` collection variable — it's the path parameter for *Confirm Payout with OTP*.
+
+
+          **Error responses:**
+
+          - 401 Unauthorized — missing or invalid `X-Seerbit-Signature`
+
+          - 400 Bad Request — missing `Public-Key` header
+
+          - 400 Bad Request — missing/invalid required fields (e.g. "currency is required", "amount must be positive")
+
+
+          **Note:** this flow doesn't include a separate account-name-confirmation step before initiating — call *Account Enquiry* first if you want to verify the recipient's account name.
       responses:
         "200":
           description: Successful response
@@ -2354,60 +2684,8 @@ paths:
       tags:
         - PAYOUT
       summary: Confirm Payout with OTP
-      description: >-
-        Phase 2 of 2 — submits the OTP emailed to the merchant during *Initiate
-        Single Payout* / *Initiate Bulk Payout*. On success, SeerBit decrypts
-        the payload and dispatches it for processing; this is what actually
-        moves money.
-
-
-        **Path parameter**
-
-
-        | Parameter | Description |
-
-        |---|---|
-
-        | `payoutId` (in URL path) | From the Initiate call's response, saved to `{{payoutId}}` |
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `otp` | string | Yes | 6-digit code emailed to the merchant. Expires 5 minutes after being issued. It's presumably sent to the email used to log in via *Authenticate for Payout*, though this isn't stated explicitly. |
-
-
-        **Response: 200 OK**
-
-        ```json
-
-        {
-            "payoutId": "PV2-ABCDEF123456",
-            "status": "QUEUED",
-            "message": "Payout confirmed and queued for processing",
-            "batchId": "BATCH-XYZ"
-        }
-
-        ```
-
-
-        **Error responses (400):**
-
-        - Payout not found
-
-        - Unauthorized access
-
-        - Not in `PENDING_OTP` state
-
-        - OTP has expired
-
-        - Invalid OTP
-
-        - Insufficient funds
+      description: Verify destination accounts and initiate or confirm external bank
+        payouts.
       operationId: post_confirm-payout-with-otp_48
       servers:
         - url: https://seerbitapi.com
@@ -2424,11 +2702,67 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                otp:
+                  type: string
+                  description: 6-digit code emailed to the merchant. Expires 5 minutes after being
+                    issued. It's presumably sent to the email used to log in via
+                    *Authenticate for Payout*, though this isn't stated
+                    explicitly.
+              required:
+                - otp
             examples:
               confirm-payout-with-otp:
                 summary: Confirm Payout with OTP
                 value:
                   otp: "123456"
+        description: >-
+          Phase 2 of 2 — submits the OTP emailed to the merchant during
+          *Initiate Single Payout* / *Initiate Bulk Payout*. On success, SeerBit
+          decrypts the payload and dispatches it for processing; this is what
+          actually moves money.
+
+
+          **Path parameter**
+
+
+          | Parameter | Description |
+
+          |---|---|
+
+          | `payoutId` (in URL path) | From the Initiate call's response, saved to `{{payoutId}}` |
+
+
+          **Body fields**
+
+
+          **Response: 200 OK**
+
+          ```json
+
+          {
+              "payoutId": "PV2-ABCDEF123456",
+              "status": "QUEUED",
+              "message": "Payout confirmed and queued for processing",
+              "batchId": "BATCH-XYZ"
+          }
+
+          ```
+
+
+          **Error responses (400):**
+
+          - Payout not found
+
+          - Unauthorized access
+
+          - Not in `PENDING_OTP` state
+
+          - OTP has expired
+
+          - Invalid OTP
+
+          - Insufficient funds
       responses:
         "200":
           description: Successful response
@@ -2439,46 +2773,8 @@ paths:
       tags:
         - PAYOUT
       summary: Initiate Bulk Payout
-      description: >-
-        Phase 1 of 2 — initiates a payout to multiple recipients in one call,
-        sharing a single OTP confirmation. Same endpoint as *Initiate Single
-        Payout*; a non-empty `transfers` array is what puts the request in bulk
-        mode.
-
-
-        **Required headers:** same as *Initiate Single Payout* — `Public-Key`, `X-Seerbit-Signature` (HMAC-SHA256 of the raw body using `{{SECRET_KEY}}`), `Authorization: Bearer {{pocketAuthToken}}` from *Authenticate for Payout*.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `pocketId` | string | Yes | The Pocket to pay out from |
-
-        | `batchReference` | string | Yes | Your unique reference for the whole batch. Re-submitting the same `batchReference` is idempotent — returns the existing `payoutId` rather than creating a new batch. |
-
-        | `transfers` | array | Yes | One entry per recipient — see fields below. Must be non-empty to trigger bulk mode. |
-
-        | `transfers[].reference` | string | Yes | Your unique reference for this individual transfer within the batch |
-
-        | `transfers[].currency` | string | Yes | Currency code |
-
-        | `transfers[].amount` | number | Yes | Amount to send to this recipient |
-
-        | `transfers[].description` | string | No | Free-text note for this transfer |
-
-        | `transfers[].accountNumber` | string | Yes | Recipient bank account number |
-
-        | `transfers[].bankCode` | string | Yes | Recipient bank's code — see *Bank List* |
-
-
-        **Response: 202 Accepted** — same shape as *Initiate Single Payout*: one `payoutId` for the whole batch, `status: "PENDING_OTP"`.
-
-
-        **Note:** there's no documented endpoint for checking an individual transfer's outcome within a batch — only the batch-level `batchId` returned by *Confirm Payout with OTP*.
+      description: Verify destination accounts and initiate or confirm external bank
+        payouts.
       operationId: post_initiate-bulk-payout_49
       servers:
         - url: https://seerbitapi.com
@@ -2488,6 +2784,27 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                pocketId:
+                  type: string
+                  description: The Pocket to pay out from
+                batchReference:
+                  type: string
+                  description: Your unique reference for the whole batch. Re-submitting the same
+                    `batchReference` is idempotent — returns the existing
+                    `payoutId` rather than creating a new batch.
+                transfers:
+                  type: array
+                  description: One entry per recipient — see fields below. Must be non-empty to
+                    trigger bulk mode.
+                "transfers[]":
+                  type: string
+                  description: Your unique reference for this individual transfer within the batch
+              required:
+                - pocketId
+                - batchReference
+                - transfers
+                - transfers[]
             examples:
               initiate-bulk-payout:
                 summary: Initiate Bulk Payout
@@ -2507,6 +2824,23 @@ paths:
                       description: Payment to vendor B
                       accountNumber: "0522376248"
                       bankCode: "000013"
+        description: >-
+          Phase 1 of 2 — initiates a payout to multiple recipients in one call,
+          sharing a single OTP confirmation. Same endpoint as *Initiate Single
+          Payout*; a non-empty `transfers` array is what puts the request in
+          bulk mode.
+
+
+          **Required headers:** same as *Initiate Single Payout* — `Public-Key`, `X-Seerbit-Signature` (HMAC-SHA256 of the raw body using `{{SECRET_KEY}}`), `Authorization: Bearer {{pocketAuthToken}}` from *Authenticate for Payout*.
+
+
+          **Body fields**
+
+
+          **Response: 202 Accepted** — same shape as *Initiate Single Payout*: one `payoutId` for the whole batch, `status: "PENDING_OTP"`.
+
+
+          **Note:** there's no documented endpoint for checking an individual transfer's outcome within a batch — only the batch-level `batchId` returned by *Confirm Payout with OTP*.
       responses:
         "200":
           description: Successful response
@@ -2517,23 +2851,8 @@ paths:
       tags:
         - PARTNERS API
       summary: Partner Login
-      description: >-
-        Authenticates a SeerBit partner and returns a Bearer token for the
-        Partners API endpoints below (a separate token from the merchant
-        `BearerToken` used elsewhere in this collection). No auth required to
-        call it.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `email` | string | Yes | Partner's registered email |
-
-        | `password` | string | Yes | Partner account password |
+      description: Authenticate partner accounts and manage invited businesses,
+        commissions, and partner credentials.
       operationId: post_partner-login_50
       servers:
         - url: https://seerbitapi.com
@@ -2543,12 +2862,30 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                email:
+                  type: string
+                  description: Partner's registered email
+                password:
+                  type: string
+                  description: Partner account password
+              required:
+                - email
+                - password
             examples:
               partner-login:
                 summary: Partner Login
                 value:
                   email: partner@example.com
                   password: "{{partnerPassword}}"
+        description: >-
+          Authenticates a SeerBit partner and returns a Bearer token for the
+          Partners API endpoints below (a separate token from the merchant
+          `BearerToken` used elsewhere in this collection). No auth required to
+          call it.
+
+
+          **Body fields**
       responses:
         "200":
           description: Successful response
@@ -2559,19 +2896,8 @@ paths:
       tags:
         - PARTNERS API
       summary: Request Password Reset
-      description: >-
-        Triggers a password-reset email containing an OTP, which you then pass
-        to *Reset Password*. No auth required.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `email` | string | Yes | Registered partner email |
+      description: Authenticate partner accounts and manage invited businesses,
+        commissions, and partner credentials.
       operationId: post_request-password-reset_51
       servers:
         - url: https://seerbitapi.com
@@ -2581,11 +2907,23 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                email:
+                  type: string
+                  description: Registered partner email
+              required:
+                - email
             examples:
               request-password-reset:
                 summary: Request Password Reset
                 value:
                   email: partner@example.com
+        description: >-
+          Triggers a password-reset email containing an OTP, which you then pass
+          to *Reset Password*. No auth required.
+
+
+          **Body fields**
       responses:
         "200":
           description: Successful response
@@ -2596,23 +2934,8 @@ paths:
       tags:
         - PARTNERS API
       summary: Reset Password
-      description: >-
-        Completes a password reset using the OTP emailed by *Request Password
-        Reset*.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `email` | string | Yes | Registered partner email |
-
-        | `newPassword` | string | Yes | Minimum 8 characters, must include an uppercase letter and a special character |
-
-        | `otp` | string | Yes | Code sent by *Request Password Reset* |
+      description: Authenticate partner accounts and manage invited businesses,
+        commissions, and partner credentials.
       operationId: post_reset-password_52
       servers:
         - url: https://seerbitapi.com
@@ -2622,6 +2945,21 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                email:
+                  type: string
+                  description: Registered partner email
+                newPassword:
+                  type: string
+                  description: Minimum 8 characters, must include an uppercase letter and a
+                    special character
+                otp:
+                  type: string
+                  description: Code sent by *Request Password Reset*
+              required:
+                - email
+                - newPassword
+                - otp
             examples:
               reset-password:
                 summary: Reset Password
@@ -2629,6 +2967,12 @@ paths:
                   email: partner@example.com
                   newPassword: "{{newPartnerPassword}}"
                   otp: "123456"
+        description: >-
+          Completes a password reset using the OTP emailed by *Request Password
+          Reset*.
+
+
+          **Body fields**
       responses:
         "200":
           description: Successful response
@@ -2639,27 +2983,8 @@ paths:
       tags:
         - PARTNERS API
       summary: Invite Business
-      description: >-
-        Invites a new sub-merchant business under this partner account. Auth is
-        via a Public-Key header rather than Bearer alone.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `name` | string | Yes | Contact person's name at the business |
-
-        | `businessName` | string | Yes | Business's registered name |
-
-        | `email` | string | Yes | Business contact email — the invite is sent here |
-
-        | `countryCode` | string | Yes | Defaults to `NG`; change only if the business operates outside Nigeria |
-
-        | `partnerId` | string | Yes | Your partner ID — don't modify this |
+      description: Authenticate partner accounts and manage invited businesses,
+        commissions, and partner credentials.
       operationId: post_invite-business_53
       servers:
         - url: https://seerbitapi.com
@@ -2669,6 +2994,29 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                name:
+                  type: string
+                  description: Contact person's name at the business
+                businessName:
+                  type: string
+                  description: Business's registered name
+                email:
+                  type: string
+                  description: Business contact email — the invite is sent here
+                countryCode:
+                  type: string
+                  description: Defaults to `NG`; change only if the business operates outside
+                    Nigeria
+                partnerId:
+                  type: string
+                  description: Your partner ID — don't modify this
+              required:
+                - name
+                - businessName
+                - email
+                - countryCode
+                - partnerId
             examples:
               invite-business:
                 summary: Invite Business
@@ -2678,6 +3026,12 @@ paths:
                   email: jane@acme.com
                   countryCode: NG
                   partnerId: "{{partnerId}}"
+        description: >-
+          Invites a new sub-merchant business under this partner account. Auth
+          is via a Public-Key header rather than Bearer alone.
+
+
+          **Body fields**
       responses:
         "200":
           description: Successful response
@@ -2704,23 +3058,8 @@ paths:
       tags:
         - PARTNERS API
       summary: Set Business Commission
-      description: >-
-        Sets the commission SeerBit deducts on transactions for one sub-merchant
-        business. Auth is via a Public-Key header rather than Bearer alone.
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `businessId` | string | Yes | The sub-merchant business to set commission for |
-
-        | `mccPercentage` | number | Yes | Commission percentage charged per transaction |
-
-        | `cappedAmount` | string | Yes | Maximum commission amount per transaction, regardless of percentage |
+      description: Authenticate partner accounts and manage invited businesses,
+        commissions, and partner credentials.
       operationId: post_set-business-commission_55
       servers:
         - url: https://seerbitapi.com
@@ -2730,6 +3069,20 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                businessId:
+                  type: string
+                  description: The sub-merchant business to set commission for
+                mccPercentage:
+                  type: number
+                  description: Commission percentage charged per transaction
+                cappedAmount:
+                  type: string
+                  description: Maximum commission amount per transaction, regardless of percentage
+              required:
+                - businessId
+                - mccPercentage
+                - cappedAmount
             examples:
               set-business-commission:
                 summary: Set Business Commission
@@ -2737,6 +3090,13 @@ paths:
                   cappedAmount: "10000"
                   mccPercentage: "1.5"
                   businessId: "{{businessId}}"
+        description: >-
+          Sets the commission SeerBit deducts on transactions for one
+          sub-merchant business. Auth is via a Public-Key header rather than
+          Bearer alone.
+
+
+          **Body fields**
       responses:
         "200":
           description: Successful response
@@ -2747,21 +3107,8 @@ paths:
       tags:
         - PARTNERS API
       summary: Change Partner Password
-      description: >-
-        Changes the logged-in partner's password. Requires Bearer auth (the
-        partner token from *Partner Login*).
-
-
-        **Body fields**
-
-
-        | Field | Type | Required | Description |
-
-        |---|---|---|---|
-
-        | `currentPassword` | string | Yes | Partner's current password |
-
-        | `newPassword` | string | Yes | Must meet the same complexity rules as *Reset Password* |
+      description: Authenticate partner accounts and manage invited businesses,
+        commissions, and partner credentials.
       operationId: post_change-partner-password_56
       servers:
         - url: https://seerbitapi.com
@@ -2771,12 +3118,28 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                currentPassword:
+                  type: string
+                  description: Partner's current password
+                newPassword:
+                  type: string
+                  description: Must meet the same complexity rules as *Reset Password*
+              required:
+                - currentPassword
+                - newPassword
             examples:
               change-partner-password:
                 summary: Change Partner Password
                 value:
                   currentPassword: "{{partnerPassword}}"
                   newPassword: "{{newPartnerPassword}}"
+        description: >-
+          Changes the logged-in partner's password. Requires Bearer auth (the
+          partner token from *Partner Login*).
+
+
+          **Body fields**
       responses:
         "200":
           description: Successful response
@@ -2787,17 +3150,8 @@ paths:
       tags:
         - WEBHOOKS (REFERENCE)
       summary: refund
-      description: >-
-        **Reference only — not a request you send.** This documents the `refund`
-        payload SeerBit POSTs to *your* configured webhook URL after the
-        matching event happens; there is nothing at SeerBit to call here. The
-        body below is the shape of what you'll receive.
-
-
-        Sent when a refund is processed against one of your transactions (full or partial, per `type`).
-
-
-        Your endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.
+      description: Reference payloads SeerBit sends to your callback URL for
+        payment-related events.
       operationId: post_refund_57
       servers:
         - url: https://seerbitapi.com
@@ -2807,6 +3161,15 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                eventType:
+                  type: string
+                eventDate:
+                  type: string
+                eventId:
+                  type: string
+                data:
+                  type: object
             examples:
               refund:
                 summary: refund
@@ -2822,6 +3185,17 @@ paths:
                     type: FULL_REFUND
                     mode: LIVE
                     updatedAt: 2026-05-01T12:55:57Z
+        description: >-
+          **Reference only — not a request you send.** This documents the
+          `refund` payload SeerBit POSTs to *your* configured webhook URL after
+          the matching event happens; there is nothing at SeerBit to call here.
+          The body below is the shape of what you'll receive.
+
+
+          Sent when a refund is processed against one of your transactions (full or partial, per `type`).
+
+
+          Your endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.
       responses:
         "200":
           description: Successful response
@@ -2832,17 +3206,8 @@ paths:
       tags:
         - WEBHOOKS (REFERENCE)
       summary: dispute
-      description: >-
-        **Reference only — not a request you send.** This documents the
-        `dispute` payload SeerBit POSTs to *your* configured webhook URL after
-        the matching event happens; there is nothing at SeerBit to call here.
-        The body below is the shape of what you'll receive.
-
-
-        Sent when a chargeback/dispute is raised against one of your transactions; `evidence` carries whatever supporting material is attached.
-
-
-        Your endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.
+      description: Reference payloads SeerBit sends to your callback URL for
+        payment-related events.
       operationId: post_dispute_58
       servers:
         - url: https://seerbitapi.com
@@ -2852,6 +3217,15 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                eventType:
+                  type: string
+                eventDate:
+                  type: string
+                eventId:
+                  type: string
+                data:
+                  type: object
             examples:
               dispute:
                 summary: dispute
@@ -2863,6 +3237,17 @@ paths:
                     evidence:
                       - images:
                           - image: https://example.com/evidence1.png
+        description: >-
+          **Reference only — not a request you send.** This documents the
+          `dispute` payload SeerBit POSTs to *your* configured webhook URL after
+          the matching event happens; there is nothing at SeerBit to call here.
+          The body below is the shape of what you'll receive.
+
+
+          Sent when a chargeback/dispute is raised against one of your transactions; `evidence` carries whatever supporting material is attached.
+
+
+          Your endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.
       responses:
         "200":
           description: Successful response
@@ -2873,17 +3258,8 @@ paths:
       tags:
         - WEBHOOKS (REFERENCE)
       summary: transaction
-      description: >-
-        **Reference only — not a request you send.** This documents the
-        `transaction` payload SeerBit POSTs to *your* configured webhook URL
-        after the matching event happens; there is nothing at SeerBit to call
-        here. The body below is the shape of what you'll receive.
-
-
-        Sent for a card payment (e.g. from Standard Checkout or Tokenization) reaching a final state — this is the async counterpart to polling *Check Payment Status*.
-
-
-        Your endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.
+      description: Reference payloads SeerBit sends to your callback URL for
+        payment-related events.
       operationId: post_transaction_59
       servers:
         - url: https://seerbitapi.com
@@ -2893,6 +3269,15 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                eventType:
+                  type: string
+                eventDate:
+                  type: string
+                eventId:
+                  type: string
+                data:
+                  type: object
             examples:
               transaction:
                 summary: transaction
@@ -2919,6 +3304,17 @@ paths:
                     code: "00"
                     createdAt: 2026-07-01T08:56:00Z
                     updatedAt: 2026-07-01T08:56:16Z
+        description: >-
+          **Reference only — not a request you send.** This documents the
+          `transaction` payload SeerBit POSTs to *your* configured webhook URL
+          after the matching event happens; there is nothing at SeerBit to call
+          here. The body below is the shape of what you'll receive.
+
+
+          Sent for a card payment (e.g. from Standard Checkout or Tokenization) reaching a final state — this is the async counterpart to polling *Check Payment Status*.
+
+
+          Your endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.
       responses:
         "200":
           description: Successful response
@@ -2929,17 +3325,8 @@ paths:
       tags:
         - WEBHOOKS (REFERENCE)
       summary: transaction.wallet
-      description: >-
-        **Reference only — not a request you send.** This documents the
-        `transaction.wallet` payload SeerBit POSTs to *your* configured webhook
-        URL after the matching event happens; there is nothing at SeerBit to
-        call here. The body below is the shape of what you'll receive.
-
-
-        Sent when a bank transfer lands on a Virtual Account or Pocket — this is what tells you a *Get Payments* or Pocket balance actually changed, without you having to poll.
-
-
-        Your endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.
+      description: Reference payloads SeerBit sends to your callback URL for
+        payment-related events.
       operationId: post_transactionwallet_60
       servers:
         - url: https://seerbitapi.com
@@ -2949,6 +3336,15 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                eventType:
+                  type: string
+                eventDate:
+                  type: string
+                eventId:
+                  type: string
+                data:
+                  type: object
             examples:
               transactionwallet:
                 summary: transaction.wallet
@@ -2976,6 +3372,18 @@ paths:
                     narration: Funding
                     createdAt: 2026-05-01T12:52:00Z
                     updatedAt: 2026-05-01T12:52:28Z
+        description: >-
+          **Reference only — not a request you send.** This documents the
+          `transaction.wallet` payload SeerBit POSTs to *your* configured
+          webhook URL after the matching event happens; there is nothing at
+          SeerBit to call here. The body below is the shape of what you'll
+          receive.
+
+
+          Sent when a bank transfer lands on a Virtual Account or Pocket — this is what tells you a *Get Payments* or Pocket balance actually changed, without you having to poll.
+
+
+          Your endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.
       responses:
         "200":
           description: Successful response
@@ -2986,18 +3394,8 @@ paths:
       tags:
         - WEBHOOKS (REFERENCE)
       summary: transaction.recurrent
-      description: >-
-        **Reference only — not a request you send.** This documents the
-        `transaction.recurrent` payload SeerBit POSTs to *your* configured
-        webhook URL after the matching event happens; there is nothing at
-        SeerBit to call here. The body below is the shape of what you'll
-        receive.
-
-
-        Sent when a subscription's scheduled charge (from *Create Plan* / *Charge Subscription*) completes.
-
-
-        Your endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.
+      description: Reference payloads SeerBit sends to your callback URL for
+        payment-related events.
       operationId: post_transactionrecurrent_61
       servers:
         - url: https://seerbitapi.com
@@ -3007,6 +3405,15 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                eventType:
+                  type: string
+                eventDate:
+                  type: string
+                eventId:
+                  type: string
+                data:
+                  type: object
             examples:
               transactionrecurrent:
                 summary: transaction.recurrent
@@ -3027,6 +3434,18 @@ paths:
                     narration: Recurrent
                     createdAt: 2026-05-01T12:50:00Z
                     updatedAt: 2026-05-01T12:50:33Z
+        description: >-
+          **Reference only — not a request you send.** This documents the
+          `transaction.recurrent` payload SeerBit POSTs to *your* configured
+          webhook URL after the matching event happens; there is nothing at
+          SeerBit to call here. The body below is the shape of what you'll
+          receive.
+
+
+          Sent when a subscription's scheduled charge (from *Create Plan* / *Charge Subscription*) completes.
+
+
+          Your endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.
       responses:
         "200":
           description: Successful response
@@ -3037,18 +3456,8 @@ paths:
       tags:
         - WEBHOOKS (REFERENCE)
       summary: transaction.recurring.debit
-      description: >-
-        **Reference only — not a request you send.** This documents the
-        `transaction.recurring.debit` payload SeerBit POSTs to *your* configured
-        webhook URL after the matching event happens; there is nothing at
-        SeerBit to call here. The body below is the shape of what you'll
-        receive.
-
-
-        Sent for a subsequent automated debit against a stored token (e.g. *Charge Authorization Token*) outside the subscription schedule.
-
-
-        Your endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.
+      description: Reference payloads SeerBit sends to your callback URL for
+        payment-related events.
       operationId: post_transactionrecurringdebit_62
       servers:
         - url: https://seerbitapi.com
@@ -3058,6 +3467,15 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                eventType:
+                  type: string
+                eventDate:
+                  type: string
+                eventId:
+                  type: string
+                data:
+                  type: object
             examples:
               transactionrecurringdebit:
                 summary: transaction.recurring.debit
@@ -3082,6 +3500,18 @@ paths:
                     paymentType: card
                     createdAt: 2026-05-01T12:55:00Z
                     updatedAt: 2026-05-01T12:55:32Z
+        description: >-
+          **Reference only — not a request you send.** This documents the
+          `transaction.recurring.debit` payload SeerBit POSTs to *your*
+          configured webhook URL after the matching event happens; there is
+          nothing at SeerBit to call here. The body below is the shape of what
+          you'll receive.
+
+
+          Sent for a subsequent automated debit against a stored token (e.g. *Charge Authorization Token*) outside the subscription schedule.
+
+
+          Your endpoint must respond with HTTP 200 within the acknowledgment window (see this folder's description for V1 vs V2 timing/format) or SeerBit will retry.
       responses:
         "200":
           description: Successful response
