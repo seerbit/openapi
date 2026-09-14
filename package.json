@@ -35,10 +35,5 @@
     "redoc-cli": "^0.9.12",
     "yaml": "^1.10.0"
   },
-  "devDependencies": {},
-  "overrides": {
-    "redoc": {
-      "styled-components": "^5.2.0"
-    }
-  }
+  "devDependencies": {}
 }

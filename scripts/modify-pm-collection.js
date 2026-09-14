@@ -2,7 +2,7 @@
  * Modify PM Collection
  * + adds variables
  * + variables' values read from openAPI spec yaml file
- *
+ * 
  * Specify optionally:
  *   -i PM Collection to be modified
  *   -a openAPI spec yaml file
@@ -21,21 +21,20 @@ const apiSpec = YAML.parse(fs.readFileSync(apiSpecFile).toString());
 
 console.log("Reading auths from examples in " + apiSpecFile);
 
-// The OpenAPI definition now keeps request samples with their operations rather
-// than in legacy named component schemas. Read the current Generate Hash sample
-// and retain Postman variables for values a user supplies at runtime.
-const hashExamples =
-  apiSpec.paths?.["/api/v2/encrypt/hashs"]?.post?.requestBody?.content?.[
-    "application/json"
-  ]?.examples;
-const hashExample = hashExamples && Object.values(hashExamples)[0]?.value;
-const specPK = hashExample?.publicKey || "{{publicKey}}";
-const specToken = "{{BearerToken}}";
+var specToken, specPK;
+try {
+  specPK = apiSpec.components.schemas.CaptureRequest.example.publicKey;
+  specToken =
+    apiSpec.components.schemas.GenerateEncryptedSecretKeyResponse.example.data
+      .EncrytedSecKey.encryptedKey;
+} catch (err) {
+  throw err;
+}
 
 console.log("Token: " + specToken);
 console.log("Username (Public Key): " + specPK);
 
-console.log("Reading converted PM Collection " + pmInputFile);
+console.log("Reading converted PM Collection " + pmInputFile)
 var convertedPMC = JSON.parse(fs.readFileSync(pmInputFile).toString());
 
 convertedPMC.variable = [
